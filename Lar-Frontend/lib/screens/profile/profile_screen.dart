@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../services/api_service.dart';
+import '../../constants/api_constants.dart';
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -13,6 +15,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   late TextEditingController _icController;
   late TextEditingController _emailController;
   late TextEditingController _phoneController;
+  late TextEditingController _addressController;
   late TextEditingController _currentPasswordController;
   late TextEditingController _newPasswordController;
   late TextEditingController _confirmPasswordController;
@@ -27,6 +30,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _icController = TextEditingController(text: authProvider.userIc ?? '');
     _emailController = TextEditingController(text: authProvider.userEmail ?? '');
     _phoneController = TextEditingController(text: authProvider.userPhone ?? '');
+    _addressController = TextEditingController(text: authProvider.userAddress ?? '');
     _currentPasswordController = TextEditingController();
     _newPasswordController = TextEditingController();
     _confirmPasswordController = TextEditingController();
@@ -38,10 +42,103 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _icController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
+    _addressController.dispose();
     _currentPasswordController.dispose();
     _newPasswordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _updateProfile() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final api = ApiService();
+
+    try {
+      final response = await api.put(ApiConstants.userProfile, {
+        'email': _emailController.text.trim(),
+        'phone_no': _phoneController.text.trim(),
+        'address': _addressController.text.trim(),
+      });
+
+      print('Profile update response: ${response.statusCode}');
+      print('Response data: ${response.data}');
+
+      if (response.data['success']) {
+        // Update AuthProvider with new data
+        authProvider.userEmail = _emailController.text.trim();
+        authProvider.userPhone = _phoneController.text.trim();
+        authProvider.userAddress = _addressController.text.trim();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Profile updated successfully')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.data['message'] ?? 'Error updating profile')),
+        );
+      }
+    } catch (e) {
+      print('Profile update error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error updating profile: $e')),
+      );
+    }
+  }
+
+  Future<void> _changePassword() async {
+    if (_currentPasswordController.text.isEmpty ||
+        _newPasswordController.text.isEmpty ||
+        _confirmPasswordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('All password fields are required')),
+      );
+      return;
+    }
+
+    if (_newPasswordController.text != _confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('New passwords do not match')),
+      );
+      return;
+    }
+
+    if (_newPasswordController.text.length < 8) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('New password must be at least 8 characters')),
+      );
+      return;
+    }
+
+    final api = ApiService();
+
+    try {
+      final response = await api.post(ApiConstants.changePassword, {
+        'current_password': _currentPasswordController.text,
+        'new_password': _newPasswordController.text,
+        'new_password_confirmation': _confirmPasswordController.text,
+      });
+
+      if (response.data['success']) {
+        // Clear password fields
+        _currentPasswordController.clear();
+        _newPasswordController.clear();
+        _confirmPasswordController.clear();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Password changed successfully')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.data['message'] ?? 'Error changing password')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error changing password: $e')),
+      );
+    }
   }
 
   @override
@@ -190,6 +287,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         },
                       ),
 
+                      SizedBox(height: 16),
+
+                      // Address
+                      Text('Address', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black87)),
+                      SizedBox(height: 8),
+                      TextFormField(
+                        controller: _addressController,
+                        maxLines: 3,
+                        decoration: InputDecoration(
+                          hintText: 'Enter your address',
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
+                      ),
+
                       SizedBox(height: 24),
 
                       // Change Password Section
@@ -253,6 +364,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         },
                       ),
 
+                      SizedBox(height: 16),
+
+                      // Change Password Button
+                      ElevatedButton(
+                        onPressed: _changePassword,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange,
+                          padding: EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
+                        child: Center(
+                          child: Text('Change Password', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)),
+                        ),
+                      ),
+
                       SizedBox(height: 24),
 
                       // Account Information Section
@@ -306,13 +432,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                       // Update Profile Button
                       ElevatedButton(
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Profile updated successfully')),
-                            );
-                          }
-                        },
+                        onPressed: _updateProfile,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: primaryGreen,
                           padding: EdgeInsets.symmetric(vertical: 14),

@@ -3,7 +3,15 @@ import '../constants/api_constants.dart';
 import '../utils/storage_util.dart';
 
 class ApiService {
-  final Dio _dio = Dio(BaseOptions(baseUrl: ApiConstants.baseUrl));
+  final Dio _dio = Dio(
+    BaseOptions(
+      baseUrl: ApiConstants.baseUrl,
+      validateStatus: (status) {
+        // Only throw on 500+ errors, allow redirects to be handled
+        return status != null && status < 500;
+      },
+    ),
+  );
 
   ApiService() {
     _dio.interceptors.add(InterceptorsWrapper(
@@ -13,6 +21,11 @@ class ApiService {
           options.headers['Authorization'] = 'Bearer $token';
         }
         return handler.next(options);
+      },
+      onError: (error, handler) {
+        print('API Error: ${error.message}');
+        print('Status Code: ${error.response?.statusCode}');
+        return handler.next(error);
       },
     ));
   }

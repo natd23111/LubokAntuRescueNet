@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\EmergencyReportController;
 use App\Http\Controllers\AidRequestController;
 use App\Http\Controllers\AdminController;
@@ -19,6 +20,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+
+    // User routes
+    Route::get('/user/profile', [UserController::class, 'show']);
+    Route::put('/user/profile', [UserController::class, 'updateProfile']);
+    Route::post('/user/change-password', [UserController::class, 'changePassword']);
+    Route::get('/user/stats', [UserController::class, 'getStats']);
+    Route::post('/auth/logout', [AuthController::class, 'logout']);
 
     // ------------------------
     // Resident Routes

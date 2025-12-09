@@ -10,6 +10,7 @@ class AuthProvider with ChangeNotifier {
   String? userIc;
   String? userEmail;
   String? userPhone;
+  String? userAddress;
 
   Future<bool> login(String email, String password) async {
     isLoading = true;
@@ -22,12 +23,14 @@ class AuthProvider with ChangeNotifier {
       });
 
       if (response.data['success']) {
-        final token = response.data['user']['token'] ?? '';
+        final token = response.data['token'] ?? '';
         userName = response.data['user']['full_name'] ?? 'User';
         userIc = response.data['user']['ic_no'] ?? '';
         userEmail = response.data['user']['email'] ?? '';
         userPhone = response.data['user']['phone_no'] ?? '';
+        userAddress = response.data['user']['address'] ?? '';
         await StorageUtil.saveToken(token);
+        print('Token saved: $token');
         isLoading = false;
         notifyListeners();
         return true;
@@ -63,6 +66,7 @@ class AuthProvider with ChangeNotifier {
       userIc = null;
       userEmail = null;
       userPhone = null;
+      userAddress = null;
       notifyListeners();
     } catch (e) {
       print('Logout error: $e');

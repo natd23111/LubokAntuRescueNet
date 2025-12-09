@@ -1,11 +1,17 @@
 class ApiConstants {
   static const baseUrl = 'http://10.0.2.2:8000/api';
-  // static const baseUrl = 'http://127.0.0.1:8000/api';
+  // static const baseUrl = 'http://192.168.0.11:8000/api';
 
   // Auth
   static const register = '/auth/register';
   static const login = '/auth/login';
   static const user = '/user';
+  static const logout = '/auth/logout';
+
+  // User Profile
+  static const userProfile = '/user/profile';
+  static const changePassword = '/user/change-password';
+  static const userStats = '/user/stats';
 
   // Emergency Reports
   static const submitEmergency = '/reports/emergency';
