@@ -37,7 +37,7 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email' => 'required',
+            'email' => 'required|email',
             'password' => 'required'
         ]);
 
@@ -50,10 +50,24 @@ class AuthController extends Controller
             ], 401);
         }
 
+        // Generate Sanctum token
+        $token = $user->createToken('api-token')->plainTextToken;
+
         return response()->json([
             'success' => true,
             'message' => 'Login successful',
-            'user' => $user
+            'user' => $user,
+            'token' => $token
+        ]);
+    }
+
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Logged out successfully'
         ]);
     }
 }
