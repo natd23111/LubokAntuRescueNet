@@ -13,6 +13,12 @@ return new class extends Migration
     {
         Schema::create('bantuan_programs', function (Blueprint $table) {
             $table->id();
+            $table->string('title');
+            $table->text('description');
+            $table->text('criteria')->nullable();
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
+            $table->enum('status', ['Active', 'Closed'])->default('Active');
             $table->timestamps();
         });
     }

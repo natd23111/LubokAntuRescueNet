@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('admin_notes', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('admin_id')->constrained('users')->onDelete('cascade');
+            $table->morphs('reportable'); // supports emergency OR aid requests
+            $table->text('note');
             $table->timestamps();
         });
     }
