@@ -12,6 +12,7 @@ class AuthController extends Controller
     {
         $request->validate([
             'full_name' => 'required|string',
+            'ic_no' => 'required|nullable|string',
             'email' => 'required|email|unique:users',
             'phone_no' => 'nullable|string',
             'address' => 'nullable|string',
@@ -20,6 +21,7 @@ class AuthController extends Controller
 
         $user = User::create([
             'full_name' => $request->full_name,
+            'ic_no' => $request->ic_no,
             'email' => $request->email,
             'phone_no' => $request->phone_no,
             'address' => $request->address,

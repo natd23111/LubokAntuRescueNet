@@ -6,6 +6,7 @@ import '../utils/storage_util.dart';
 class AuthProvider with ChangeNotifier {
   final ApiService _api = ApiService();
   bool isLoading = false;
+  String? userName;
 
   Future<bool> login(String email, String password) async {
     isLoading = true;
@@ -19,6 +20,7 @@ class AuthProvider with ChangeNotifier {
 
       if (response.data['success']) {
         final token = response.data['user']['token'] ?? '';
+        userName = response.data['user']['full_name'] ?? 'User';
         await StorageUtil.saveToken(token);
         isLoading = false;
         notifyListeners();
