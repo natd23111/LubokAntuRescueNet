@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "156255050730",
+    "project_id": "lubok-antu-rescuenet",
+    "storage_bucket": "lubok-antu-rescuenet.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:156255050730:android:e90e9c14d616173eea3093",
+        "android_client_info": {
+          "package_name": "com.example.lar"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBv9TIWbrJ-Pvg9ASav99N-r3hkMcRfDyM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
