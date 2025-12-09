@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class BantuanController extends Controller
 {
-    // Get all programs (FOR RESIDENTS & ADMINS)
+    // Get all programs (Residents & Admins)
     public function index()
     {
         return response()->json([
@@ -16,7 +16,7 @@ class BantuanController extends Controller
         ]);
     }
 
-    // Create new program (ADMIN ONLY)
+    // Create new program (Admin only)
     public function store(Request $request)
     {
         $request->validate([
@@ -24,7 +24,7 @@ class BantuanController extends Controller
             'description' => 'required',
             'criteria' => 'nullable|string',
             'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date'
+            'end_date' => 'nullable|date',
         ]);
 
         $program = BantuanProgram::create([
@@ -34,6 +34,7 @@ class BantuanController extends Controller
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
             'status' => 'Active',
+            'admin_id' => auth()->id(), // track who created it
         ]);
 
         return response()->json([
@@ -43,12 +44,15 @@ class BantuanController extends Controller
         ]);
     }
 
-    // Update bantuan program (ADMIN ONLY)
+    // Update program (Admin only)
     public function update(Request $request, $id)
     {
         $program = BantuanProgram::findOrFail($id);
 
-        $program->update($request->all());
+        $program->update(array_merge(
+            $request->all(),
+            ['admin_id' => auth()->id()]
+        ));
 
         return response()->json([
             'success' => true,
@@ -57,7 +61,7 @@ class BantuanController extends Controller
         ]);
     }
 
-    // Delete bantuan program (ADMIN ONLY)
+    // Delete program (Admin only)
     public function destroy($id)
     {
         $program = BantuanProgram::findOrFail($id);

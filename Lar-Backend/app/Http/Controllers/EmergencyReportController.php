@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\EmergencyReport;
@@ -7,6 +6,7 @@ use Illuminate\Http\Request;
 
 class EmergencyReportController extends Controller
 {
+    // Resident submits a report
     public function store(Request $request)
     {
         $request->validate([
@@ -14,7 +14,8 @@ class EmergencyReportController extends Controller
             'incident_location' => 'required',
             'description' => 'nullable|string',
             'latitude' => 'nullable',
-            'longitude' => 'nullable'
+            'longitude' => 'nullable',
+            'incident_photo' => 'nullable|string'
         ]);
 
         $report = EmergencyReport::create([
@@ -25,6 +26,9 @@ class EmergencyReportController extends Controller
             'latitude' => $request->latitude,
             'longitude' => $request->longitude,
             'incident_photo' => $request->incident_photo ?? null,
+            'status' => 'Submitted',
+            'report_type' => 'emergency',
+            'submitted_at' => now(),
         ]);
 
         return response()->json([
@@ -34,6 +38,7 @@ class EmergencyReportController extends Controller
         ]);
     }
 
+    // Resident fetches their reports
     public function myReports()
     {
         $reports = EmergencyReport::where('user_id', auth()->id())
@@ -43,6 +48,28 @@ class EmergencyReportController extends Controller
         return response()->json([
             'success' => true,
             'data' => $reports
+        ]);
+    }
+
+    // Admin updates status/remarks
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:Submitted,In Process,Completed',
+            'admin_remarks' => 'nullable|string'
+        ]);
+
+        $report = EmergencyReport::findOrFail($id);
+        $report->update([
+            'status' => $request->status,
+            'admin_remarks' => $request->admin_remarks,
+            'admin_id' => auth()->id()
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Report updated successfully',
+            'data' => $report
         ]);
     }
 }

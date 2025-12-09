@@ -18,7 +18,9 @@ return new class extends Migration
             $table->text('criteria')->nullable();
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
-            $table->enum('status', ['Active', 'Closed'])->default('Active');
+            $table->enum('status', ['Active', 'Inactive'])->default('Active');
+            $table->unsignedBigInteger('admin_id')->nullable(); // optional, admin who creates/updates
+            $table->text('admin_remarks')->nullable();
             $table->timestamps();
         });
     }
