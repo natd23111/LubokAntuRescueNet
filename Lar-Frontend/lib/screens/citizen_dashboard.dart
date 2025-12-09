@@ -4,6 +4,7 @@ import '../../providers/auth_provider.dart';
 import 'emergency/emergency_list.dart';
 import 'aid/aid_list.dart';
 import 'bantuan/bantuan_list.dart';
+import 'profile/profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -21,6 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     Widget statTile(String count, String label, Color borderColor) {
       return Container(
+        height: 120,
         padding: EdgeInsets.symmetric(vertical: 12, horizontal: 14),
         decoration: BoxDecoration(
           border: Border.all(color: borderColor.withOpacity(0.6)),
@@ -28,11 +30,13 @@ class _HomeScreenState extends State<HomeScreen> {
           color: Colors.white,
         ),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(count, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: borderColor)),
             SizedBox(height: 6),
-            Text(label, style: TextStyle(color: Colors.black54)),
+            Text(label, style: TextStyle(color: Colors.black54), textAlign: TextAlign.center),
           ],
         ),
       );
@@ -64,17 +68,17 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Color(0xFFF6F7F9),
       body: Column(
         children: [
-          // Header (full width)
+          // Header
           Container(
             color: primaryGreen,
-            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 20),
             child: Row(
               children: [
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('RescueNet', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                      Text('RescueNet', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
                       SizedBox(height: 4),
                       Text('Citizen Dashboard', style: TextStyle(color: Colors.white70)),
                     ],
@@ -97,10 +101,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   _menuItem(Icons.home, 'Dashboard', selected: true, onTap: () {
                     _toggleMenu();
                   }),
-                  _menuItem(Icons.person, 'Profile', onTap: () {}),
+                  _menuItem(Icons.person, 'Profile', onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => ProfileScreen()));
+                    _toggleMenu();
+                  }),
                   _menuItem(Icons.notifications, 'Notification Settings', onTap: () {}),
                   Divider(),
-                  _menuItem(Icons.logout, 'Logout', color: Colors.red, onTap: () {}),
+                  _menuItem(Icons.logout, 'Logout', color: Colors.red, onTap: () {
+                    _logout(context);
+                    _toggleMenu();
+                  }),
                 ],
               ),
             ),
@@ -260,6 +270,14 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _logout(BuildContext context) async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    await authProvider.logout();
+    if (mounted) {
+      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+    }
   }
 
   Widget _menuItem(IconData icon, String label, {VoidCallback? onTap, bool selected = false, Color? color}) {

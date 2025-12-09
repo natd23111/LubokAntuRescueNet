@@ -11,13 +11,13 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _icController = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isCitizen = true;
 
   @override
   void dispose() {
-    _icController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -25,10 +25,10 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _submit(AuthProvider authProvider) async {
     if (!_formKey.currentState!.validate()) return;
 
-    final ic = _icController.text.trim();
+    final email = _emailController.text.trim();
     final password = _passwordController.text;
 
-    final success = await authProvider.login(ic, password);
+    final success = await authProvider.login(email, password);
     if (success) {
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => HomeScreen()));
     } else {
@@ -113,8 +113,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           SizedBox(height: 14),
 
                           TextFormField(
-                            controller: _icController,
-                            keyboardType: TextInputType.number,
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
                             decoration: InputDecoration(
                               labelText: 'Email',
                               hintText: 'Enter Email',

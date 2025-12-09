@@ -100,8 +100,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: primaryGreen,
-        title: Text('Register'),
-        leading: BackButton(),
+        title: Text('Register', style: TextStyle(color: Colors.white)),
+        leading: BackButton(color: Colors.white),
       ),
       body: SafeArea(
         child: SingleChildScrollView(

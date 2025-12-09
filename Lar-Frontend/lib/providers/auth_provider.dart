@@ -7,6 +7,9 @@ class AuthProvider with ChangeNotifier {
   final ApiService _api = ApiService();
   bool isLoading = false;
   String? userName;
+  String? userIc;
+  String? userEmail;
+  String? userPhone;
 
   Future<bool> login(String email, String password) async {
     isLoading = true;
@@ -21,6 +24,9 @@ class AuthProvider with ChangeNotifier {
       if (response.data['success']) {
         final token = response.data['user']['token'] ?? '';
         userName = response.data['user']['full_name'] ?? 'User';
+        userIc = response.data['user']['ic_no'] ?? '';
+        userEmail = response.data['user']['email'] ?? '';
+        userPhone = response.data['user']['phone_no'] ?? '';
         await StorageUtil.saveToken(token);
         isLoading = false;
         notifyListeners();
@@ -47,6 +53,19 @@ class AuthProvider with ChangeNotifier {
       isLoading = false;
       notifyListeners();
       return false;
+    }
+  }
+
+  Future<void> logout() async {
+    try {
+      await StorageUtil.clearToken();
+      userName = null;
+      userIc = null;
+      userEmail = null;
+      userPhone = null;
+      notifyListeners();
+    } catch (e) {
+      print('Logout error: $e');
     }
   }
 }
