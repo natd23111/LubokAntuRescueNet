@@ -102,6 +102,9 @@ php artisan key:generate
 
 5. Configure database:
 ```bash
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
 DB_DATABASE=lar_rescuenet
 DB_USERNAME=root
 DB_PASSWORD=
@@ -122,9 +125,9 @@ http://127.0.0.1:8000
 
 🔌 API Integration (Flutter ↔ Laravel)
 Base URL for Android Emulator:
-http://10.0.2.2:8000/api
+http://10.0.2.2:8000/api <--- This is working for me!
 
-Base URL for Physical Device:
+Base URL for Physical Device (Not Working for ME Nath):
 http://YOUR_LOCAL_IP:8000/api
 
 ## 📱 Flutter Setup
