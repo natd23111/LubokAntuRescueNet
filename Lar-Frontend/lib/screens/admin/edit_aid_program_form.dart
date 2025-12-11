@@ -27,15 +27,15 @@ class _EditAidProgramFormState extends State<EditAidProgramForm> {
   late DateTime startDate;
   late DateTime endDate;
   late String selectedCategory;
-  late String? selectedType;
+  late String selectedType;
   late String selectedStatus;
 
   final List<String> categories = [
     'Financial',
+    'Emergency',
     'Medical',
     'Education',
     'Housing',
-    'Food',
     'Other',
   ];
 
@@ -57,8 +57,15 @@ class _EditAidProgramFormState extends State<EditAidProgramForm> {
     aidAmountController = TextEditingController(text: widget.program.aidAmount?.toString() ?? '');
     startDate = widget.program.startDate;
     endDate = widget.program.endDate;
-    selectedCategory = widget.program.category;
-    selectedType = widget.program.programType;
+    // Ensure selectedCategory is in the categories list, otherwise use 'Financial'
+    selectedCategory = categories.contains(widget.program.category) 
+                       ? widget.program.category 
+                       : 'Financial';
+    // Ensure selectedType is in the programTypes list, otherwise use 'Monthly'
+    selectedType = (widget.program.programType != null && 
+                   programTypes.contains(widget.program.programType)) 
+                   ? widget.program.programType! 
+                   : 'Monthly';
     selectedStatus = widget.program.status == 'active' ? 'Active' : 'Inactive';
   }
 
@@ -121,7 +128,7 @@ class _EditAidProgramFormState extends State<EditAidProgramForm> {
       startDate: startDate,
       endDate: endDate,
       eligibilityCriteria: criteriaController.text,
-      programType: selectedType ?? 'Monthly',
+      programType: selectedType,
     );
 
     final provider = Provider.of<AidProgramProvider>(context, listen: false);
@@ -225,7 +232,9 @@ class _EditAidProgramFormState extends State<EditAidProgramForm> {
                   );
                 }).toList(),
                 onChanged: (value) {
-                  setState(() => selectedCategory = value ?? 'Financial');
+                  if (value != null) {
+                    setState(() => selectedCategory = value);
+                  }
                 },
               ),
             ),
@@ -349,7 +358,9 @@ class _EditAidProgramFormState extends State<EditAidProgramForm> {
                   );
                 }).toList(),
                 onChanged: (value) {
-                  setState(() => selectedType = value ?? 'Monthly');
+                  if (value != null) {
+                    setState(() => selectedType = value);
+                  }
                 },
               ),
             ),
@@ -435,7 +446,9 @@ class _EditAidProgramFormState extends State<EditAidProgramForm> {
                   );
                 }).toList(),
                 onChanged: (value) {
-                  setState(() => selectedStatus = value ?? 'Active');
+                  if (value != null) {
+                    setState(() => selectedStatus = value);
+                  }
                 },
               ),
             ),

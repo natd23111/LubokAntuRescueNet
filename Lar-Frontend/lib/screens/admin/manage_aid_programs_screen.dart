@@ -332,15 +332,19 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0E9D63).withOpacity(0.1),
+                  color: program.status == 'active' 
+                      ? const Color(0xFF0E9D63).withOpacity(0.1)
+                      : Colors.orange.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
                   program.status.toUpperCase(),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF0E9D63),
+                    color: program.status == 'active' 
+                        ? const Color(0xFF0E9D63)
+                        : Colors.orange,
                   ),
                 ),
               ),
@@ -436,6 +440,7 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
                       borderRadius: BorderRadius.circular(6),
                     ),
                     side: const BorderSide(color: Colors.red, width: 1),
+                    padding: EdgeInsets.zero,
                   ),
                   child: const Icon(
                     Icons.delete,

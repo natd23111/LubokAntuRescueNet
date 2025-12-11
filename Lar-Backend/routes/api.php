@@ -41,6 +41,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/bantuan/{id}', [BantuanController::class, 'show']);
     Route::get('/bantuan/category/{category}', [BantuanController::class, 'getByCategory']);
     Route::get('/bantuan/categories', [BantuanController::class, 'getCategories']);
+    Route::get('/bantuan/program-types', [BantuanController::class, 'getProgramTypes']);
+    Route::get('/bantuan/search', [BantuanController::class, 'search']);
+    Route::get('/bantuan/active', [BantuanController::class, 'getActive']);
     Route::get('/bantuan/stats', [BantuanController::class, 'getStats']);
 
     // ------------------------
