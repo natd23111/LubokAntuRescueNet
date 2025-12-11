@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\BantuanProgram;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -17,7 +18,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Create admin user
-        User::factory()->create([
+        $admin = User::factory()->create([
             'full_name' => 'Admin User',
             'ic_no' => '960115-12-1234',
             'email' => 'admin@rescuenet.com',
@@ -38,6 +39,62 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('password123'),
             'role' => 'resident',
             'is_active' => true,
+        ]);
+
+        // Create aid programs
+        BantuanProgram::create([
+            'title' => 'B40 Financial Assistance 2025',
+            'description' => 'Monthly financial assistance for households in the B40 category. Program provides RM200-500 monthly aid based on household income verification.',
+            'criteria' => 'Household monthly income below RM2000, Malaysian citizen with valid IC',
+            'start_date' => '2025-01-01',
+            'end_date' => '2025-12-31',
+            'status' => 'Active',
+            'admin_id' => $admin->id,
+            'admin_remarks' => 'Active program for 2025',
+        ]);
+
+        BantuanProgram::create([
+            'title' => 'Disaster Relief Fund',
+            'description' => 'Emergency assistance for residents affected by floods, landslides, and other natural disasters. Immediate cash aid and recovery support.',
+            'criteria' => 'Must be affected by natural disaster, provide proof of residence and damage',
+            'start_date' => '2024-11-01',
+            'end_date' => '2025-12-31',
+            'status' => 'Active',
+            'admin_id' => $admin->id,
+            'admin_remarks' => 'Ongoing program for disaster-affected residents',
+        ]);
+
+        BantuanProgram::create([
+            'title' => 'Medical Emergency Fund',
+            'description' => 'Assistance for medical emergencies and critical healthcare expenses. Covers hospitalization, emergency treatments, and essential medications.',
+            'criteria' => 'Diagnosed medical emergency, income below RM4000/month, valid medical documents',
+            'start_date' => '2025-01-01',
+            'end_date' => '2025-12-31',
+            'status' => 'Active',
+            'admin_id' => $admin->id,
+            'admin_remarks' => 'Medical assistance program',
+        ]);
+
+        BantuanProgram::create([
+            'title' => 'Education Scholarship Program',
+            'description' => 'Scholarships for underprivileged students pursuing primary, secondary, or tertiary education. Covers tuition fees and educational materials.',
+            'criteria' => 'Student with household income below RM3000/month, academic records required',
+            'start_date' => '2025-01-15',
+            'end_date' => '2025-12-31',
+            'status' => 'Active',
+            'admin_id' => $admin->id,
+            'admin_remarks' => 'Scholarship for deserving students',
+        ]);
+
+        BantuanProgram::create([
+            'title' => 'Housing Assistance Program',
+            'description' => 'Support for housing renovation, repairs, and construction for low-income families. Includes materials and labor support.',
+            'criteria' => 'Own residential land/house, household income below RM2500/month',
+            'start_date' => '2025-02-01',
+            'end_date' => '2025-12-31',
+            'status' => 'Inactive',
+            'admin_id' => $admin->id,
+            'admin_remarks' => 'Program suspended for budget allocation',
         ]);
     }
 }

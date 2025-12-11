@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../models/aid_program.dart';
+import '../../providers/aid_program_provider.dart';
 import 'add_aid_program_form.dart';
 
 class ManageAidProgramsScreen extends StatefulWidget {
@@ -10,72 +12,103 @@ class ManageAidProgramsScreen extends StatefulWidget {
 }
 
 class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
-  bool _showAddForm = false;
-
-  // Sample data - replace with API call
-  final List<AidProgram> _programs = [
-    AidProgram(
-      id: 'AID001',
-      title: 'B40 Financial Assistance 2025',
-      category: 'financial',
-      status: 'active',
-      startDate: DateTime(2025, 1, 1),
-      endDate: DateTime(2025, 12, 31),
-    ),
-    AidProgram(
-      id: 'AID002',
-      title: 'Disaster Relief Fund',
-      category: 'disaster',
-      status: 'active',
-      startDate: DateTime(2024, 11, 1),
-      endDate: DateTime(2025, 12, 31),
-    ),
-    AidProgram(
-      id: 'AID003',
-      title: 'Medical Emergency Fund',
-      category: 'medical',
-      status: 'active',
-      startDate: DateTime(2025, 1, 1),
-      endDate: DateTime(2025, 12, 31),
-    ),
-  ];
-
-  void _handleAddProgram(AidProgram program) {
-    setState(() {
-      _programs.add(program);
-      _showAddForm = false;
+  @override
+  void initState() {
+    super.initState();
+    // Fetch programs when screen loads
+    Future.microtask(() {
+      Provider.of<AidProgramProvider>(context, listen: false).fetchPrograms();
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Program Added Successfully!'),
-        backgroundColor: Colors.green[600],
-        duration: const Duration(seconds: 3),
-      ),
-    );
+  }
+
+  void _handleAddProgram(AidProgram program) async {
+    final provider = Provider.of<AidProgramProvider>(context, listen: false);
+    final success = await provider.createProgram(program);
+    
+    if (success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Program Added Successfully!'),
+          backgroundColor: Colors.green[600],
+          duration: const Duration(seconds: 3),
+        ),
+      );
+      Navigator.of(context).pop();
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(provider.error ?? 'Failed to add program'),
+          backgroundColor: Colors.red[600],
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
   }
 
   void _handleEditProgram(int index) {
-    // TODO: Implement edit functionality
+    final programs = Provider.of<AidProgramProvider>(context, listen: false).programs;
+    if (index >= 0 && index < programs.length) {
+      // TODO: Implement edit functionality
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Edit functionality coming soon')),
+      );
+    }
+  }
+
+  void _handleDeleteProgram(int index) async {
+    final provider = Provider.of<AidProgramProvider>(context, listen: false);
+    final programs = provider.programs;
+    
+    if (index >= 0 && index < programs.length) {
+      final program = programs[index];
+      
+      // Show confirmation dialog
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Delete Program'),
+          content: Text('Are you sure you want to delete "${program.title}"?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                final success = await provider.deleteProgram(program.id.toString());
+                
+                if (success && mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Program deleted successfully'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                } else if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(provider.error ?? 'Failed to delete'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+              child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   void _handleViewDetails(int index) {
-    // TODO: Implement view details functionality
-  }
-
-  String _getCategoryColor(String category) {
-    switch (category) {
-      case 'financial':
-        return '#0E9D63';
-      case 'disaster':
-        return '#FF6B6B';
-      case 'medical':
-        return '#4ECDC4';
-      case 'education':
-        return '#FFE66D';
-      case 'housing':
-        return '#A8E6CF';
-      default:
-        return '#0E9D63';
+    final programs = Provider.of<AidProgramProvider>(context, listen: false).programs;
+    if (index >= 0 && index < programs.length) {
+      // TODO: Implement view details functionality
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('View details coming soon')),
+      );
     }
   }
 
@@ -91,105 +124,138 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_showAddForm) {
-      return AddAidProgramForm(
-        onBack: () => setState(() => _showAddForm = false),
-        onSubmit: _handleAddProgram,
-      );
-    }
-
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF0E9D63),
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: const Text(
-          'Aid Programs',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-      ),
-      body: Column(
-        children: [
-          // Add Program Button
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () => setState(() => _showAddForm = true),
-                icon: const Icon(Icons.add),
-                label: const Text('Add New Aid Program'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0E9D63),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
+    return Consumer<AidProgramProvider>(
+      builder: (context, provider, child) {
+        return Scaffold(
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+            backgroundColor: const Color(0xFF0E9D63),
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            title: const Text(
+              'Aid Programs',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
               ),
             ),
           ),
-
-          // Programs List
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 12.0),
-                    child: Text(
-                      '${_programs.length} active program(s)',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 14,
+          body: Column(
+            children: [
+              // Add Program Button
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => AddAidProgramForm(
+                            onBack: () => Navigator.of(context).pop(),
+                            onSubmit: _handleAddProgram,
+                          ),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add New Aid Program'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF0E9D63),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
                     ),
                   ),
-                  ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: _programs.length,
-                    separatorBuilder: (context, index) => const SizedBox(height: 12),
-                    itemBuilder: (context, index) {
-                      final program = _programs[index];
-                      return _buildProgramCard(program, index);
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                ],
+                ),
               ),
-            ),
-          ),
 
-          // Back Button
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: SizedBox(
-              width: double.infinity,
-              child: TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(
-                  'Back',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 16,
+              // Programs List
+              Expanded(
+                child: provider.isLoading
+                    ? const Center(
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF0E9D63)),
+                        ),
+                      )
+                    : provider.programs.isEmpty
+                        ? Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.folder_open,
+                                  size: 64,
+                                  color: Colors.grey[300],
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'No aid programs found',
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : SingleChildScrollView(
+                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 12.0),
+                                  child: Text(
+                                    '${provider.programs.length} active program(s)',
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                                ListView.separated(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: provider.programs.length,
+                                  separatorBuilder: (context, index) => const SizedBox(height: 12),
+                                  itemBuilder: (context, index) {
+                                    final program = provider.programs[index];
+                                    return _buildProgramCard(program, index);
+                                  },
+                                ),
+                                const SizedBox(height: 20),
+                              ],
+                            ),
+                          ),
+              ),
+
+              // Back Button
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text(
+                      'Back',
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 16,
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -250,26 +316,28 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
 
           const SizedBox(height: 12),
 
-          // Category and Duration
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Category: ${_formatCategoryName(program.category)}',
+          // Description
+          if (program.description != null && program.description!.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: Text(
+                program.description!,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: 13,
                   color: Colors.grey[700],
                 ),
               ),
-              const SizedBox(height: 4),
-              Text(
-                'Duration: ${_formatDate(program.startDate)} - ${_formatDate(program.endDate)}',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey[700],
-                ),
-              ),
-            ],
+            ),
+
+          // Duration
+          Text(
+            'Duration: ${_formatDate(program.startDate)} - ${_formatDate(program.endDate)}',
+            style: TextStyle(
+              fontSize: 13,
+              color: Colors.grey[700],
+            ),
           ),
 
           const SizedBox(height: 16),
@@ -299,7 +367,7 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 8),
               Expanded(
                 child: SizedBox(
                   height: 40,
@@ -312,7 +380,7 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
                       side: BorderSide(color: Colors.grey[300]!),
                     ),
                     child: Text(
-                      'View Details',
+                      'View',
                       style: TextStyle(
                         color: Colors.grey[700],
                         fontSize: 14,
@@ -322,27 +390,29 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
                   ),
                 ),
               ),
+              const SizedBox(width: 8),
+              SizedBox(
+                height: 40,
+                width: 40,
+                child: OutlinedButton(
+                  onPressed: () => _handleDeleteProgram(index),
+                  style: OutlinedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    side: const BorderSide(color: Colors.red, width: 1),
+                  ),
+                  child: const Icon(
+                    Icons.delete,
+                    size: 18,
+                    color: Colors.red,
+                  ),
+                ),
+              ),
             ],
           ),
         ],
       ),
     );
-  }
-
-  String _formatCategoryName(String category) {
-    switch (category) {
-      case 'financial':
-        return 'Financial Aid';
-      case 'disaster':
-        return 'Disaster Relief';
-      case 'medical':
-        return 'Medical Emergency';
-      case 'education':
-        return 'Education Aid';
-      case 'housing':
-        return 'Housing Assistance';
-      default:
-        return category;
-    }
   }
 }

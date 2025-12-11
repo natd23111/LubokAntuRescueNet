@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import 'manage_aid_programs_screen.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   @override
@@ -236,9 +237,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       crossAxisSpacing: 12,
                       childAspectRatio: 0.95,
                       children: [
-                        _buildQuickAction('📋', 'Manage\nReports', Color(0xFF3B82F6)),
-                        _buildQuickAction('🤝', 'Aid\nRequests', Color(0xFFA855F7)),
-                        _buildQuickAction('📢', 'Aid\nPrograms', Color(0xFF10B981)),
+                        _buildQuickAction(context, '📋', 'Manage\nReports', Color(0xFF3B82F6), 'reports'),
+                        _buildQuickAction(context, '🤝', 'Aid\nRequests', Color(0xFFA855F7), 'requests'),
+                        _buildQuickAction(context, '📢', 'Aid\nPrograms', Color(0xFF10B981), 'programs'),
                       ],
                     ),
 
@@ -578,7 +579,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
-  Widget _buildQuickAction(String icon, String label, Color color) {
+  Widget _buildQuickAction(BuildContext context, String icon, String label, Color color, String action) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -588,7 +589,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () {},
+          onTap: () {
+            if (action == 'programs') {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ManageAidProgramsScreen(),
+                ),
+              );
+            }
+            // TODO: Add other action handlers (reports, requests)
+          },
           borderRadius: BorderRadius.circular(12),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
