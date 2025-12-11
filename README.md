@@ -127,7 +127,7 @@ http://10.0.2.2:8000/api
 Base URL for Physical Device:
 http://YOUR_LOCAL_IP:8000/api
 
-📱 Flutter Setup
+## 📱 Flutter Setup
 1. Navigate to the frontend folder:
 ```bash
 cd frontend
