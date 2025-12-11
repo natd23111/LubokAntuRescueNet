@@ -4,13 +4,7 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c73decfb-371e-4850-b835-a74b93fcf489" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Backend/app/Http/Controllers/BantuanController.php" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Backend/app/Http/Controllers/BantuanController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Backend/routes/api.php" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Backend/routes/api.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/edit_aid_program_form.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/edit_aid_program_form.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/manage_aid_programs_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/manage_aid_programs_screen.dart" afterDir="false" />
-    </list>
+    <list default="true" id="c73decfb-371e-4850-b835-a74b93fcf489" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

@@ -199,6 +199,7 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
                     label: const Text('Add New Aid Program'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF0E9D63),
+                      foregroundColor: const Color(0xFFFFFFFF),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
