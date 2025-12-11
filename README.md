@@ -125,10 +125,12 @@ http://127.0.0.1:8000
 
 🔌 API Integration (Flutter ↔ Laravel)
 Base URL for Android Emulator:
+
 http://10.0.2.2:8000/api <--- This is working for me!
 
-Base URL for Physical Device (Not Working for ME Nath):
-http://YOUR_LOCAL_IP:8000/api
+Base URL for Physical Device
+:
+http://YOUR_LOCAL_IP:8000/api <--- Not working for me!
 
 ## 📱 Flutter Setup
 1. Navigate to the frontend folder:
