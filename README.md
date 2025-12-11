@@ -78,21 +78,6 @@ LubokAntuRescueNet/
 ```
 
 ## 🛠️ Setup Instructions
-📱 Flutter Setup
-1. Navigate to the frontend folder:
-```bash
-cd frontend
-```
-
-2. Install packages:
-```bash
-flutter pub get
-```
-
-3. Run the app:
-```bash
-flutter run
-```
 
 ## 🖥️ Laravel Backend Setup
 1. Navigate to backend folder:
@@ -141,6 +126,22 @@ http://10.0.2.2:8000/api
 
 Base URL for Physical Device:
 http://YOUR_LOCAL_IP:8000/api
+
+📱 Flutter Setup
+1. Navigate to the frontend folder:
+```bash
+cd frontend
+```
+
+2. Install packages:
+```bash
+flutter pub get
+```
+
+3. Run the app:
+```bash
+flutter run
+```
 
 ## 🔥 Key API Endpoints
 Authentication
