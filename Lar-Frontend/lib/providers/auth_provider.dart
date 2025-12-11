@@ -11,6 +11,7 @@ class AuthProvider with ChangeNotifier {
   String? userEmail;
   String? userPhone;
   String? userAddress;
+  String? userRole;
   String? memberSince;
   String? userId;
   String? accountStatus;
@@ -32,8 +33,10 @@ class AuthProvider with ChangeNotifier {
         userEmail = response.data['user']['email'] ?? '';
         userPhone = response.data['user']['phone_no'] ?? '';
         userAddress = response.data['user']['address'] ?? '';
+        userRole = response.data['user']['role'] ?? 'citizen';
         await StorageUtil.saveToken(token);
         print('Token saved: $token');
+        print('User role: $userRole');
         isLoading = false;
         notifyListeners();
         return true;
@@ -85,6 +88,7 @@ class AuthProvider with ChangeNotifier {
       userEmail = null;
       userPhone = null;
       userAddress = null;
+      userRole = null;
       memberSince = null;
       userId = null;
       accountStatus = null;

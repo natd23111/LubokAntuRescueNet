@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
+import 'screens/citizen_dashboard.dart';
+import 'screens/admin/admin_dashboard_screen.dart';
 import 'providers/auth_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -37,6 +39,22 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (_) => LoginScreen(),
         '/register': (_) => RegisterScreen(),
+        '/home': (_) => HomeRouter(),
+      },
+    );
+  }
+}
+
+class HomeRouter extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<AuthProvider>(
+      builder: (context, authProvider, child) {
+        if (authProvider.userRole == 'admin') {
+          return AdminDashboardScreen();
+        }
+        // Default to citizen dashboard for all other roles
+        return HomeScreen();
       },
     );
   }
