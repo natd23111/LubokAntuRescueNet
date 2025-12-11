@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../models/aid_program.dart';
 import '../../providers/aid_program_provider.dart';
 import 'add_aid_program_form.dart';
+import 'edit_aid_program_form.dart';
 
 class ManageAidProgramsScreen extends StatefulWidget {
   const ManageAidProgramsScreen({Key? key}) : super(key: key);
@@ -48,9 +49,24 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
   void _handleEditProgram(int index) {
     final programs = Provider.of<AidProgramProvider>(context, listen: false).programs;
     if (index >= 0 && index < programs.length) {
-      // TODO: Implement edit functionality
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Edit functionality coming soon')),
+      final program = programs[index];
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => EditAidProgramForm(
+            program: program,
+            onBack: () => Navigator.of(context).pop(),
+            onSubmit: (updatedProgram) {
+              Navigator.of(context).pop();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text('Program updated successfully!'),
+                  backgroundColor: Colors.green[600],
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            },
+          ),
+        ),
       );
     }
   }
@@ -102,13 +118,30 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
     }
   }
 
-  void _handleViewDetails(int index) {
-    final programs = Provider.of<AidProgramProvider>(context, listen: false).programs;
+  void _toggleProgramStatus(int index) async {
+    final provider = Provider.of<AidProgramProvider>(context, listen: false);
+    final programs = provider.programs;
+    
     if (index >= 0 && index < programs.length) {
-      // TODO: Implement view details functionality
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('View details coming soon')),
-      );
+      final program = programs[index];
+      final success = await provider.toggleProgramStatus(program.id);
+      
+      if (success && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Program status changed to ${programs[index].status.toUpperCase()}'),
+            backgroundColor: Colors.blue[600],
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(provider.error ?? 'Failed to toggle status'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -360,37 +393,39 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
                       'Edit',
                       style: TextStyle(
                         color: Color(0xFF0E9D63),
-                        fontSize: 14,
+                        fontSize: 12,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 6),
               Expanded(
                 child: SizedBox(
                   height: 40,
                   child: OutlinedButton(
-                    onPressed: () => _handleViewDetails(index),
+                    onPressed: () => _toggleProgramStatus(index),
                     style: OutlinedButton.styleFrom(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(6),
                       ),
-                      side: BorderSide(color: Colors.grey[300]!),
+                      side: BorderSide(
+                        color: program.status == 'active' ? Colors.orange : Colors.green,
+                      ),
                     ),
                     child: Text(
-                      'View',
+                      program.status == 'active' ? 'Deactivate' : 'Activate',
                       style: TextStyle(
-                        color: Colors.grey[700],
-                        fontSize: 14,
+                        color: program.status == 'active' ? Colors.orange : Colors.green,
+                        fontSize: 12,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 6),
               SizedBox(
                 height: 40,
                 width: 40,

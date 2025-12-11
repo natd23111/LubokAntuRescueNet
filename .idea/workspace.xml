@@ -5,13 +5,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c73decfb-371e-4850-b835-a74b93fcf489" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/Lar-Frontend/lib/models/aid_program.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Lar-Frontend/lib/providers/aid_program_provider.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/add_aid_program_form.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Backend/app/Http/Controllers/UserController.php" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Backend/app/Http/Controllers/UserController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/providers/auth_provider.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/providers/auth_provider.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen_dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen_dashboard.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/profile/profile_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/profile/profile_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lar-Backend/app/Http/Controllers/BantuanController.php" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Backend/app/Http/Controllers/BantuanController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lar-Backend/app/Models/BantuanProgram.php" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Backend/app/Models/BantuanProgram.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lar-Backend/database/seeders/DatabaseSeeder.php" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Backend/database/seeders/DatabaseSeeder.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lar-Backend/routes/api.php" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Backend/routes/api.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/admin_dashboard_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/admin_dashboard_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/manage_aid_programs_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/manage_aid_programs_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/services/api_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/services/api_service.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

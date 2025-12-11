@@ -45,4 +45,8 @@ class ApiService {
   Future<Response> delete(String endpoint) async {
     return _dio.delete(endpoint);
   }
+
+  Future<Response> patch(String endpoint, Map<String, dynamic> data) async {
+    return _dio.patch(endpoint, data: data);
+  }
 }

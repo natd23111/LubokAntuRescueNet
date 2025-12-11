@@ -38,6 +38,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/aid/my', [AidRequestController::class, 'myRequests']);
 
     Route::get('/bantuan', [BantuanController::class, 'index']);
+    Route::get('/bantuan/{id}', [BantuanController::class, 'show']);
+    Route::get('/bantuan/category/{category}', [BantuanController::class, 'getByCategory']);
+    Route::get('/bantuan/categories', [BantuanController::class, 'getCategories']);
+    Route::get('/bantuan/stats', [BantuanController::class, 'getStats']);
 
     // ------------------------
     // Admin Routes
@@ -52,9 +56,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/admin/reports/aid', [AdminController::class, 'listAidRequests']);
         Route::post('/admin/reports/aid/update/{id}', [AidRequestController::class, 'updateStatus']);
 
-        // Bantuan Programs
+        // Bantuan Programs - CRUD
         Route::post('/admin/bantuan', [BantuanController::class, 'store']);
         Route::put('/admin/bantuan/{id}', [BantuanController::class, 'update']);
         Route::delete('/admin/bantuan/{id}', [BantuanController::class, 'destroy']);
+        Route::patch('/admin/bantuan/{id}/toggle-status', [BantuanController::class, 'toggleStatus']);
     });
 });

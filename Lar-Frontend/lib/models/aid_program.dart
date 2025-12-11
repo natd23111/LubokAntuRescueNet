@@ -27,12 +27,12 @@ class AidProgram {
     return AidProgram(
       id: json['id'] ?? '',
       title: json['title'] ?? '',
-      category: _mapCategoryFromStatus(json['status'] ?? 'Active'),
+      category: json['category'] ?? 'other',
       status: _mapStatusToLowerCase(json['status'] ?? 'Active'),
       startDate: json['start_date'] != null ? DateTime.parse(json['start_date']) : DateTime.now(),
       endDate: json['end_date'] != null ? DateTime.parse(json['end_date']) : DateTime.now(),
       description: json['description'],
-      aidAmount: json['aid_amount'],
+      aidAmount: json['aid_amount'] != null ? json['aid_amount'].toString() : null,
       eligibilityCriteria: json['criteria'],
       programType: json['program_type'],
     );
@@ -40,12 +40,6 @@ class AidProgram {
 
   static String _mapStatusToLowerCase(String status) {
     return status.toLowerCase();
-  }
-
-  static String _mapCategoryFromStatus(String status) {
-    // Map status to category since backend doesn't have separate category field
-    // In a real scenario, you'd add a category field to the database
-    return 'other';
   }
 
   Map<String, dynamic> toJson() {

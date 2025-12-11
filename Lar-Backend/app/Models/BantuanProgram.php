@@ -9,7 +9,10 @@ class BantuanProgram extends Model
     protected $fillable = [
         'title',
         'description',
+        'category',
         'criteria',
+        'program_type',
+        'aid_amount',
         'start_date',
         'end_date',
         'status',

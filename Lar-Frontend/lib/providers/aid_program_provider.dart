@@ -14,14 +14,22 @@ class AidProgramProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  // Fetch all aid programs
-  Future<void> fetchPrograms() async {
+  // Fetch all aid programs with filtering
+  Future<void> fetchPrograms({String? status, String? category, String? search}) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      final response = await _apiService.get('${ApiConstants.baseUrl}/bantuan');
+      final Map<String, dynamic> queryParams = {};
+      if (status != null) queryParams['status'] = status;
+      if (category != null) queryParams['category'] = category;
+      if (search != null) queryParams['search'] = search;
+
+      final uri = Uri.parse('${ApiConstants.baseUrl}/bantuan')
+          .replace(queryParameters: queryParams.isEmpty ? null : queryParams);
+
+      final response = await _apiService.get(uri.toString());
       
       if (response.statusCode == 200) {
         final data = response.data;
@@ -55,10 +63,13 @@ class AidProgramProvider extends ChangeNotifier {
         {
           'title': program.title,
           'description': program.description,
+          'category': program.category,
           'criteria': program.eligibilityCriteria,
           'start_date': program.startDate.toIso8601String().split('T')[0],
           'end_date': program.endDate.toIso8601String().split('T')[0],
           'status': program.status == 'active' ? 'Active' : program.status == 'inactive' ? 'Inactive' : 'Active',
+          'program_type': program.programType,
+          'aid_amount': program.aidAmount,
         },
       );
 
@@ -70,7 +81,7 @@ class AidProgramProvider extends ChangeNotifier {
         notifyListeners();
         return true;
       } else {
-        _error = 'Failed to create program';
+        _error = response.data['message'] ?? 'Failed to create program';
         _isLoading = false;
         notifyListeners();
         return false;
@@ -95,10 +106,13 @@ class AidProgramProvider extends ChangeNotifier {
         {
           'title': program.title,
           'description': program.description,
+          'category': program.category,
           'criteria': program.eligibilityCriteria,
           'start_date': program.startDate.toIso8601String().split('T')[0],
           'end_date': program.endDate.toIso8601String().split('T')[0],
           'status': program.status == 'active' ? 'Active' : program.status == 'inactive' ? 'Inactive' : 'Active',
+          'program_type': program.programType,
+          'aid_amount': program.aidAmount,
         },
       );
 
@@ -112,7 +126,43 @@ class AidProgramProvider extends ChangeNotifier {
         notifyListeners();
         return true;
       } else {
-        _error = 'Failed to update program';
+        _error = response.data['message'] ?? 'Failed to update program';
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      _error = 'Error: ${e.toString()}';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  // Toggle program status
+  Future<bool> toggleProgramStatus(dynamic id) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final response = await _apiService.patch(
+        '${ApiConstants.baseUrl}/admin/bantuan/$id/toggle-status',
+        {},
+      );
+
+      if (response.statusCode == 200) {
+        final updatedProgram = AidProgram.fromJson(response.data['data'] as Map<String, dynamic>);
+        final index = _programs.indexWhere((p) => p.id == id);
+        if (index != -1) {
+          _programs[index] = updatedProgram;
+        }
+        _error = null;
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      } else {
+        _error = response.data['message'] ?? 'Failed to toggle status';
         _isLoading = false;
         notifyListeners();
         return false;
