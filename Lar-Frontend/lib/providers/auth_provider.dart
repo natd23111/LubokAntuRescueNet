@@ -11,6 +11,9 @@ class AuthProvider with ChangeNotifier {
   String? userEmail;
   String? userPhone;
   String? userAddress;
+  String? memberSince;
+  String? userId;
+  String? accountStatus;
 
   Future<bool> login(String email, String password) async {
     isLoading = true;
@@ -59,6 +62,21 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  Future<void> fetchAccountInfo() async {
+    try {
+      final response = await _api.get(ApiConstants.userProfile);
+      
+      if (response.data['success']) {
+        memberSince = response.data['account_info']['member_since'];
+        userId = response.data['account_info']['user_id'];
+        accountStatus = response.data['account_info']['status'];
+        notifyListeners();
+      }
+    } catch (e) {
+      print('Error fetching account info: $e');
+    }
+  }
+
   Future<void> logout() async {
     try {
       await StorageUtil.clearToken();
@@ -67,6 +85,9 @@ class AuthProvider with ChangeNotifier {
       userEmail = null;
       userPhone = null;
       userAddress = null;
+      memberSince = null;
+      userId = null;
+      accountStatus = null;
       notifyListeners();
     } catch (e) {
       print('Logout error: $e');

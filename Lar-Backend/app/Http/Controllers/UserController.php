@@ -11,9 +11,16 @@ class UserController extends Controller
     // Get authenticated user profile
     public function show(Request $request)
     {
+        $user = $request->user();
+
         return response()->json([
             'success' => true,
-            'user' => $request->user(),
+            'user' => $user,
+            'account_info' => [
+                'member_since' => $user->created_at->format('F j, Y'),
+                'user_id' => 'USR' . str_pad($user->id, 10, '0', STR_PAD_LEFT),
+                'status' => $user->is_active ?? true ? 'Active' : 'Inactive',
+            ],
         ]);
     }
 

@@ -34,6 +34,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _currentPasswordController = TextEditingController();
     _newPasswordController = TextEditingController();
     _confirmPasswordController = TextEditingController();
+    
+    // Fetch account info
+    authProvider.fetchAccountInfo();
   }
 
   @override
@@ -382,50 +385,54 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       SizedBox(height: 24),
 
                       // Account Information Section
-                      Container(
-                        padding: EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade50,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.grey.shade200),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Account Information', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black87)),
-                            SizedBox(height: 12),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text('Member since:', style: TextStyle(color: Colors.black54)),
-                                Text('January 15, 2024', style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black87)),
-                              ],
+                      Consumer<AuthProvider>(
+                        builder: (context, authProvider, child) {
+                          return Container(
+                            padding: EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade50,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.grey.shade200),
                             ),
-                            SizedBox(height: 8),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Account Status:', style: TextStyle(color: Colors.black54)),
-                                Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: Colors.green.shade100,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Text('Active', style: TextStyle(color: Colors.green.shade700, fontSize: 12, fontWeight: FontWeight.w600)),
+                                Text('Account Information', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black87)),
+                                SizedBox(height: 12),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text('Member since:', style: TextStyle(color: Colors.black54)),
+                                    Text(authProvider.memberSince ?? 'Loading...', style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black87)),
+                                  ],
+                                ),
+                                SizedBox(height: 8),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text('Account Status:', style: TextStyle(color: Colors.black54)),
+                                    Container(
+                                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: Colors.green.shade100,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Text(authProvider.accountStatus ?? 'Loading...', style: TextStyle(color: Colors.green.shade700, fontSize: 12, fontWeight: FontWeight.w600)),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 8),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text('User ID:', style: TextStyle(color: Colors.black54)),
+                                    Text(authProvider.userId ?? 'Loading...', style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black87)),
+                                  ],
                                 ),
                               ],
                             ),
-                            SizedBox(height: 8),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text('User ID:', style: TextStyle(color: Colors.black54)),
-                                Text('USR2024001523', style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black87)),
-                              ],
-                            ),
-                          ],
-                        ),
+                          );
+                        },
                       ),
 
                       SizedBox(height: 24),

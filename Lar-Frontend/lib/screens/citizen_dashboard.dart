@@ -5,6 +5,7 @@ import 'emergency/emergency_list.dart';
 import 'aid/aid_list.dart';
 import 'bantuan/bantuan_list.dart';
 import 'profile/profile_screen.dart';
+import 'notifications/notification_settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -105,7 +106,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     Navigator.push(context, MaterialPageRoute(builder: (_) => ProfileScreen()));
                     _toggleMenu();
                   }),
-                  _menuItem(Icons.notifications, 'Notification Settings', onTap: () {}),
+                  _menuItem(Icons.notifications, 'Notification Settings', onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => NotificationSettingsScreen()));
+                    _toggleMenu();
+                  }),
                   Divider(),
                   _menuItem(Icons.logout, 'Logout', color: Colors.red, onTap: () {
                     _logout(context);
