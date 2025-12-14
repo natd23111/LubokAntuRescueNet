@@ -111,5 +111,8 @@ class DatabaseSeeder extends Seeder
             'admin_id' => $admin->id,
             'admin_remarks' => 'Program suspended for budget allocation',
         ]);
+
+        // Seed reports
+        $this->call(ReportsSeeder::class);
     }
 }

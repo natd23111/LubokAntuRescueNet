@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/reports_provider.dart';
 import 'manage_aid_programs_screen.dart';
+import 'manage_reports_screen.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   @override
@@ -593,11 +595,23 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             if (action == 'programs') {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => ManageAidProgramsScreen(),
+                  builder: (context) => const ManageAidProgramsScreen(),
+                ),
+              );
+            } else if (action == 'reports') {
+              final authProvider = Provider.of<AuthProvider>(context, listen: false);
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ChangeNotifierProvider(
+                    create: (_) => ReportsProvider(authProvider: authProvider),
+                    child: ManageReportsScreen(
+                      onBack: () => Navigator.of(context).pop(),
+                    ),
+                  ),
                 ),
               );
             }
-            // TODO: Add other action handlers (reports, requests)
+            // TODO: Add other action handlers (requests)
           },
           borderRadius: BorderRadius.circular(12),
           child: Column(

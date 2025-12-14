@@ -8,6 +8,7 @@ use App\Http\Controllers\EmergencyReportController;
 use App\Http\Controllers\AidRequestController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BantuanController;
+use App\Http\Controllers\ReportsController;
 
 // Auth routes
 Route::post('/auth/register', [AuthController::class, 'register']);
@@ -64,5 +65,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::put('/admin/bantuan/{id}', [BantuanController::class, 'update']);
         Route::delete('/admin/bantuan/{id}', [BantuanController::class, 'destroy']);
         Route::patch('/admin/bantuan/{id}/toggle-status', [BantuanController::class, 'toggleStatus']);
+
+        // Reports Management
+        Route::get('/reports', [ReportsController::class, 'index']);
+        Route::get('/reports/stats', [ReportsController::class, 'stats']);
+        Route::post('/reports', [ReportsController::class, 'store']);
+        Route::get('/reports/{id}', [ReportsController::class, 'show']);
+        Route::put('/reports/{id}', [ReportsController::class, 'update']);
+        Route::delete('/reports/{id}', [ReportsController::class, 'destroy']);
     });
 });
