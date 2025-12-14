@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
-import 'emergency/emergency_list.dart';
+import '../../providers/reports_provider.dart';
+import '../../providers/emergency_provider.dart';
 import 'aid/aid_list.dart';
 import 'bantuan/bantuan_list.dart';
 import 'profile/profile_screen.dart';
 import 'notifications/notification_settings_screen.dart';
+import 'citizen/view_reports_screen.dart';
+import 'citizen/submit_emergency_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -210,8 +213,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     mainAxisSpacing: 12,
                     physics: NeverScrollableScrollPhysics(),
                     children: [
-                      quickAction(Icons.report_problem, 'Submit Emergency', () => Navigator.push(context, MaterialPageRoute(builder: (_) => EmergencyListScreen())), Colors.redAccent),
-                      quickAction(Icons.list_alt, 'View Reports', () {}, Colors.blueAccent),
+                      quickAction(Icons.report_problem, 'Submit Emergency', () => Navigator.push(context, MaterialPageRoute(builder: (_) => SubmitEmergencyScreen(onBack: () => Navigator.pop(context)))), Colors.redAccent),
+                      quickAction(Icons.list_alt, 'View Reports', () {
+                        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ChangeNotifierProvider(
+                              create: (_) => ReportsProvider(authProvider: authProvider),
+                              child: ViewReportsScreen(),
+                            ),
+                          ),
+                        );
+                      }, Colors.blueAccent),
                       quickAction(Icons.request_page, 'Request Aid', () => Navigator.push(context, MaterialPageRoute(builder: (_) => AidListScreen())), Colors.purpleAccent),
                       quickAction(Icons.local_activity, 'Aid Programs', () => Navigator.push(context, MaterialPageRoute(builder: (_) => BantuanListScreen())), Colors.green),
                       quickAction(Icons.map, 'Map Warnings', () {}, Colors.orange),

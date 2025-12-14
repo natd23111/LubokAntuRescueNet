@@ -769,11 +769,11 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
   }
 
   Widget _buildTab(BuildContext context, String tabName, String label) {
-    return Consumer<ReportsProvider>(
-      builder: (context, provider, _) {
-        final isActive = provider.activeTab == tabName;
-        return Expanded(
-          child: GestureDetector(
+    return Expanded(
+      child: Consumer<ReportsProvider>(
+        builder: (context, provider, _) {
+          final isActive = provider.activeTab == tabName;
+          return GestureDetector(
             onTap: () => provider.setActiveTab(tabName),
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 12),
@@ -794,9 +794,9 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
                 ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 

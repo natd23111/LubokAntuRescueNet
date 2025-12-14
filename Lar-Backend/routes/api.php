@@ -14,6 +14,10 @@ use App\Http\Controllers\ReportsController;
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
 
+// Public routes (no authentication required)
+Route::get('/reports', [ReportsController::class, 'index']);
+Route::get('/reports/{id}', [ReportsController::class, 'show']);
+
 // Protected routes (requires authentication)
 Route::middleware(['auth:sanctum'])->group(function () {
 
@@ -29,11 +33,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user/stats', [UserController::class, 'getStats']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
 
+    // User's own reports
+    Route::get('/reports/my', [ReportsController::class, 'myReports']);
+
     // ------------------------
     // Resident Routes
     // ------------------------
     Route::post('/reports/emergency', [EmergencyReportController::class, 'store']);
-    Route::get('/reports/my', [EmergencyReportController::class, 'myReports']);
+    Route::get('/emergency/my', [EmergencyReportController::class, 'myReports']);
 
     Route::post('/reports/aid', [AidRequestController::class, 'store']);
     Route::get('/aid/my', [AidRequestController::class, 'myRequests']);
@@ -66,12 +73,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('/admin/bantuan/{id}', [BantuanController::class, 'destroy']);
         Route::patch('/admin/bantuan/{id}/toggle-status', [BantuanController::class, 'toggleStatus']);
 
-        // Reports Management
-        Route::get('/reports', [ReportsController::class, 'index']);
-        Route::get('/reports/stats', [ReportsController::class, 'stats']);
-        Route::post('/reports', [ReportsController::class, 'store']);
-        Route::get('/reports/{id}', [ReportsController::class, 'show']);
-        Route::put('/reports/{id}', [ReportsController::class, 'update']);
-        Route::delete('/reports/{id}', [ReportsController::class, 'destroy']);
+        // Reports Management (admin only)
+        Route::get('/admin/reports/stats', [ReportsController::class, 'stats']);
+        Route::post('/admin/reports', [ReportsController::class, 'store']);
+        Route::put('/admin/reports/{id}', [ReportsController::class, 'update']);
+        Route::delete('/admin/reports/{id}', [ReportsController::class, 'destroy']);
     });
 });

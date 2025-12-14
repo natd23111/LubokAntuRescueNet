@@ -70,6 +70,75 @@ class ReportsController extends Controller
     }
 
     /**
+     * Display reports for the authenticated user.
+     */
+    public function myReports(Request $request): JsonResponse
+    {
+        try {
+            $user = $request->user();
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not authenticated',
+                ], 401);
+            }
+
+            $query = Report::where('user_id', $user->id);
+
+            // Filter by status
+            if ($request->has('status')) {
+                $query->where('status', $request->input('status'));
+            }
+
+            // Filter by priority
+            if ($request->has('priority')) {
+                $query->where('priority', $request->input('priority'));
+            }
+
+            // Filter by type
+            if ($request->has('type')) {
+                $query->where('type', $request->input('type'));
+            }
+
+            // Search
+            if ($request->has('search')) {
+                $search = $request->input('search');
+                $query->where(function ($q) use ($search) {
+                    $q->where('title', 'like', "%{$search}%")
+                      ->orWhere('location', 'like', "%{$search}%")
+                      ->orWhere('type', 'like', "%{$search}%");
+                });
+            }
+
+            // Sorting
+            $sortBy = $request->input('sort_by', 'date_reported');
+            $sortOrder = $request->input('sort_order', 'desc');
+            $query->orderBy($sortBy, $sortOrder);
+
+            // Pagination
+            $perPage = $request->input('per_page', 15);
+            $reports = $query->paginate($perPage);
+
+            return response()->json([
+                'success' => true,
+                'data' => $reports->items(),
+                'pagination' => [
+                    'total' => $reports->total(),
+                    'per_page' => $reports->perPage(),
+                    'current_page' => $reports->currentPage(),
+                    'last_page' => $reports->lastPage(),
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching user reports: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
      * Display the specified report.
      */
     public function show($id): JsonResponse

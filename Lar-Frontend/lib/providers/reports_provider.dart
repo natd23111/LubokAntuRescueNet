@@ -18,6 +18,7 @@ class Report {
   final DateTime? dateUpdated;
   final String? adminNotes;
   final String? imageUrl;
+  final int? userId;
 
   Report({
     required this.id,
@@ -34,6 +35,7 @@ class Report {
     this.dateUpdated,
     this.adminNotes,
     this.imageUrl,
+    this.userId,
   });
 
   factory Report.fromJson(Map<String, dynamic> json) {
@@ -56,6 +58,7 @@ class Report {
           : null,
       adminNotes: json['admin_notes'],
       imageUrl: json['image_url'],
+      userId: json['user_id'],
     );
   }
 
@@ -74,26 +77,46 @@ class Report {
 
 class ReportsProvider extends ChangeNotifier {
   List<Report> _reports = [];
+  List<Report> _myReports = [];
   List<Report> _filteredReports = [];
   bool _isLoading = false;
   String? _error;
   String _activeTab = 'unresolved';
   String _searchQuery = '';
+  int? _userId;
 
   final String baseUrl = 'http://10.0.2.2:8000/api'; // Android emulator localhost
 
   List<Report> get reports => _filteredReports;
   List<Report> get allReports => _reports;
+  List<Report> get myReports => _myReports;
   bool get isLoading => _isLoading;
   String? get error => _error;
   String get activeTab => _activeTab;
 
   ReportsProvider({dynamic authProvider}) {
-    fetchReports();
+    if (authProvider != null && authProvider.userId != null) {
+      _userId = int.tryParse(authProvider.userId.toString());
+    }
+    Future.delayed(Duration.zero, () {
+      fetchReports();
+      if (_userId != null) {
+        fetchMyReports();
+      }
+    });
   }
 
   Future<Map<String, String>> _getHeaders() async {
+    print('DEBUG: Building request headers');
+    return {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    };
+  }
+
+  Future<Map<String, String>> _getAuthHeaders() async {
     final token = await StorageUtil.getToken();
+    print('DEBUG: Token retrieved: ${token != null ? "YES" : "NO"}');
     return {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
@@ -102,40 +125,84 @@ class ReportsProvider extends ChangeNotifier {
   }
 
   Future<void> fetchReports() async {
+    print('DEBUG: fetchReports() called');
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
       final headers = await _getHeaders();
+      print('DEBUG: Making request to $baseUrl/reports with headers: $headers');
+      
       final response = await http.get(
         Uri.parse('$baseUrl/reports'),
         headers: headers,
       ).timeout(const Duration(seconds: 10));
 
+      print('DEBUG: Response status code: ${response.statusCode}');
+      print('DEBUG: Response body: ${response.body}');
+
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
+        print('DEBUG: Decoded JSON: $jsonData');
         List<dynamic> data = jsonData['data'] ?? jsonData;
+        print('DEBUG: Data list length: ${data.length}');
         
         _reports = (data as List)
             .map((item) => Report.fromJson(item as Map<String, dynamic>))
             .toList();
         
+        print('DEBUG: Successfully loaded ${_reports.length} reports');
         _applyFilters();
         _error = null;
+        _isLoading = false;
+        notifyListeners();
       } else {
         _error = 'Failed to load reports: ${response.statusCode}';
+        print('DEBUG: Error - $_error');
         _isLoading = false;
         notifyListeners();
       }
     } catch (e) {
       _error = 'Error: ${e.toString()}';
+      print('DEBUG: Exception - $_error');
       _isLoading = false;
       notifyListeners();
     }
+  }
 
-    _isLoading = false;
-    notifyListeners();
+  Future<void> fetchMyReports() async {
+    print('DEBUG: fetchMyReports() called for userId: $_userId');
+    try {
+      final headers = await _getAuthHeaders();
+      print('DEBUG: Making request to $baseUrl/reports/my with headers: $headers');
+      
+      final response = await http.get(
+        Uri.parse('$baseUrl/reports/my'),
+        headers: headers,
+      ).timeout(const Duration(seconds: 10));
+
+      print('DEBUG: My Reports Response status code: ${response.statusCode}');
+      print('DEBUG: My Reports Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+        print('DEBUG: Decoded My Reports JSON: $jsonData');
+        List<dynamic> data = jsonData['data'] ?? jsonData;
+        print('DEBUG: My Reports Data list length: ${data.length}');
+        
+        _myReports = (data as List)
+            .map((item) => Report.fromJson(item as Map<String, dynamic>))
+            .toList();
+        
+        print('DEBUG: Successfully loaded ${_myReports.length} user reports');
+        notifyListeners();
+      } else {
+        print('DEBUG: Failed to load user reports: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('DEBUG: Exception fetching my reports - ${e.toString()}');
+    }
   }
 
   Future<Report?> fetchReportDetails(int reportId) async {
@@ -228,7 +295,7 @@ class ReportsProvider extends ChangeNotifier {
 
   void _applyFilters() {
     _filteredReports = _reports.where((report) {
-      // Filter by tab
+      // Filter by active tab status
       if (report.status != _activeTab) {
         return false;
       }

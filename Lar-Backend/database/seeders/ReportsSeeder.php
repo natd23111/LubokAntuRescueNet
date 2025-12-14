@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Report;
+use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -13,6 +14,47 @@ class ReportsSeeder extends Seeder
      */
     public function run(): void
     {
+        // Get some users to assign to reports
+        $users = User::where('role', 'resident')->limit(3)->get();
+
+        if ($users->isEmpty()) {
+            // If no users exist, create some test users
+            $users = [];
+            $users[] = User::firstOrCreate(
+                ['email' => 'john@example.com'],
+                [
+                    'full_name' => 'John Doe',
+                    'ic_no' => '901234-12-3456',
+                    'phone_no' => '011-9876 5432',
+                    'address' => 'Taman Sejahtera, Lubok Antu',
+                    'password' => bcrypt('password'),
+                    'role' => 'resident',
+                ]
+            );
+            $users[] = User::firstOrCreate(
+                ['email' => 'ahmad@example.com'],
+                [
+                    'full_name' => 'Ahmad Abdullah',
+                    'ic_no' => '850615-08-5678',
+                    'phone_no' => '012-3456 7890',
+                    'address' => 'Jalan Sungai Besar, Lubok Antu',
+                    'password' => bcrypt('password'),
+                    'role' => 'resident',
+                ]
+            );
+            $users[] = User::firstOrCreate(
+                ['email' => 'sarah@example.com'],
+                [
+                    'full_name' => 'Sarah Lee',
+                    'ic_no' => '880520-03-2468',
+                    'phone_no' => '014-7777 8888',
+                    'address' => 'Kampung Baru, Lubok Antu',
+                    'password' => bcrypt('password'),
+                    'role' => 'resident',
+                ]
+            );
+        }
+
         $reports = [
             [
                 'title' => 'House Fire in Taman Sejahtera',
@@ -27,6 +69,7 @@ class ReportsSeeder extends Seeder
                 'date_reported' => now()->subDays(1)->setHour(9)->setMinute(30),
                 'date_updated' => null,
                 'admin_notes' => null,
+                'user_id' => $users[0]->id ?? null,
             ],
             [
                 'title' => 'Flood in Jalan Sungai Besar',
@@ -41,6 +84,7 @@ class ReportsSeeder extends Seeder
                 'date_reported' => now()->subDays(2)->setHour(14)->setMinute(15),
                 'date_updated' => now()->subHours(3),
                 'admin_notes' => 'Emergency services deployed. Evacuation in progress.',
+                'user_id' => $users[1]->id ?? null,
             ],
             [
                 'title' => 'Medical Emergency in Kampung Meruan',
@@ -55,6 +99,7 @@ class ReportsSeeder extends Seeder
                 'date_reported' => now()->subDays(3)->setHour(11)->setMinute(00),
                 'date_updated' => now()->subDays(2)->setHour(15)->setMinute(30),
                 'admin_notes' => 'Patient transported to hospital. Status: Stable.',
+                'user_id' => $users[1]->id ?? null,
             ],
             [
                 'title' => 'Car Accident on Jalan Raya',
@@ -69,6 +114,7 @@ class ReportsSeeder extends Seeder
                 'date_reported' => now()->subHours(2)->setHour(16)->setMinute(45),
                 'date_updated' => null,
                 'admin_notes' => null,
+                'user_id' => $users[0]->id ?? null,
             ],
             [
                 'title' => 'Medical Emergency in Kampung Baru',
@@ -83,6 +129,7 @@ class ReportsSeeder extends Seeder
                 'date_reported' => now()->subHours(1)->setHour(17)->setMinute(20),
                 'date_updated' => null,
                 'admin_notes' => null,
+                'user_id' => $users[2]->id ?? null,
             ],
             [
                 'title' => 'Landslide on Bukit Tinggi Road',
@@ -97,6 +144,7 @@ class ReportsSeeder extends Seeder
                 'date_reported' => now()->subDays(1)->setHour(8)->setMinute(00),
                 'date_updated' => now()->subHours(5),
                 'admin_notes' => 'Road cordoned off. Engineering team assessing stability.',
+                'user_id' => $users[1]->id ?? null,
             ],
             [
                 'title' => 'Fire in Taman Indah',
@@ -111,6 +159,7 @@ class ReportsSeeder extends Seeder
                 'date_reported' => now()->subDays(4)->setHour(10)->setMinute(30),
                 'date_updated' => now()->subDays(3)->setHour(18)->setMinute(00),
                 'admin_notes' => 'Fire contained. No injuries. Investigation completed.',
+                'user_id' => $users[0]->id ?? null,
             ],
             [
                 'title' => 'Car Accident on Jalan Raya Utama',
@@ -125,6 +174,7 @@ class ReportsSeeder extends Seeder
                 'date_reported' => now()->subDays(5)->setHour(14)->setMinute(15),
                 'date_updated' => now()->subDays(4)->setHour(16)->setMinute(45),
                 'admin_notes' => 'Incident cleared. All parties accounted for.',
+                'user_id' => $users[2]->id ?? null,
             ],
         ];
 
