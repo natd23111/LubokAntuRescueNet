@@ -9,6 +9,7 @@ use App\Http\Controllers\AidRequestController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BantuanController;
 use App\Http\Controllers\ReportsController;
+use App\Http\Controllers\FirebaseSyncController;
 
 // Auth routes
 Route::post('/auth/register', [AuthController::class, 'register']);
@@ -17,6 +18,22 @@ Route::post('/auth/login', [AuthController::class, 'login']);
 // Public routes (no authentication required)
 Route::get('/reports', [ReportsController::class, 'index']);
 Route::get('/reports/{id}', [ReportsController::class, 'show']);
+
+// ========================
+// Firebase Sync Routes
+// ========================
+// User sync
+Route::post('/users/sync-firebase', [FirebaseSyncController::class, 'syncFirebaseUser']);
+Route::get('/users/firebase/{firebaseUid}', [FirebaseSyncController::class, 'getUserByFirebaseUid']);
+Route::get('/users/unsynced', [FirebaseSyncController::class, 'getUnsyncedUsers']);
+
+// Emergency and notification sync
+Route::post('/emergencies/sync-firebase', [FirebaseSyncController::class, 'syncEmergencyAlert']);
+Route::post('/notifications/sync-firebase', [FirebaseSyncController::class, 'syncNotification']);
+
+// Sync statistics and management
+Route::get('/sync/stats', [FirebaseSyncController::class, 'getSyncStats']);
+Route::post('/sync/resolve-conflict', [FirebaseSyncController::class, 'resolveConflict']);
 
 // Protected routes (requires authentication)
 Route::middleware(['auth:sanctum'])->group(function () {
