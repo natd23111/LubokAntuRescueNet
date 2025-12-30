@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/reports_provider.dart';
+import '../../providers/auth_provider.dart';
 
 class SubmitEmergencyScreen extends StatefulWidget {
   final VoidCallback onBack;
@@ -14,8 +17,9 @@ class SubmitEmergencyScreen extends StatefulWidget {
 
 class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
   bool showSuccess = false;
+  bool isSubmitting = false;
   String? selectedEmergencyType;
-  String reportReference = 'ER2025002';
+  String? reportReference;
 
   final TextEditingController locationController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
@@ -27,17 +31,93 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
     super.dispose();
   }
 
-  void _handleSubmit() {
-    setState(() {
-      showSuccess = true;
-    });
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) {
+  Future<void> _handleSubmit() async {
+    // Validation
+    if (selectedEmergencyType == null || selectedEmergencyType!.isEmpty) {
+      _showError('Please select an emergency type');
+      return;
+    }
+    if (locationController.text.isEmpty) {
+      _showError('Please enter a location');
+      return;
+    }
+    if (descriptionController.text.isEmpty) {
+      _showError('Please provide a description');
+      return;
+    }
+
+    setState(() => isSubmitting = true);
+
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final reportsProvider =
+          Provider.of<ReportsProvider>(context, listen: false);
+
+      // Get user info from profile
+      final userName = authProvider.userName ?? 'Anonymous';
+      final userIc = authProvider.userIc ?? '';
+      final userPhone = authProvider.userPhone ?? '';
+      
+      // Create report object with user's profile data
+      final reportData = {
+        'title': '${selectedEmergencyType} - ${locationController.text}',
+        'type': selectedEmergencyType,
+        'location': locationController.text,
+        'description': descriptionController.text,
+        'status': 'unresolved',
+        'priority': 'high',
+        'reporter_name': userName,
+        'reporter_ic': userIc,
+        'reporter_contact': userPhone,
+        'date_reported': DateTime.now().toIso8601String(),
+        'date_updated': null,
+        'admin_notes': null,
+        'image_url': null,
+        'user_id': authProvider.currentUser?.uid ?? '',
+        'created_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+      };
+
+      // Submit to Firebase
+      final reportId = await reportsProvider.createEmergencyReport(reportData);
+
+      if (reportId != null && mounted) {
         setState(() {
-          showSuccess = false;
+          showSuccess = true;
+          reportReference = reportId;
+        });
+
+        // Clear form
+        _clearForm();
+
+        // Hide success message after 3 seconds
+        Future.delayed(const Duration(seconds: 3), () {
+          if (mounted) {
+            setState(() => showSuccess = false);
+            // Navigate back
+            widget.onBack();
+          }
         });
       }
-    });
+    } catch (e) {
+      if (mounted) {
+        _showError('Error submitting report: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => isSubmitting = false);
+      }
+    }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 3),
+      ),
+    );
   }
 
   void _clearForm() {
@@ -405,7 +485,7 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _handleSubmit,
+                    onPressed: isSubmitting ? null : _handleSubmit,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF059669),
                       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -413,13 +493,23 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: const Text(
-                      'Submit Report',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    child: isSubmitting
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : const Text(
+                            'Submit Report',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                   ),
                 ),
                 const SizedBox(height: 8),

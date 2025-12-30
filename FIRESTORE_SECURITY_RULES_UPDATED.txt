@@ -1,0 +1,45 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Users can read/write their own profile
+    match /users/{userId} {
+      allow read: if request.auth.uid == userId;
+      allow write: if request.auth.uid == userId;
+    }
+    
+    // Aid programs - public read, admins only write
+    match /aid_programs/{document=**} {
+      allow read: if true;
+      allow write: if request.auth != null && 
+                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // Emergency reports - public read, anyone authenticated can create, admins can update/delete
+    match /emergency_reports/{document=**} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && 
+                             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // Test data - open access for testing (remove before production)
+    match /test_data/{document=**} {
+      allow read, write: if true;
+    }
+  }
+}
+
+NEXT STEPS:
+1. Open Firebase Console: https://console.firebase.google.com/
+2. Select project: lubok-antu-rescuenet
+3. Go to: Firestore Database → Rules
+4. Replace the current rules with the above rules
+5. Click "Publish"
+6. Wait for deployment to complete (usually 1-2 minutes)
+7. Test the emergency report submission in your app
+
+KEY CHANGES:
+- emergency_reports: Changed to allow read: true (public read instead of authenticated only)
+- emergency_reports: allow create remains for authenticated users
+- This should resolve the "permission-denied" error

@@ -6,6 +6,7 @@ import 'screens/admin/admin_dashboard_screen.dart';
 import 'screens/firebase_test_screen.dart';
 import 'providers/auth_provider.dart';
 import 'providers/aid_program_provider.dart';
+import 'providers/reports_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -22,6 +23,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => AidProgramProvider()),
+        ChangeNotifierProvider(create: (_) => ReportsProvider()),
       ],
       child: MyApp(),
     ),

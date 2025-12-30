@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/reports_provider.dart';
+import '../../providers/auth_provider.dart';
 
 class ViewReportsScreen extends StatefulWidget {
   @override
@@ -13,6 +14,30 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
   String searchQuery = '';
   String selectedType = 'All';
   TextEditingController searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Fetch my reports for the logged-in user
+    Future.microtask(() {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final reportsProvider = Provider.of<ReportsProvider>(context, listen: false);
+      
+      print('DEBUG ViewReportsScreen: authProvider.userId = ${authProvider.userId}');
+      print('DEBUG ViewReportsScreen: currentUser?.uid = ${authProvider.currentUser?.uid}');
+      
+      if (authProvider.userId != null) {
+        // Set user ID in reports provider
+        print('DEBUG: Setting userId in ReportsProvider: ${authProvider.userId}');
+        reportsProvider.setUserId(authProvider.userId!);
+        // Fetch the user's reports
+        print('DEBUG: Calling fetchMyReports()');
+        reportsProvider.fetchMyReports();
+      } else {
+        print('ERROR: authProvider.userId is null');
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -680,23 +705,28 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
+                  // Report Submitted - Always Active
                   _buildTimelineItem(
                     'Report Submitted',
-                    report.formattedDate,
+                    _formatDetailDate(report.dateReported),
                     isActive: true,
                   ),
+                  // Under Review - Active when status is in-progress or resolved
                   _buildTimelineItem(
                     'Under Review',
-                    report.formattedDate,
-                    isActive: report.status != 'unresolved',
-                  ),
-                  _buildTimelineItem(
-                    'Response Team Dispatched',
-                    report.dateUpdated != null
-                        ? _formatDetailDate(report.dateUpdated!)
+                    report.dateUnderReview != null
+                        ? _formatDetailDate(report.dateUnderReview!)
                         : 'Pending',
                     isActive: report.status == 'in-progress' ||
                         report.status == 'resolved',
+                  ),
+                  // Response Team Dispatched - Active when status is resolved
+                  _buildTimelineItem(
+                    'Resolved',
+                    report.dateDispatched != null
+                        ? _formatDetailDate(report.dateDispatched!)
+                        : 'Pending',
+                    isActive: report.status == 'resolved',
                   ),
                 ],
               ),

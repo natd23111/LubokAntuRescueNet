@@ -14,6 +14,8 @@ class Report {
   final String reporterContact;
   final DateTime dateReported;
   final DateTime? dateUpdated;
+  final DateTime? dateUnderReview;
+  final DateTime? dateDispatched;
   final String? adminNotes;
   final String? imageUrl;
   final String? userId;
@@ -31,6 +33,8 @@ class Report {
     required this.reporterContact,
     required this.dateReported,
     this.dateUpdated,
+    this.dateUnderReview,
+    this.dateDispatched,
     this.adminNotes,
     this.imageUrl,
     this.userId,
@@ -59,6 +63,16 @@ class Report {
               ? (data['date_updated'] as Timestamp).toDate()
               : DateTime.parse(data['date_updated']))
           : null,
+      dateUnderReview: data['date_under_review'] != null
+          ? (data['date_under_review'] is Timestamp
+              ? (data['date_under_review'] as Timestamp).toDate()
+              : DateTime.parse(data['date_under_review']))
+          : null,
+      dateDispatched: data['date_dispatched'] != null
+          ? (data['date_dispatched'] is Timestamp
+              ? (data['date_dispatched'] as Timestamp).toDate()
+              : DateTime.parse(data['date_dispatched']))
+          : null,
       adminNotes: data['admin_notes'],
       imageUrl: data['image_url'],
       userId: data['user_id'],
@@ -78,13 +92,15 @@ class Report {
       'reporter_contact': reporterContact,
       'date_reported': dateReported,
       'date_updated': dateUpdated,
+      'date_under_review': dateUnderReview,
+      'date_dispatched': dateDispatched,
       'admin_notes': adminNotes,
       'image_url': imageUrl,
       'user_id': userId,
     };
   }
 
-  String get reportId => 'ER${id.substring(0, 7).padLeft(7, '0')}';
+  String get reportId => id;
 
   String get formattedDate {
     return '${dateReported.day} ${_monthName(dateReported.month)}, ${dateReported.year} - ${dateReported.hour.toString().padLeft(2, '0')}:${dateReported.minute.toString().padLeft(2, '0')}';
@@ -128,6 +144,11 @@ class ReportsProvider extends ChangeNotifier {
     });
   }
 
+  void setUserId(String userId) {
+    _userId = userId;
+    notifyListeners();
+  }
+
   Future<void> fetchReports() async {
     print('DEBUG: fetchReports() called');
     _isLoading = true;
@@ -160,24 +181,49 @@ class ReportsProvider extends ChangeNotifier {
 
   Future<void> fetchMyReports() async {
     print('DEBUG: fetchMyReports() called for user: $_userId');
-    if (_userId == null) return;
+    if (_userId == null) {
+      print('ERROR: _userId is null, cannot fetch my reports');
+      _myReports = [];
+      notifyListeners();
+      return;
+    }
+
+    _isLoading = true;
+    notifyListeners();
 
     try {
+      print('DEBUG: Fetching all reports first, then filtering for user_id = $_userId');
+      
+      // Get all reports ordered by date
       final snapshot = await _firestore
           .collection('emergency_reports')
-          .where('user_id', isEqualTo: _userId)
           .orderBy('date_reported', descending: true)
           .get();
 
-      print('DEBUG: Fetched ${snapshot.docs.length} my reports from Firestore');
-
-      _myReports = snapshot.docs
+      print('DEBUG: Fetched ${snapshot.docs.length} total reports');
+      
+      // Filter by user_id locally to avoid composite index requirement
+      final allReports = snapshot.docs
           .map((doc) => Report.fromFirestore(doc))
           .toList();
 
+      // Filter by matching user_id
+      _myReports = allReports.where((report) {
+        final matches = report.userId == _userId;
+        if (matches) {
+          print('DEBUG: Report ${report.id} matches user_id $_userId');
+        }
+        return matches;
+      }).toList();
+      
+      print('DEBUG: After filtering: ${_myReports.length} reports match user_id $_userId');
+
+      _isLoading = false;
       notifyListeners();
     } catch (e) {
       print('ERROR fetching my reports: $e');
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
@@ -187,24 +233,37 @@ class ReportsProvider extends ChangeNotifier {
     required String priority,
     required String adminNotes,
   }) async {
-    print('DEBUG: Updating report: $reportId');
+    print('DEBUG: Updating report: $reportId with status: $status');
 
     try {
-      await _firestore
-          .collection('emergency_reports')
-          .doc(reportId)
-          .update({
+      final updateData = {
         'status': status.toLowerCase(),
         'priority': priority.toLowerCase(),
         'admin_notes': adminNotes,
         'date_updated': DateTime.now(),
         'updated_at': DateTime.now().toIso8601String(),
-      });
+      };
+
+      // Track status transition dates
+      final statusLower = status.toLowerCase();
+      if (statusLower == 'in-progress') {
+        updateData['date_under_review'] = DateTime.now();
+      } else if (statusLower == 'resolved') {
+        updateData['date_dispatched'] = DateTime.now();
+      }
+
+      await _firestore
+          .collection('emergency_reports')
+          .doc(reportId)
+          .update(updateData);
 
       print('DEBUG: Report updated successfully: $reportId');
 
       // Refresh reports
       await fetchReports();
+      if (_userId != null) {
+        await fetchMyReports();
+      }
       _error = null;
       notifyListeners();
       return true;
@@ -287,5 +346,62 @@ class ReportsProvider extends ChangeNotifier {
     return query.snapshots().map((snapshot) {
       return snapshot.docs.map((doc) => Report.fromFirestore(doc)).toList();
     });
+  }
+
+  Future<String?> createEmergencyReport(Map<String, dynamic> reportData) async {
+    print('DEBUG: Creating emergency report with data: $reportData');
+
+    try {
+      final year = DateTime.now().year;
+      final counterDocId = 'report_counter_$year';
+
+      // Get the current counter value
+      final counterDoc = await _firestore
+          .collection('_metadata')
+          .doc(counterDocId)
+          .get();
+
+      int currentCounter = 0;
+      if (counterDoc.exists) {
+        currentCounter = (counterDoc.data()?['counter'] ?? 0) as int;
+      }
+
+      // Increment the counter
+      final nextCounter = currentCounter + 1;
+
+      // Update the counter in Firestore (atomically)
+      await _firestore
+          .collection('_metadata')
+          .doc(counterDocId)
+          .set({'counter': nextCounter});
+
+      final reportId = 'ER$year${nextCounter.toString().padLeft(4, '0')}';
+      print('DEBUG: Generated report ID: $reportId (counter: $nextCounter)');
+
+      // Add the ID to the report data
+      reportData['id'] = reportId;
+      reportData['created_at'] = DateTime.now().toIso8601String();
+      reportData['updated_at'] = DateTime.now().toIso8601String();
+
+      // Save the report
+      await _firestore
+          .collection('emergency_reports')
+          .doc(reportId)
+          .set(reportData);
+
+      print('DEBUG: Emergency report created successfully: $reportId');
+
+      // Refresh reports
+      await fetchReports();
+      _error = null;
+      notifyListeners();
+
+      return reportId;
+    } catch (e) {
+      print('ERROR creating emergency report: $e');
+      _error = 'Failed to create report: ${e.toString()}';
+      notifyListeners();
+      return null;
+    }
   }
 }

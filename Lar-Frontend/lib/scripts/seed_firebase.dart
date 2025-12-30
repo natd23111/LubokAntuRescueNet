@@ -330,13 +330,25 @@ class FirebaseSeeder {
       },
     ];
 
+    // Generate sequential report IDs: ER2025001, ER2025002, etc.
+    int counter = 1;
+    final year = DateTime.now().year;
+
     for (var report in reports) {
       try {
         report['created_at'] = DateTime.now().toIso8601String();
         report['updated_at'] = DateTime.now().toIso8601String();
 
-        await _firestore.collection('emergency_reports').add(report);
-        print('  ✓ Created report: ${report['title']}');
+        // Create custom ID in format ER2025001, ER2025002, etc.
+        final reportId =
+            'ER$year${counter.toString().padLeft(4, '0')}';
+
+        await _firestore
+            .collection('emergency_reports')
+            .doc(reportId)
+            .set(report);
+        print('  ✓ Created report: ${report['title']} (ID: $reportId)');
+        counter++;
       } catch (e) {
         print('  ✗ Error creating report ${report['title']}: $e');
         rethrow;
