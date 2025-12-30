@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/auth_provider.dart';
-import '../../services/api_service.dart';
-import '../../constants/api_constants.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../providers/auth_provider.dart' as auth_provider;
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -11,6 +11,9 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final _formKey = GlobalKey<FormState>();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   late TextEditingController _fullNameController;
   late TextEditingController _icController;
   late TextEditingController _emailController;
@@ -23,7 +26,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final authProvider = Provider.of<auth_provider.AuthProvider>(context, listen: false);
     
     // Initialize controllers with user data from AuthProvider
     _fullNameController = TextEditingController(text: authProvider.userName ?? '');
@@ -55,37 +58,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _updateProfile() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final api = ApiService();
+    final authProvider = Provider.of<auth_provider.AuthProvider>(context, listen: false);
 
     try {
-      final response = await api.put(ApiConstants.userProfile, {
-        'email': _emailController.text.trim(),
+      if (_auth.currentUser == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('User not authenticated')),
+        );
+        return;
+      }
+
+      // Update user profile in Firestore
+      await _firestore.collection('users').doc(_auth.currentUser!.uid).update({
         'phone_no': _phoneController.text.trim(),
         'address': _addressController.text.trim(),
+        'updated_at': DateTime.now().toIso8601String(),
       });
 
-      print('Profile update response: ${response.statusCode}');
-      print('Response data: ${response.data}');
+      // Update AuthProvider with new data
+      authProvider.userPhone = _phoneController.text.trim();
+      authProvider.userAddress = _addressController.text.trim();
 
-      if (response.data['success']) {
-        // Update AuthProvider with new data
-        authProvider.userEmail = _emailController.text.trim();
-        authProvider.userPhone = _phoneController.text.trim();
-        authProvider.userAddress = _addressController.text.trim();
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Profile updated successfully')),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response.data['message'] ?? 'Error updating profile')),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Profile updated successfully'),
+          backgroundColor: Colors.green,
+        ),
+      );
     } catch (e) {
       print('Profile update error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error updating profile: $e')),
+        SnackBar(
+          content: Text('Error updating profile: $e'),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -107,39 +113,62 @@ class _ProfileScreenState extends State<ProfileScreen> {
       return;
     }
 
-    if (_newPasswordController.text.length < 8) {
+    if (_newPasswordController.text.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('New password must be at least 8 characters')),
+        SnackBar(content: Text('New password must be at least 6 characters')),
       );
       return;
     }
 
-    final api = ApiService();
-
     try {
-      final response = await api.post(ApiConstants.changePassword, {
-        'current_password': _currentPasswordController.text,
-        'new_password': _newPasswordController.text,
-        'new_password_confirmation': _confirmPasswordController.text,
-      });
-
-      if (response.data['success']) {
-        // Clear password fields
-        _currentPasswordController.clear();
-        _newPasswordController.clear();
-        _confirmPasswordController.clear();
-
+      final user = _auth.currentUser;
+      if (user == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Password changed successfully')),
+          SnackBar(content: Text('User not authenticated')),
         );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response.data['message'] ?? 'Error changing password')),
-        );
+        return;
       }
+
+      // Firebase requires re-authentication to change password
+      final credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: _currentPasswordController.text,
+      );
+
+      await user.reauthenticateWithCredential(credential);
+      await user.updatePassword(_newPasswordController.text);
+
+      // Clear password fields
+      _currentPasswordController.clear();
+      _newPasswordController.clear();
+      _confirmPasswordController.clear();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Password changed successfully'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } on FirebaseAuthException catch (e) {
+      String errorMessage = 'Error changing password';
+      if (e.code == 'wrong-password') {
+        errorMessage = 'Current password is incorrect';
+      } else if (e.code == 'weak-password') {
+        errorMessage = 'New password is too weak';
+      }
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMessage),
+          backgroundColor: Colors.red,
+        ),
+      );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error changing password: $e')),
+        SnackBar(
+          content: Text('Error changing password: $e'),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -181,7 +210,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               padding: EdgeInsets.all(16),
               children: [
                 // Profile Avatar Section
-                Consumer<AuthProvider>(
+                Consumer<auth_provider.AuthProvider>(
                   builder: (context, authProvider, child) {
                     // Generate initials from full name
                     String initials = 'U';
@@ -385,7 +414,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       SizedBox(height: 24),
 
                       // Account Information Section
-                      Consumer<AuthProvider>(
+                      Consumer<auth_provider.AuthProvider>(
                         builder: (context, authProvider, child) {
                           return Container(
                             padding: EdgeInsets.all(16),

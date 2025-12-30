@@ -27,11 +27,38 @@ class _LoginScreenState extends State<LoginScreen> {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
+    // Define admin accounts (hardcoded for security)
+    const List<String> adminEmails = [
+      'admin@rescuenet.com',
+      'admin123@example.com',
+    ];
+
+    // Check if this email should be admin
+    bool isAdminEmail = adminEmails.contains(email.toLowerCase());
+
+    // Login with role info
     final success = await authProvider.login(email, password);
     if (success) {
+      // If login successful and they selected admin mode, check if they're authorized
+      if (!_isCitizen && !isAdminEmail) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('This email is not authorized as admin'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        await authProvider.logout();
+        return;
+      }
+
       Navigator.pushReplacementNamed(context, '/home');
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Sign in failed')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Sign in failed: ${authProvider.errorMessage ?? 'Unknown error'}'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 

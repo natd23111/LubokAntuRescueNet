@@ -13,15 +13,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _nameController = TextEditingController();
   final _icController = TextEditingController();
   final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _addressLine1Controller = TextEditingController();
-  final _addressLine2Controller = TextEditingController();
-  final _addressLine3Controller = TextEditingController();
-  final _addressCityController = TextEditingController();
-  final _addressPostcodeController = TextEditingController();
-  final _addressStateController = TextEditingController();
   bool _agree = false;
   bool _hidePassword = true;
   bool _hideConfirm = true;
@@ -31,15 +25,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _nameController.dispose();
     _icController.dispose();
     _emailController.dispose();
+    _phoneController.dispose();
     _passwordController.dispose();
     _confirmController.dispose();
-    _phoneController.dispose();
-    _addressLine1Controller.dispose();
-    _addressLine2Controller.dispose();
-    _addressLine3Controller.dispose();
-    _addressCityController.dispose();
-    _addressPostcodeController.dispose();
-    _addressStateController.dispose();
     super.dispose();
   }
 
@@ -74,12 +62,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       'ic_no': _icController.text.trim(),
       'email': _emailController.text.trim(),
       'phone_no': _phoneController.text.trim(),
-      'address_line_1': _addressLine1Controller.text.trim(),
-      'address_line_2': _addressLine2Controller.text.trim(),
-      'address_line_3': _addressLine3Controller.text.trim(),
-      'address_city': _addressCityController.text.trim(),
-      'address_postcode': _addressPostcodeController.text.trim(),
-      'address_state': _addressStateController.text.trim(),
       'password': _passwordController.text,
       'password_confirmation': _confirmController.text,
     };
@@ -157,61 +139,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           decoration: InputDecoration(labelText: 'Phone No', hintText: 'Enter Phone No', border: OutlineInputBorder(), counterText: '',),
                           keyboardType: TextInputType.phone,
                           validator: (v) => (v == null || v.trim().isEmpty) ? 'Please enter your phone number' : null,
-                        ),
-                        SizedBox(height: 12),
-
-                        // Address Line 1
-                        TextFormField(
-                          controller: _addressLine1Controller,
-                          maxLength: 30,
-                          decoration: InputDecoration(labelText: 'Address Line 1', border: OutlineInputBorder(), counterText: '',),
-                          validator: (v) => (v == null || v.trim().isEmpty) ? 'Please enter address line 1' : null,
-                        ),
-                        SizedBox(height: 12),
-
-                        // Address Line 2
-                        TextFormField(
-                          controller: _addressLine2Controller,
-                          maxLength: 30,
-                          decoration: InputDecoration(labelText: 'Address Line 2', border: OutlineInputBorder(), counterText: '',),
-                          validator: (v) => (v == null || v.trim().isEmpty) ? 'Please enter address line 2' : null,
-                        ),
-                        SizedBox(height: 12),
-
-                        // Address Line 3
-                        TextFormField(
-                          controller: _addressLine3Controller,
-                          maxLength: 30,
-                          decoration: InputDecoration(labelText: 'Address Line 3', border: OutlineInputBorder(), counterText: '',),
-                          validator: (v) => (v == null || v.trim().isEmpty) ? 'Please enter address line 3' : null,
-                        ),
-                        SizedBox(height: 12),
-
-                        // City
-                        TextFormField(
-                          controller: _addressCityController,
-                          maxLength: 15,
-                          decoration: InputDecoration(labelText: 'City', border: OutlineInputBorder(), counterText: '',),
-                          validator: (v) => (v == null || v.trim().isEmpty) ? 'Please enter city' : null,
-                        ),
-                        SizedBox(height: 12),
-
-                        // Postcode
-                        TextFormField(
-                          controller: _addressPostcodeController,
-                          maxLength: 7,
-                          decoration: InputDecoration(labelText: 'Postcode', border: OutlineInputBorder(), counterText: '',),
-                          keyboardType: TextInputType.number,
-                          validator: (v) => (v == null || v.trim().isEmpty) ? 'Please enter postcode' : null,
-                        ),
-                        SizedBox(height: 12),
-
-                        // State
-                        TextFormField(
-                          controller: _addressStateController,
-                          maxLength: 20,
-                          decoration: InputDecoration(labelText: 'State', border: OutlineInputBorder(), counterText: '',),
-                          validator: (v) => (v == null || v.trim().isEmpty) ? 'Please enter state' : null,
                         ),
                         SizedBox(height: 12),
 

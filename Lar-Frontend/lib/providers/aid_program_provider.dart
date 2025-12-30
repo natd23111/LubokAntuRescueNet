@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/aid_program.dart';
-import '../services/api_service.dart';
-import '../constants/api_constants.dart';
 
 class AidProgramProvider extends ChangeNotifier {
-  final ApiService _apiService = ApiService();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   List<AidProgram> _programs = [];
   bool _isLoading = false;
@@ -14,37 +13,48 @@ class AidProgramProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  // Fetch all aid programs with filtering
+  // Fetch all aid programs with optional filtering
   Future<void> fetchPrograms({String? status, String? category, String? search}) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      final Map<String, dynamic> queryParams = {};
-      if (status != null) queryParams['status'] = status;
-      if (category != null) queryParams['category'] = category;
-      if (search != null) queryParams['search'] = search;
+      Query query = _firestore.collection('aid_programs');
 
-      final uri = Uri.parse('${ApiConstants.baseUrl}/bantuan')
-          .replace(queryParameters: queryParams.isEmpty ? null : queryParams);
-
-      final response = await _apiService.get(uri.toString());
-      
-      if (response.statusCode == 200) {
-        final data = response.data;
-        if (data is Map && data.containsKey('data')) {
-          final programsList = (data['data'] as List)
-              .map((p) => AidProgram.fromJson(p as Map<String, dynamic>))
-              .toList();
-          _programs = programsList;
-          _error = null;
-        }
-      } else {
-        _error = 'Failed to fetch programs';
+      // Filter by status
+      if (status != null && status.isNotEmpty) {
+        query = query.where('status', isEqualTo: status.toLowerCase());
       }
+
+      // Filter by category
+      if (category != null && category.isNotEmpty) {
+        query = query.where('category', isEqualTo: category.toLowerCase());
+      }
+
+      final snapshot = await query.get();
+
+      // Convert Firestore documents to AidProgram objects
+      List<AidProgram> programsList = snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        data['id'] = doc.id; // Use document ID as the program ID
+        return AidProgram.fromJson(data);
+      }).toList();
+
+      // Filter by search term (title or description)
+      if (search != null && search.isNotEmpty) {
+        final lowerSearch = search.toLowerCase();
+        programsList = programsList.where((program) {
+          return program.title.toLowerCase().contains(lowerSearch) ||
+              (program.description?.toLowerCase().contains(lowerSearch) ?? false);
+        }).toList();
+      }
+
+      _programs = programsList;
+      _error = null;
     } catch (e) {
-      _error = 'Error: ${e.toString()}';
+      _error = 'Error fetching programs: ${e.toString()}';
+      print(_error);
     }
 
     _isLoading = false;
@@ -58,38 +68,46 @@ class AidProgramProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await _apiService.post(
-        '${ApiConstants.baseUrl}/admin/bantuan',
-        {
-          'title': program.title,
-          'description': program.description,
-          'category': program.category,
-          'criteria': program.eligibilityCriteria,
-          'start_date': program.startDate.toIso8601String().split('T')[0],
-          'end_date': program.endDate.toIso8601String().split('T')[0],
-          'status': program.status == 'active' ? 'Active' : program.status == 'inactive' ? 'Inactive' : 'Active',
-          'program_type': program.programType,
-          'aid_amount': program.aidAmount,
-        },
+      final programData = {
+        'title': program.title,
+        'description': program.description ?? '',
+        'category': program.category.toLowerCase(),
+        'criteria': program.eligibilityCriteria ?? '',
+        'start_date': program.startDate.toIso8601String(),
+        'end_date': program.endDate.toIso8601String(),
+        'status': program.status.toLowerCase(),
+        'program_type': program.programType ?? 'aid',
+        'aid_amount': program.aidAmount ?? '0',
+        'created_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+      };
+
+      final docRef = await _firestore.collection('aid_programs').add(programData);
+      
+      // Create the program object with the new document ID
+      final newProgram = AidProgram(
+        id: docRef.id,
+        title: program.title,
+        category: program.category,
+        status: program.status,
+        startDate: program.startDate,
+        endDate: program.endDate,
+        description: program.description,
+        aidAmount: program.aidAmount,
+        eligibilityCriteria: program.eligibilityCriteria,
+        programType: program.programType,
       );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final newProgram = AidProgram.fromJson(response.data['data'] as Map<String, dynamic>);
-        _programs.add(newProgram);
-        _error = null;
-        _isLoading = false;
-        notifyListeners();
-        return true;
-      } else {
-        _error = response.data['message'] ?? 'Failed to create program';
-        _isLoading = false;
-        notifyListeners();
-        return false;
-      }
-    } catch (e) {
-      _error = 'Error: ${e.toString()}';
+      _programs.add(newProgram);
+      _error = null;
       _isLoading = false;
       notifyListeners();
+      return true;
+    } catch (e) {
+      _error = 'Error creating program: ${e.toString()}';
+      _isLoading = false;
+      notifyListeners();
+      print(_error);
       return false;
     }
   }
@@ -101,113 +119,114 @@ class AidProgramProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await _apiService.put(
-        '${ApiConstants.baseUrl}/admin/bantuan/${program.id}',
-        {
-          'title': program.title,
-          'description': program.description,
-          'category': program.category,
-          'criteria': program.eligibilityCriteria,
-          'start_date': program.startDate.toIso8601String().split('T')[0],
-          'end_date': program.endDate.toIso8601String().split('T')[0],
-          'status': program.status == 'active' ? 'Active' : program.status == 'inactive' ? 'Inactive' : 'Active',
-          'program_type': program.programType,
-          'aid_amount': program.aidAmount,
-        },
-      );
+      final programData = {
+        'title': program.title,
+        'description': program.description ?? '',
+        'category': program.category.toLowerCase(),
+        'criteria': program.eligibilityCriteria ?? '',
+        'start_date': program.startDate.toIso8601String(),
+        'end_date': program.endDate.toIso8601String(),
+        'status': program.status.toLowerCase(),
+        'program_type': program.programType ?? 'aid',
+        'aid_amount': program.aidAmount ?? '0',
+        'updated_at': DateTime.now().toIso8601String(),
+      };
 
-      if (response.statusCode == 200) {
-        final index = _programs.indexWhere((p) => p.id == program.id);
-        if (index != -1) {
-          _programs[index] = AidProgram.fromJson(response.data['data'] as Map<String, dynamic>);
-        }
-        _error = null;
-        _isLoading = false;
-        notifyListeners();
-        return true;
-      } else {
-        _error = response.data['message'] ?? 'Failed to update program';
-        _isLoading = false;
-        notifyListeners();
-        return false;
+      await _firestore.collection('aid_programs').doc(program.id.toString()).update(programData);
+
+      // Update local list
+      final index = _programs.indexWhere((p) => p.id == program.id);
+      if (index != -1) {
+        _programs[index] = program;
       }
-    } catch (e) {
-      _error = 'Error: ${e.toString()}';
+
+      _error = null;
       _isLoading = false;
       notifyListeners();
-      return false;
-    }
-  }
-
-  // Toggle program status
-  Future<bool> toggleProgramStatus(dynamic id) async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
-
-    try {
-      final response = await _apiService.patch(
-        '${ApiConstants.baseUrl}/admin/bantuan/$id/toggle-status',
-        {},
-      );
-
-      if (response.statusCode == 200) {
-        final updatedProgram = AidProgram.fromJson(response.data['data'] as Map<String, dynamic>);
-        final index = _programs.indexWhere((p) => p.id == id);
-        if (index != -1) {
-          _programs[index] = updatedProgram;
-        }
-        _error = null;
-        _isLoading = false;
-        notifyListeners();
-        return true;
-      } else {
-        _error = response.data['message'] ?? 'Failed to toggle status';
-        _isLoading = false;
-        notifyListeners();
-        return false;
-      }
+      return true;
     } catch (e) {
-      _error = 'Error: ${e.toString()}';
+      _error = 'Error updating program: ${e.toString()}';
       _isLoading = false;
       notifyListeners();
+      print(_error);
       return false;
     }
   }
 
   // Delete aid program
-  Future<bool> deleteProgram(String id) async {
+  Future<bool> deleteProgram(String programId) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      final response = await _apiService.delete(
-        '${ApiConstants.baseUrl}/admin/bantuan/$id',
-      );
+      await _firestore.collection('aid_programs').doc(programId).delete();
 
-      if (response.statusCode == 200) {
-        _programs.removeWhere((p) => p.id == id);
-        _error = null;
-        _isLoading = false;
-        notifyListeners();
-        return true;
-      } else {
-        _error = 'Failed to delete program';
-        _isLoading = false;
-        notifyListeners();
-        return false;
-      }
-    } catch (e) {
-      _error = 'Error: ${e.toString()}';
+      _programs.removeWhere((p) => p.id == programId);
+
+      _error = null;
       _isLoading = false;
       notifyListeners();
+      return true;
+    } catch (e) {
+      _error = 'Error deleting program: ${e.toString()}';
+      _isLoading = false;
+      notifyListeners();
+      print(_error);
       return false;
     }
   }
 
-  void clearError() {
+  // Toggle program status
+  Future<bool> toggleProgramStatus(String programId) async {
+    _isLoading = true;
     _error = null;
     notifyListeners();
+
+    try {
+      final doc = await _firestore.collection('aid_programs').doc(programId).get();
+      if (!doc.exists) {
+        _error = 'Program not found';
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+
+      final currentStatus = doc['status'] as String;
+      final newStatus = currentStatus == 'active' ? 'inactive' : 'active';
+
+      await _firestore.collection('aid_programs').doc(programId).update({
+        'status': newStatus,
+        'updated_at': DateTime.now().toIso8601String(),
+      });
+
+      final index = _programs.indexWhere((p) => p.id == programId);
+      if (index != -1) {
+        final program = _programs[index];
+        _programs[index] = AidProgram(
+          id: program.id,
+          title: program.title,
+          category: program.category,
+          status: newStatus,
+          startDate: program.startDate,
+          endDate: program.endDate,
+          description: program.description,
+          aidAmount: program.aidAmount,
+          eligibilityCriteria: program.eligibilityCriteria,
+          programType: program.programType,
+        );
+      }
+
+      _error = null;
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = 'Error toggling status: ${e.toString()}';
+      _isLoading = false;
+      notifyListeners();
+      print(_error);
+      return false;
+    }
   }
 }

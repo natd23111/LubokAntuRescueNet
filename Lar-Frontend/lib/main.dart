@@ -3,6 +3,7 @@ import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
 import 'screens/citizen_dashboard.dart';
 import 'screens/admin/admin_dashboard_screen.dart';
+import 'screens/firebase_test_screen.dart';
 import 'providers/auth_provider.dart';
 import 'providers/aid_program_provider.dart';
 import 'package:provider/provider.dart';
@@ -41,6 +42,7 @@ class MyApp extends StatelessWidget {
         '/login': (_) => LoginScreen(),
         '/register': (_) => RegisterScreen(),
         '/home': (_) => HomeRouter(),
+        '/firebase-test': (_) => FirebaseTestScreen(),  // For testing if needed
       },
     );
   }
