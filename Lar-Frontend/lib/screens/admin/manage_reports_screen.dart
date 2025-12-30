@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/reports_provider.dart';
+import '../../scripts/seed_firebase.dart';
 
 
 class ManageReportsScreen extends StatefulWidget {
@@ -17,7 +18,7 @@ class ManageReportsScreen extends StatefulWidget {
 
 class _ManageReportsScreenState extends State<ManageReportsScreen> {
   String activeTab = 'unresolved';
-  int? selectedReportId;
+  String? selectedReportId;
   bool editMode = false;
   bool showSuccess = false;
   TextEditingController searchController = TextEditingController();
@@ -32,6 +33,79 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
     priorityController.dispose();
     notesController.dispose();
     super.dispose();
+  }
+
+  void _seedDatabase() async {
+    try {
+      await FirebaseSeeder.seedDatabase();
+      if (mounted) {
+        // Refresh the reports list
+        await Provider.of<ReportsProvider>(context, listen: false).fetchReports();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✅ Database seeded successfully!'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error seeding database: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
+    }
+  }
+
+  void _clearDatabase() async {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Clear Database'),
+        content: const Text('Are you sure you want to delete all emergency reports and user profiles? This cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              try {
+                await FirebaseSeeder.clearDatabase();
+                if (mounted) {
+                  // Refresh the reports list
+                  await Provider.of<ReportsProvider>(context, listen: false).fetchReports();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('✅ Database cleared successfully!'),
+                      backgroundColor: Colors.orange,
+                      duration: Duration(seconds: 3),
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error clearing database: $e'),
+                      backgroundColor: Colors.red,
+                      duration: const Duration(seconds: 5),
+                    ),
+                  );
+                }
+              }
+            },
+            child: const Text('Clear', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
   }
 
   Color _getPriorityColor(String priority) {
@@ -676,6 +750,27 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
                 color: Colors.white,
               ),
             ),
+            actions: [
+              PopupMenuButton<String>(
+                onSelected: (value) {
+                  if (value == 'seed') {
+                    _seedDatabase();
+                  } else if (value == 'clear') {
+                    _clearDatabase();
+                  }
+                },
+                itemBuilder: (BuildContext context) => [
+                  const PopupMenuItem<String>(
+                    value: 'seed',
+                    child: Text('📥 Seed Database'),
+                  ),
+                  const PopupMenuItem<String>(
+                    value: 'clear',
+                    child: Text('🗑️ Clear Database'),
+                  ),
+                ],
+              ),
+            ],
           ),
           body: Column(
             children: [

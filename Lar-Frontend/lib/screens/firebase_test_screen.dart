@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart' as auth_provider;
@@ -10,7 +9,6 @@ class FirebaseTestScreen extends StatefulWidget {
 }
 
 class _FirebaseTestScreenState extends State<FirebaseTestScreen> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   
   final _emailController = TextEditingController();

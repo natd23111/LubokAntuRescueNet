@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/aid_request.dart';
-import '../services/api_service.dart';
-import '../constants/api_constants.dart';
 
 class AidProvider with ChangeNotifier {
-  final ApiService _api = ApiService();
   List<AidRequest> requests = [];
   bool isLoading = false;
 
@@ -14,10 +11,8 @@ class AidProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await _api.get(ApiConstants.myAidRequests);
-      requests = (response.data['data'] as List)
-          .map((e) => AidRequest.fromJson(e))
-          .toList();
+      // Firebase migration: This is deprecated in favor of aid_program_provider
+      requests = [];
     } catch (e) {
       print('Error fetching aid requests: $e');
     }
@@ -32,10 +27,10 @@ class AidProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await _api.post(ApiConstants.submitAid, data);
+      // Firebase migration: This is deprecated in favor of aid_program_provider
       isLoading = false;
       notifyListeners();
-      return response.data['success'] ?? false;
+      return false;
     } catch (e) {
       print('Error submitting aid request: $e');
       isLoading = false;
@@ -44,3 +39,4 @@ class AidProvider with ChangeNotifier {
     }
   }
 }
+

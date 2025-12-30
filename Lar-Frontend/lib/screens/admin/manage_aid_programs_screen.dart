@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/aid_program.dart';
 import '../../providers/aid_program_provider.dart';
+import '../../scripts/seed_firebase.dart';
 import 'add_aid_program_form.dart';
 import 'edit_aid_program_form.dart';
 
@@ -24,7 +25,11 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
 
   void _handleAddProgram(AidProgram program) async {
     final provider = Provider.of<AidProgramProvider>(context, listen: false);
+    print('DEBUG: Submitting program: ${program.title}');
+    
     final success = await provider.createProgram(program);
+    
+    print('DEBUG: Program creation result: $success');
     
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -36,11 +41,13 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
       );
       Navigator.of(context).pop();
     } else if (mounted) {
+      final errorMsg = provider.error ?? 'Failed to add program';
+      print('DEBUG: Showing error: $errorMsg');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(provider.error ?? 'Failed to add program'),
+          content: Text(errorMsg),
           backgroundColor: Colors.red[600],
-          duration: const Duration(seconds: 3),
+          duration: const Duration(seconds: 5),  // Longer timeout so user can read
         ),
       );
     }
@@ -145,6 +152,79 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
     }
   }
 
+  void _seedDatabase() async {
+    try {
+      await FirebaseSeeder.seedDatabase();
+      if (mounted) {
+        // Refresh the programs list
+        await Provider.of<AidProgramProvider>(context, listen: false).fetchPrograms();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✅ Database seeded successfully!'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error seeding database: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
+    }
+  }
+
+  void _clearDatabase() async {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Clear Database'),
+        content: const Text('Are you sure you want to delete all aid programs and user profiles? This cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              try {
+                await FirebaseSeeder.clearDatabase();
+                if (mounted) {
+                  // Refresh the programs list
+                  await Provider.of<AidProgramProvider>(context, listen: false).fetchPrograms();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('✅ Database cleared successfully!'),
+                      backgroundColor: Colors.orange,
+                      duration: Duration(seconds: 3),
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error clearing database: $e'),
+                      backgroundColor: Colors.red,
+                      duration: const Duration(seconds: 5),
+                    ),
+                  );
+                }
+              }
+            },
+            child: const Text('Clear', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
   String _formatDate(DateTime date) {
     return '${date.day} ${_monthName(date.month)}, ${date.year}';
   }
@@ -176,6 +256,27 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
                 color: Colors.white,
               ),
             ),
+            actions: [
+              PopupMenuButton<String>(
+                onSelected: (value) {
+                  if (value == 'seed') {
+                    _seedDatabase();
+                  } else if (value == 'clear') {
+                    _clearDatabase();
+                  }
+                },
+                itemBuilder: (BuildContext context) => [
+                  const PopupMenuItem<String>(
+                    value: 'seed',
+                    child: Text('📥 Seed Database'),
+                  ),
+                  const PopupMenuItem<String>(
+                    value: 'clear',
+                    child: Text('🗑️ Clear Database'),
+                  ),
+                ],
+              ),
+            ],
           ),
           body: Column(
             children: [

@@ -68,6 +68,8 @@ class AidProgramProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      print('DEBUG: Creating program: ${program.title}');
+      
       final programData = {
         'title': program.title,
         'description': program.description ?? '',
@@ -82,7 +84,11 @@ class AidProgramProvider extends ChangeNotifier {
         'updated_at': DateTime.now().toIso8601String(),
       };
 
+      print('DEBUG: Program data prepared: $programData');
+
       final docRef = await _firestore.collection('aid_programs').add(programData);
+      
+      print('DEBUG: Program created with ID: ${docRef.id}');
       
       // Create the program object with the new document ID
       final newProgram = AidProgram(
@@ -102,12 +108,14 @@ class AidProgramProvider extends ChangeNotifier {
       _error = null;
       _isLoading = false;
       notifyListeners();
+      print('DEBUG: Program added successfully to list');
       return true;
     } catch (e) {
       _error = 'Error creating program: ${e.toString()}';
       _isLoading = false;
       notifyListeners();
-      print(_error);
+      print('ERROR creating program: $e');
+      print('ERROR stack trace: $e');
       return false;
     }
   }

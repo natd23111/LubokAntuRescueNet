@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -263,6 +264,3 @@ class FirebaseService {
         .update({'read': true});
   }
 }
-
-// Required import
-import 'dart:io';

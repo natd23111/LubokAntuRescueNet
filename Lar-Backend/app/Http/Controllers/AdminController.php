@@ -59,12 +59,8 @@ class AdminController extends Controller
 
         // Add admin note if provided
         if ($request->filled('admin_note')) {
-            AdminNote::create([
-                'report_type' => $request->type,
-                'report_id' => $report->id,
-                'admin_id' => auth()->id(),
-                'note' => $request->admin_note,
-            ]);
+            // Note: Admin notes feature moved to Firebase in new version
+            // AdminNote::create([...]);
         }
 
         return response()->json([

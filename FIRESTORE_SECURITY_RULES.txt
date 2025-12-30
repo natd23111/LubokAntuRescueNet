@@ -1,0 +1,30 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Users can read/write their own profile
+    match /users/{userId} {
+      allow read, write: if request.auth.uid == userId;
+    }
+    
+    // Aid programs - public read, admins only write
+    match /aid_programs/{document=**} {
+      allow read: if true;
+      allow write: if request.auth != null && 
+                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // Emergency reports - authenticated read, citizens create, admins manage
+    match /emergency_reports/{document=**} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && 
+                             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // Test data - open access for testing (remove before production)
+    match /test_data/{document=**} {
+      allow read, write: if true;
+    }
+  }
+}

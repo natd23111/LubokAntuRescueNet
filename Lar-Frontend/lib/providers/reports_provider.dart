@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import '../utils/storage_util.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Report {
-  final int id;
+  final String id;
   final String title;
   final String type;
   final String location;
@@ -18,7 +16,7 @@ class Report {
   final DateTime? dateUpdated;
   final String? adminNotes;
   final String? imageUrl;
-  final int? userId;
+  final String? userId;
 
   Report({
     required this.id,
@@ -38,31 +36,55 @@ class Report {
     this.userId,
   });
 
-  factory Report.fromJson(Map<String, dynamic> json) {
+  factory Report.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
     return Report(
-      id: json['id'] ?? 0,
-      title: json['title'] ?? 'Untitled',
-      type: json['type'] ?? 'Other',
-      location: json['location'] ?? '',
-      description: json['description'] ?? '',
-      status: json['status'] ?? 'unresolved',
-      priority: json['priority']?.toLowerCase() ?? 'low',
-      reporterName: json['reporter_name'] ?? 'Unknown',
-      reporterIC: json['reporter_ic'] ?? '',
-      reporterContact: json['reporter_contact'] ?? '',
-      dateReported: json['date_reported'] != null
-          ? DateTime.parse(json['date_reported'])
+      id: doc.id,
+      title: data['title'] ?? 'Untitled',
+      type: data['type'] ?? 'Other',
+      location: data['location'] ?? '',
+      description: data['description'] ?? '',
+      status: data['status'] ?? 'unresolved',
+      priority: (data['priority'] ?? 'low').toString().toLowerCase(),
+      reporterName: data['reporter_name'] ?? 'Unknown',
+      reporterIC: data['reporter_ic'] ?? '',
+      reporterContact: data['reporter_contact'] ?? '',
+      dateReported: data['date_reported'] != null
+          ? (data['date_reported'] is Timestamp
+              ? (data['date_reported'] as Timestamp).toDate()
+              : DateTime.parse(data['date_reported']))
           : DateTime.now(),
-      dateUpdated: json['date_updated'] != null
-          ? DateTime.parse(json['date_updated'])
+      dateUpdated: data['date_updated'] != null
+          ? (data['date_updated'] is Timestamp
+              ? (data['date_updated'] as Timestamp).toDate()
+              : DateTime.parse(data['date_updated']))
           : null,
-      adminNotes: json['admin_notes'],
-      imageUrl: json['image_url'],
-      userId: json['user_id'],
+      adminNotes: data['admin_notes'],
+      imageUrl: data['image_url'],
+      userId: data['user_id'],
     );
   }
 
-  String get reportId => 'ER${id.toString().padLeft(7, '0')}';
+  Map<String, dynamic> toFirestore() {
+    return {
+      'title': title,
+      'type': type,
+      'location': location,
+      'description': description,
+      'status': status.toLowerCase(),
+      'priority': priority.toLowerCase(),
+      'reporter_name': reporterName,
+      'reporter_ic': reporterIC,
+      'reporter_contact': reporterContact,
+      'date_reported': dateReported,
+      'date_updated': dateUpdated,
+      'admin_notes': adminNotes,
+      'image_url': imageUrl,
+      'user_id': userId,
+    };
+  }
+
+  String get reportId => 'ER${id.substring(0, 7).padLeft(7, '0')}';
 
   String get formattedDate {
     return '${dateReported.day} ${_monthName(dateReported.month)}, ${dateReported.year} - ${dateReported.hour.toString().padLeft(2, '0')}:${dateReported.minute.toString().padLeft(2, '0')}';
@@ -83,9 +105,9 @@ class ReportsProvider extends ChangeNotifier {
   String? _error;
   String _activeTab = 'unresolved';
   String _searchQuery = '';
-  int? _userId;
+  String? _userId;
 
-  final String baseUrl = 'http://10.0.2.2:8000/api'; // Android emulator localhost
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   List<Report> get reports => _filteredReports;
   List<Report> get allReports => _reports;
@@ -96,7 +118,7 @@ class ReportsProvider extends ChangeNotifier {
 
   ReportsProvider({dynamic authProvider}) {
     if (authProvider != null && authProvider.userId != null) {
-      _userId = int.tryParse(authProvider.userId.toString());
+      _userId = authProvider.userId.toString();
     }
     Future.delayed(Duration.zero, () {
       fetchReports();
@@ -106,24 +128,6 @@ class ReportsProvider extends ChangeNotifier {
     });
   }
 
-  Future<Map<String, String>> _getHeaders() async {
-    print('DEBUG: Building request headers');
-    return {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-    };
-  }
-
-  Future<Map<String, String>> _getAuthHeaders() async {
-    final token = await StorageUtil.getToken();
-    print('DEBUG: Token retrieved: ${token != null ? "YES" : "NO"}');
-    return {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      if (token != null) 'Authorization': 'Bearer $token',
-    };
-  }
-
   Future<void> fetchReports() async {
     print('DEBUG: fetchReports() called');
     _isLoading = true;
@@ -131,220 +135,157 @@ class ReportsProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final headers = await _getHeaders();
-      print('DEBUG: Making request to $baseUrl/reports with headers: $headers');
-      
-      final response = await http.get(
-        Uri.parse('$baseUrl/reports'),
-        headers: headers,
-      ).timeout(const Duration(seconds: 10));
+      final snapshot = await _firestore
+          .collection('emergency_reports')
+          .orderBy('date_reported', descending: true)
+          .get();
 
-      print('DEBUG: Response status code: ${response.statusCode}');
-      print('DEBUG: Response body: ${response.body}');
+      print('DEBUG: Fetched ${snapshot.docs.length} reports from Firestore');
 
-      if (response.statusCode == 200) {
-        final jsonData = jsonDecode(response.body);
-        print('DEBUG: Decoded JSON: $jsonData');
-        List<dynamic> data = jsonData['data'] ?? jsonData;
-        print('DEBUG: Data list length: ${data.length}');
-        
-        _reports = (data as List)
-            .map((item) => Report.fromJson(item as Map<String, dynamic>))
-            .toList();
-        
-        print('DEBUG: Successfully loaded ${_reports.length} reports');
-        _applyFilters();
-        _error = null;
-        _isLoading = false;
-        notifyListeners();
-      } else {
-        _error = 'Failed to load reports: ${response.statusCode}';
-        print('DEBUG: Error - $_error');
-        _isLoading = false;
-        notifyListeners();
-      }
+      _reports = snapshot.docs
+          .map((doc) => Report.fromFirestore(doc))
+          .toList();
+
+      _applyFilters();
+      _isLoading = false;
+      _error = null;
+      notifyListeners();
     } catch (e) {
-      _error = 'Error: ${e.toString()}';
-      print('DEBUG: Exception - $_error');
+      print('ERROR fetching reports: $e');
+      _error = 'Failed to fetch reports: ${e.toString()}';
       _isLoading = false;
       notifyListeners();
     }
   }
 
   Future<void> fetchMyReports() async {
-    print('DEBUG: fetchMyReports() called for userId: $_userId');
+    print('DEBUG: fetchMyReports() called for user: $_userId');
+    if (_userId == null) return;
+
     try {
-      final headers = await _getAuthHeaders();
-      print('DEBUG: Making request to $baseUrl/reports/my with headers: $headers');
-      
-      final response = await http.get(
-        Uri.parse('$baseUrl/reports/my'),
-        headers: headers,
-      ).timeout(const Duration(seconds: 10));
+      final snapshot = await _firestore
+          .collection('emergency_reports')
+          .where('user_id', isEqualTo: _userId)
+          .orderBy('date_reported', descending: true)
+          .get();
 
-      print('DEBUG: My Reports Response status code: ${response.statusCode}');
-      print('DEBUG: My Reports Response body: ${response.body}');
+      print('DEBUG: Fetched ${snapshot.docs.length} my reports from Firestore');
 
-      if (response.statusCode == 200) {
-        final jsonData = jsonDecode(response.body);
-        print('DEBUG: Decoded My Reports JSON: $jsonData');
-        List<dynamic> data = jsonData['data'] ?? jsonData;
-        print('DEBUG: My Reports Data list length: ${data.length}');
-        
-        _myReports = (data as List)
-            .map((item) => Report.fromJson(item as Map<String, dynamic>))
-            .toList();
-        
-        print('DEBUG: Successfully loaded ${_myReports.length} user reports');
-        notifyListeners();
-      } else {
-        print('DEBUG: Failed to load user reports: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('DEBUG: Exception fetching my reports - ${e.toString()}');
-    }
-  }
+      _myReports = snapshot.docs
+          .map((doc) => Report.fromFirestore(doc))
+          .toList();
 
-  Future<Report?> fetchReportDetails(int reportId) async {
-    try {
-      final headers = await _getHeaders();
-      final response = await http.get(
-        Uri.parse('$baseUrl/reports/$reportId'),
-        headers: headers,
-      ).timeout(const Duration(seconds: 10));
-
-      if (response.statusCode == 200) {
-        final jsonData = jsonDecode(response.body);
-        return Report.fromJson(jsonData['data'] ?? jsonData);
-      }
-    } catch (e) {
-      _error = 'Error fetching report: ${e.toString()}';
       notifyListeners();
+    } catch (e) {
+      print('ERROR fetching my reports: $e');
     }
-    return null;
   }
 
   Future<bool> updateReport({
-    required int reportId,
+    required String reportId,
     required String status,
     required String priority,
     required String adminNotes,
   }) async {
-    try {
-      final headers = await _getHeaders();
-      final response = await http.put(
-        Uri.parse('$baseUrl/reports/$reportId'),
-        headers: headers,
-        body: jsonEncode({
-          'status': status,
-          'priority': priority,
-          'admin_notes': adminNotes,
-        }),
-      ).timeout(const Duration(seconds: 10));
+    print('DEBUG: Updating report: $reportId');
 
-      if (response.statusCode == 200) {
-        // Refresh reports after update
-        await fetchReports();
-        return true;
-      } else {
-        _error = 'Failed to update report: ${response.statusCode}';
-        notifyListeners();
-        return false;
-      }
+    try {
+      await _firestore
+          .collection('emergency_reports')
+          .doc(reportId)
+          .update({
+        'status': status.toLowerCase(),
+        'priority': priority.toLowerCase(),
+        'admin_notes': adminNotes,
+        'date_updated': DateTime.now(),
+        'updated_at': DateTime.now().toIso8601String(),
+      });
+
+      print('DEBUG: Report updated successfully: $reportId');
+
+      // Refresh reports
+      await fetchReports();
+      _error = null;
+      notifyListeners();
+      return true;
     } catch (e) {
-      _error = 'Error updating report: ${e.toString()}';
+      print('ERROR updating report: $e');
+      _error = 'Failed to update report: ${e.toString()}';
       notifyListeners();
       return false;
     }
   }
 
-  Future<bool> deleteReport(int reportId) async {
-    try {
-      final headers = await _getHeaders();
-      final response = await http.delete(
-        Uri.parse('$baseUrl/reports/$reportId'),
-        headers: headers,
-      ).timeout(const Duration(seconds: 10));
+  Future<bool> deleteReport(String reportId) async {
+    print('DEBUG: Deleting report: $reportId');
 
-      if (response.statusCode == 200 || response.statusCode == 204) {
-        await fetchReports();
-        return true;
-      } else {
-        _error = 'Failed to delete report: ${response.statusCode}';
-        notifyListeners();
-        return false;
-      }
+    try {
+      await _firestore.collection('emergency_reports').doc(reportId).delete();
+
+      print('DEBUG: Report deleted successfully: $reportId');
+
+      // Refresh reports
+      await fetchReports();
+      _error = null;
+      notifyListeners();
+      return true;
     } catch (e) {
-      _error = 'Error deleting report: ${e.toString()}';
+      print('ERROR deleting report: $e');
+      _error = 'Failed to delete report: ${e.toString()}';
       notifyListeners();
       return false;
     }
   }
 
   void setActiveTab(String tab) {
+    print('DEBUG: Setting active tab: $tab');
     _activeTab = tab;
     _applyFilters();
     notifyListeners();
   }
 
   void setSearchQuery(String query) {
-    _searchQuery = query;
+    print('DEBUG: Setting search query: $query');
+    _searchQuery = query.toLowerCase();
     _applyFilters();
     notifyListeners();
   }
 
   void _applyFilters() {
+    print('DEBUG: Applying filters - tab: $_activeTab, search: $_searchQuery');
+
     _filteredReports = _reports.where((report) {
-      // Filter by active tab status
-      if (report.status != _activeTab) {
+      // Filter by tab (status)
+      if (_activeTab != 'all' && report.status != _activeTab) {
         return false;
       }
-      
+
       // Filter by search query
       if (_searchQuery.isNotEmpty) {
-        final query = _searchQuery.toLowerCase();
-        return report.reportId.toLowerCase().contains(query) ||
-               report.type.toLowerCase().contains(query) ||
-               report.location.toLowerCase().contains(query) ||
-               report.title.toLowerCase().contains(query) ||
-               report.reporterName.toLowerCase().contains(query);
+        return report.title.toLowerCase().contains(_searchQuery) ||
+            report.location.toLowerCase().contains(_searchQuery) ||
+            report.reporterName.toLowerCase().contains(_searchQuery) ||
+            report.type.toLowerCase().contains(_searchQuery);
       }
-      
+
       return true;
     }).toList();
 
-    // Sort by priority (high → medium → low)
-    _filteredReports.sort((a, b) {
-      const priorityOrder = {'high': 0, 'medium': 1, 'low': 2};
-      final aPriority = priorityOrder[a.priority.toLowerCase()] ?? 3;
-      final bPriority = priorityOrder[b.priority.toLowerCase()] ?? 3;
-      return aPriority.compareTo(bPriority);
+    print(
+        'DEBUG: Filtered to ${_filteredReports.length} reports (from ${_reports.length})');
+  }
+
+  Stream<List<Report>> getReportsStream({String? filterStatus}) {
+    Query query = _firestore.collection('emergency_reports');
+
+    if (filterStatus != null && filterStatus != 'all') {
+      query = query.where('status', isEqualTo: filterStatus);
+    }
+
+    query = query.orderBy('date_reported', descending: true);
+
+    return query.snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) => Report.fromFirestore(doc)).toList();
     });
-  }
-
-  String getPriorityDisplayText(String priority) {
-    switch (priority.toLowerCase()) {
-      case 'high':
-        return 'High Priority';
-      case 'medium':
-        return 'Medium Priority';
-      case 'low':
-        return 'Low Priority';
-      default:
-        return priority;
-    }
-  }
-
-  String getStatusDisplayText(String status) {
-    switch (status.toLowerCase()) {
-      case 'unresolved':
-        return 'Unresolved';
-      case 'in-progress':
-        return 'In Progress';
-      case 'resolved':
-        return 'Resolved';
-      default:
-        return status;
-    }
   }
 }

@@ -9,7 +9,7 @@ class ViewReportsScreen extends StatefulWidget {
 
 class _ViewReportsScreenState extends State<ViewReportsScreen> {
   String activeTab = 'all-reports';
-  int? selectedReportId;
+  String? selectedReportId;
   String searchQuery = '';
   String selectedType = 'All';
   TextEditingController searchController = TextEditingController();

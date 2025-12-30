@@ -98,7 +98,7 @@ class RealtimeService {
       return snapshot.docs.map((doc) {
         return {
           'id': doc.id,
-          ...doc.data() as Map<String, dynamic>,
+          ...doc.data(),
         };
       }).toList();
     });
@@ -165,10 +165,10 @@ class RealtimeService {
         .snapshots()
         .map((snapshot) => snapshot.docs.length);
 
-    return emergenciesStream.asyncExpand((_) {
+    return emergenciesStream.asyncExpand((emergencyCount) {
       return programsStream.map((programs) => {
             'activePrograms': programs,
-            'emergenciesLast24h': _,
+            'emergenciesLast24h': emergencyCount,
           });
     });
   }
@@ -212,7 +212,7 @@ class RealtimeService {
       return snapshot.docs.map((doc) {
         return {
           'id': doc.id,
-          ...doc.data() as Map<String, dynamic>,
+          ...doc.data(),
         };
       }).toList();
     });
