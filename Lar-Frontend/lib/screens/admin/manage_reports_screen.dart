@@ -649,9 +649,9 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF059669),
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => setState(() => selectedReportId = null),
+        leading: GestureDetector(
+          onTap: () => setState(() => selectedReportId = null),
+          child: const Icon(Icons.arrow_back),
         ),
         title: const Text(
           'Report Details',
@@ -943,9 +943,7 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
           return PopScope(
             canPop: false,
             onPopInvoked: (didPop) {
-              if (!didPop) {
-                setState(() => selectedReportId = null);
-              }
+              setState(() => selectedReportId = null);
             },
             child: _buildViewReportView(selectedReport),
           );

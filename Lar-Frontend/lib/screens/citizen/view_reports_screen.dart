@@ -169,9 +169,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
           return PopScope(
             canPop: false,
             onPopInvoked: (didPop) {
-              if (!didPop) {
-                setState(() => selectedReportId = null);
-              }
+              setState(() => selectedReportId = null);
             },
             child: _buildDetailView(selectedReport),
           );
@@ -641,9 +639,9 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF059669),
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => setState(() => selectedReportId = null),
+        leading: GestureDetector(
+          onTap: () => setState(() => selectedReportId = null),
+          child: const Icon(Icons.arrow_back),
         ),
         title: const Text(
           'Report Details',
