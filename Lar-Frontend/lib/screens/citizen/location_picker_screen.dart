@@ -4,19 +4,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'dart:async';
 
-// Model for location suggestions
-class LocationSuggestion {
-  final String address;
-  final double latitude;
-  final double longitude;
-
-  LocationSuggestion({
-    required this.address,
-    required this.latitude,
-    required this.longitude,
-  });
-}
-
 // Model for address components
 class AddressComponents {
   final String street;
@@ -58,12 +45,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
   String selectedAddress = '';
   AddressComponents? addressComponents;
   bool isLoading = true;
-  bool isSearching = false;
   bool isLoadingAddress = false;
-  late TextEditingController _searchController;
-  late FocusNode _searchFocusNode;
-  List<LocationSuggestion> suggestions = [];
-  bool showSuggestions = false;
   double? gpsAccuracy;
   String locationStatus = 'Acquiring location...'; // "GPS verified", "approximate", "manual"
   Timer? _searchDebounceTimer;
@@ -76,10 +58,6 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
   void initState() {
     super.initState();
     _mapController = MapController();
-    _searchController = TextEditingController();
-    _searchFocusNode = FocusNode();
-    _searchController.addListener(_onSearchChanged);
-    _searchFocusNode.addListener(_onFocusChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeLocation();
     });
@@ -88,130 +66,8 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
   @override
   void dispose() {
     _mapController.dispose();
-    _searchController.dispose();
-    _searchFocusNode.dispose();
     _searchDebounceTimer?.cancel();
     super.dispose();
-  }
-
-  void _onFocusChanged() {
-    setState(() {});
-  }
-
-  Future<void> _onSearchChanged() async {
-    // Cancel previous debounce timer
-    _searchDebounceTimer?.cancel();
-    
-    String query = _searchController.text.trim();
-    
-    if (query.isEmpty) {
-      setState(() {
-        suggestions = [];
-        showSuggestions = false;
-      });
-      return;
-    }
-
-    // Debounce search for 300ms to reduce API calls
-    _searchDebounceTimer = Timer(const Duration(milliseconds: 300), () async {
-      await _performSearch(query);
-    });
-  }
-
-  Future<void> _performSearch(String query) async {
-    try {
-      // Fetch location suggestions using Google's geocoding
-      final List<Location> locations = await locationFromAddress(query);
-      
-      List<LocationSuggestion> newSuggestions = [];
-      Set<String> seenAddresses = {}; // Track seen addresses to remove duplicates
-      
-      for (var location in locations.take(5)) {
-        String address = 'Unknown location';
-        try {
-          // Check cache first
-          String cacheKey = '${location.latitude},${location.longitude}';
-          
-          AddressComponents? cached = _placemarkCache[cacheKey];
-          if (cached != null) {
-            address = cached.fullAddress;
-          } else {
-            // Reverse geocode to get full address with all details
-            final List<Placemark> placemarks = await placemarkFromCoordinates(
-              location.latitude,
-              location.longitude,
-            ).timeout(const Duration(seconds: 5));
-
-            if (placemarks.isNotEmpty) {
-              final Placemark place = placemarks[0];
-              // Build complete address with all available fields
-              List<String> addressParts = [];
-              if (place.street?.isNotEmpty ?? false) addressParts.add(place.street!);
-              if (place.thoroughfare?.isNotEmpty ?? false) addressParts.add(place.thoroughfare!);
-              if (place.postalCode?.isNotEmpty ?? false) addressParts.add(place.postalCode!);
-              if (place.locality?.isNotEmpty ?? false) addressParts.add(place.locality!);
-              if (place.administrativeArea?.isNotEmpty ?? false) addressParts.add(place.administrativeArea!);
-              
-              address = addressParts.join(', ');
-              if (address.isEmpty) {
-                address = '${location.latitude.toStringAsFixed(4)}, ${location.longitude.toStringAsFixed(4)}';
-              }
-
-              // Cache the result
-              _placemarkCache[cacheKey] = AddressComponents(
-                street: place.street ?? '',
-                postalCode: place.postalCode ?? '',
-                locality: place.locality ?? '',
-                administrativeArea: place.administrativeArea ?? '',
-                fullAddress: address,
-              );
-            }
-          }
-        } catch (e) {
-          print('Error reverse geocoding suggestion: $e');
-          address = '${location.latitude.toStringAsFixed(4)}, ${location.longitude.toStringAsFixed(4)}';
-        }
-
-        // Filter out duplicates
-        if (!seenAddresses.contains(address)) {
-          seenAddresses.add(address);
-          newSuggestions.add(
-            LocationSuggestion(
-              address: address,
-              latitude: location.latitude,
-              longitude: location.longitude,
-            ),
-          );
-        }
-      }
-
-      if (mounted) {
-        setState(() {
-          suggestions = newSuggestions;
-          showSuggestions = newSuggestions.isNotEmpty;
-        });
-      }
-    } catch (error) {
-      print('Search suggestions error: $error');
-      if (mounted) {
-        setState(() {
-          suggestions = [];
-          showSuggestions = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _selectSuggestion(LocationSuggestion suggestion) async {
-    _searchController.clear();
-    setState(() {
-      showSuggestions = false;
-      suggestions = [];
-    });
-
-    final newLocation = LatLng(suggestion.latitude, suggestion.longitude);
-    await _setLocation(newLocation);
-    _showSnackBar('Selected: ${suggestion.address}');
   }
 
   Future<void> _initializeLocation() async {
@@ -475,70 +331,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     );
   }
 
-  Future<void> _searchLocation() async {
-    String searchedLocation = _searchController.text.trim();
-    if (searchedLocation.isEmpty) return;
-
-    _searchController.clear();
-    _showSnackBar('Searching for $searchedLocation...');
-
-    setState(() => isSearching = true);
-
-    try {
-      // Use Google's geocoding for search (much more accurate)
-      print('Searching for: $searchedLocation');
-      final List<Location> locations =
-          await locationFromAddress(searchedLocation);
-
-      if (locations.isNotEmpty) {
-        final Location location = locations[0];
-        final newLocation = LatLng(location.latitude, location.longitude);
-
-        print('Found location: ${location.latitude}, ${location.longitude}');
-
-        // Get address using Google geocoding for confirmation
-        String address = searchedLocation;
-        try {
-          final List<Placemark> placemarks = await placemarkFromCoordinates(
-            location.latitude,
-            location.longitude,
-          ).timeout(const Duration(seconds: 10));
-
-          if (placemarks.isNotEmpty) {
-            final Placemark place = placemarks[0];
-            address =
-                '${place.street}, ${place.postalCode} ${place.locality}, ${place.administrativeArea}';
-          }
-        } catch (e) {
-          print('Geocoding error: $e');
-        }
-
-        // Update map and selection
-        await _setLocation(newLocation);
-
-        if (mounted) {
-          _showSnackBar('Found: $address');
-        }
-      } else {
-        // Display fail message
-        if (mounted) {
-          _showSnackBar('$searchedLocation not found');
-        }
-      }
-    } catch (error) {
-      print('Search error: $error');
-      if (mounted) {
-        _showSnackBar('Search error: $error');
-      }
-    }
-
-    setState(() => isSearching = false);
-  }
-
   Future<void> _locateCurrentPosition() async {
-    if (isSearching) return;
-
-    setState(() => isSearching = true);
     _showSnackBar('Locating you...');
 
     try {
@@ -546,7 +339,6 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
       if (!serviceEnabled) {
         print('Location services are disabled');
         _showSnackBar('Location services are disabled');
-        setState(() => isSearching = false);
         return;
       }
 
@@ -562,7 +354,6 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
           permission == LocationPermission.deniedForever) {
         print('Location permission denied or permanently denied');
         _showSnackBar('Location permission denied. Check app settings.');
-        setState(() => isSearching = false);
         return;
       }
 
@@ -606,8 +397,6 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
         _showSnackBar('Location error: $error');
       }
     }
-
-    setState(() => isSearching = false);
   }
 
   @override
@@ -665,83 +454,6 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                       ),
                   ],
                 ),
-          // Search bar at the top
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              color: Colors.white,
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _searchController,
-                          focusNode: _searchFocusNode,
-                          onTapOutside: (event) {
-                            FocusManager.instance.primaryFocus?.unfocus();
-                          },
-                          onSubmitted: (_) => _searchLocation(),
-                          decoration: InputDecoration(
-                            hintText: 'Search location...',
-                            prefixIcon: const Icon(Icons.search),
-                            contentPadding: const EdgeInsets.symmetric(
-                                vertical: 8, horizontal: 12),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: Colors.grey),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      IconButton(
-                        icon: const Icon(Icons.search),
-                        onPressed: isSearching ? null : _searchLocation,
-                      ),
-                    ],
-                  ),
-                  // Suggestions dropdown
-                  if (showSuggestions && suggestions.isNotEmpty)
-                    Container(
-                      constraints: const BoxConstraints(maxHeight: 200),
-                      margin: const EdgeInsets.only(top: 8),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey.shade300),
-                        borderRadius: BorderRadius.circular(8),
-                        color: Colors.white,
-                      ),
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: suggestions.length,
-                        itemBuilder: (context, index) {
-                          final suggestion = suggestions[index];
-                          return ListTile(
-                            leading: const Icon(Icons.location_on,
-                                color: Color(0xFF0E9D63), size: 20),
-                            title: Text(
-                              suggestion.address,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(fontSize: 13),
-                            ),
-                            onTap: () => _selectSuggestion(suggestion),
-                            dense: true,
-                          );
-                        },
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
           // Zoom controls (left side)
           Positioned(
             left: 16,
@@ -770,15 +482,14 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
             right: 16,
             child: FloatingActionButton(
               mini: true,
-              onPressed: isSearching ? null : _locateCurrentPosition,
+              onPressed: _locateCurrentPosition,
               backgroundColor: const Color(0xFF0E9D63),
               tooltip: 'Get Current Location',
               child: const Icon(Icons.my_location, color: Colors.white, size: 20),
             ),
           ),
-          // Location info overlay at bottom - only show when search field is not focused
-          if (!_searchFocusNode.hasFocus)
-            Positioned(
+          // Location info overlay at bottom
+          Positioned(
               bottom: 0,
               left: 0,
               right: 0,
