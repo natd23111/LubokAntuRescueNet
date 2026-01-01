@@ -134,6 +134,9 @@ class ReportsProvider extends ChangeNotifier {
   List<Report> get reports => _filteredReports;
   List<Report> get allReports => _reports;
   List<Report> get myReports => _myReports;
+  List<Report> get activeReports => _reports
+      .where((report) => report.status.toLowerCase() == 'unresolved' || report.status.toLowerCase() == 'in-progress')
+      .toList();
   bool get isLoading => _isLoading;
   String? get error => _error;
   String get activeTab => _activeTab;

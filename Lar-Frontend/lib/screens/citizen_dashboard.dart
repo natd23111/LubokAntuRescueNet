@@ -25,10 +25,12 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // Load aid requests data when dashboard initializes
+    // Load aid requests and reports data when dashboard initializes
     Future.microtask(() {
       final aidRequestProvider = Provider.of<AidRequestProvider>(context, listen: false);
+      final reportsProvider = Provider.of<ReportsProvider>(context, listen: false);
       aidRequestProvider.fetchUserAidRequests();
+      reportsProvider.fetchReports();
     });
   }
 
@@ -196,7 +198,30 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(child: statTile('2', 'Active Reports', Colors.green.shade300)),
+                      Expanded(
+                        child: Consumer<ReportsProvider>(
+                          builder: (context, reportsProvider, _) {
+                            final activeCount = reportsProvider.activeReports.length;
+                            return GestureDetector(
+                              onTap: () async {
+                                final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                                await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => ChangeNotifierProvider(
+                                      create: (_) => ReportsProvider(authProvider: authProvider),
+                                      child: ViewReportsScreen(),
+                                    ),
+                                  ),
+                                );
+                                // Refresh the data when returning
+                                reportsProvider.fetchReports();
+                              },
+                              child: statTile(activeCount.toString(), 'Active Reports', Colors.green.shade300),
+                            );
+                          },
+                        ),
+                      ),
                       SizedBox(width: 8),
                       Expanded(
                         child: Consumer<AidRequestProvider>(

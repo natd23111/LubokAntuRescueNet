@@ -24,7 +24,11 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => AidProgramProvider()),
-        ChangeNotifierProvider(create: (_) => ReportsProvider()),
+        ChangeNotifierProxyProvider<AuthProvider, ReportsProvider>(
+          create: (context) => ReportsProvider(authProvider: Provider.of<AuthProvider>(context, listen: false)),
+          update: (context, authProvider, previous) => 
+            ReportsProvider(authProvider: authProvider),
+        ),
         ChangeNotifierProxyProvider<AuthProvider, AidRequestProvider>(
           create: (context) => AidRequestProvider(authProvider: Provider.of<AuthProvider>(context, listen: false)),
           update: (context, authProvider, previous) => 
