@@ -4,6 +4,7 @@ import 'screens/auth/register_screen.dart';
 import 'screens/citizen_dashboard.dart';
 import 'screens/admin/admin_dashboard_screen.dart';
 import 'screens/firebase_test_screen.dart';
+import 'screens/splash/splash_screen.dart';
 import 'providers/auth_provider.dart';
 import 'providers/aid_program_provider.dart';
 import 'providers/reports_provider.dart';
@@ -45,8 +46,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: LoginScreen(),
+      home: SplashScreen(),
       routes: {
+        '/splash': (_) => SplashScreen(),
         '/login': (_) => LoginScreen(),
         '/register': (_) => RegisterScreen(),
         '/home': (_) => HomeRouter(),
