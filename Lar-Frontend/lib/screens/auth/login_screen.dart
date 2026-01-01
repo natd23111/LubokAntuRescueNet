@@ -98,7 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 15),
                     Text(
                       'Lubok Antu RescueNet',
                       style: TextStyle(

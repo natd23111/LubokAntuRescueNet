@@ -4,6 +4,8 @@ import '../../providers/reports_provider.dart';
 import '../../providers/auth_provider.dart';
 
 class ViewReportsScreen extends StatefulWidget {
+  const ViewReportsScreen({super.key});
+
   @override
   _ViewReportsScreenState createState() => _ViewReportsScreenState();
 }
@@ -23,18 +25,11 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final reportsProvider = Provider.of<ReportsProvider>(context, listen: false);
       
-      print('DEBUG ViewReportsScreen: authProvider.userId = ${authProvider.userId}');
-      print('DEBUG ViewReportsScreen: currentUser?.uid = ${authProvider.currentUser?.uid}');
-      
       if (authProvider.userId != null) {
         // Set user ID in reports provider
-        print('DEBUG: Setting userId in ReportsProvider: ${authProvider.userId}');
         reportsProvider.setUserId(authProvider.userId!);
         // Fetch the user's reports
-        print('DEBUG: Calling fetchMyReports()');
         reportsProvider.fetchMyReports();
-      } else {
-        print('ERROR: authProvider.userId is null');
       }
     });
   }
@@ -48,9 +43,9 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'unresolved':
-        return const Color(0xFFFCD34D); // yellow
+        return const Color(0xFFD97706); // dark yellow
       case 'in-progress':
-        return const Color(0xFF93C5FD); // blue
+        return const Color(0xFF1E3A8A); // dark blue
       case 'resolved':
         return const Color(0xFF059669); // dark green
       default:
@@ -61,9 +56,9 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
   Color _getStatusBgColor(String status) {
     switch (status.toLowerCase()) {
       case 'unresolved':
-        return const Color(0xFFFEF08A);
+        return const Color(0xFFFEF08A); // light yellow
       case 'in-progress':
-        return const Color(0xFFDBEAFE);
+        return const Color(0xFFDBEAFE); // light blue
       case 'resolved':
         return const Color(0xFFD1FAE5); // light green
       default:
@@ -181,7 +176,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
             backgroundColor: const Color(0xFF059669),
             elevation: 0,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () => Navigator.of(context).pop(),
             ),
             title: const Text(
@@ -212,9 +207,9 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
                             border: activeTab == 'my-reports'
-                                ? Border(
+                                ? const Border(
                                     bottom: BorderSide(
-                                      color: const Color(0xFF059669),
+                                      color: Color(0xFF059669),
                                       width: 2,
                                     ),
                                   )
@@ -244,9 +239,9 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
                             border: activeTab == 'all-reports'
-                                ? Border(
+                                ? const Border(
                                     bottom: BorderSide(
-                                      color: const Color(0xFF059669),
+                                      color: Color(0xFF059669),
                                       width: 2,
                                     ),
                                   )
@@ -423,6 +418,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
 
     return SingleChildScrollView(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Filter chips
           Padding(
@@ -438,43 +434,47 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: types.map((type) {
-                    final isSelected = selectedType == type;
-                    return GestureDetector(
-                      onTap: () =>
-                          setState(() => selectedType = type),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? const Color(0xFF059669)
-                              : Colors.white,
-                          border: Border.all(
-                            color: isSelected
-                                ? const Color(0xFF059669)
-                                : Colors.grey[300]!,
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: types.map((type) {
+                      final isSelected = selectedType == type;
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: GestureDetector(
+                          onTap: () =>
+                              setState(() => selectedType = type),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? const Color(0xFF059669)
+                                  : Colors.white,
+                              border: Border.all(
+                                color: isSelected
+                                    ? const Color(0xFF059669)
+                                    : Colors.grey[300]!,
+                              ),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              type,
+                              style: TextStyle(
+                                color: isSelected
+                                    ? Colors.white
+                                    : Colors.grey[700],
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                           ),
-                          borderRadius: BorderRadius.circular(20),
                         ),
-                        child: Text(
-                          type,
-                          style: TextStyle(
-                            color: isSelected
-                                ? Colors.white
-                                : Colors.grey[700],
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
+                      );
+                    }).toList(),
+                  ),
                 ),
               ],
             ),
@@ -645,7 +645,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
         elevation: 0,
         leading: GestureDetector(
           onTap: () => setState(() => selectedReportId = null),
-          child: const Icon(Icons.arrow_back),
+          child: const Icon(Icons.arrow_back, color: Colors.white),
         ),
         title: const Text(
           'Report Details',
@@ -816,7 +816,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     'Status Timeline',
                     style: TextStyle(
                       color: Colors.black87,
@@ -870,7 +870,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
               ),
               side: BorderSide(color: Colors.grey[300]!),
             ),
-            child: Text('Back to Reports', style: TextStyle(color: Colors.grey[600])),
+            child: const Text('Back to Reports'),
           ),
         ),
       ),

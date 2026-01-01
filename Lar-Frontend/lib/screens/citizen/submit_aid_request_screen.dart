@@ -204,7 +204,7 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
             backgroundColor: const Color(0xFF059669),
             elevation: 0,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () => Navigator.of(context).pop(),
             ),
             title: const Text(
@@ -520,8 +520,15 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
             const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
-              child: TextButton(
+              child: OutlinedButton(
                 onPressed: () => Navigator.of(context).pop(),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                side: BorderSide(color: Colors.grey[300]!),
+                ),
                 child: Text(
                   'Back',
                   style: TextStyle(
