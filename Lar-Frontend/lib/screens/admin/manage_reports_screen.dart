@@ -313,6 +313,9 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
     );
 
     if (success && mounted) {
+      // Refresh the reports list to ensure updated data is displayed
+      await provider.fetchReports();
+      
       setState(() {
         showSuccess = true;
         editMode = false;
@@ -1063,11 +1066,18 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
                 padding: const EdgeInsets.all(16),
                 child: SizedBox(
                   width: double.infinity,
-                  child: TextButton(
+                  child: OutlinedButton(
                     onPressed: widget.onBack,
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      side: BorderSide(color: Colors.grey[300]!),
+                    ),
                     child: Text(
                       'Back',
-                      style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                      style: TextStyle(color: Colors.grey[600]),
                     ),
                   ),
                 ),

@@ -4,7 +4,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/reports_provider.dart';
 import '../../providers/aid_request_provider.dart';
 import 'aid/aid_list.dart';
-import 'bantuan/bantuan_list.dart';
+import 'citizen/view_aid_program_screen.dart';
 import 'profile/profile_screen.dart';
 import 'notifications/notification_settings_screen.dart';
 import 'citizen/view_reports_screen.dart';

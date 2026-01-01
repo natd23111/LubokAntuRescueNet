@@ -6,10 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="c73decfb-371e-4850-b835-a74b93fcf489" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/models/aid_request_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/models/aid_request_model.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/providers/aid_request_provider.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/providers/aid_request_provider.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/admin_dashboard_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/admin_dashboard_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/submit_aid_request_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/submit_aid_request_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/manage_aid_programs_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/manage_aid_programs_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/manage_aid_requests_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/manage_aid_requests_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/manage_reports_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/manage_reports_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/bantuan/bantuan_list.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen_dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen_dashboard.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

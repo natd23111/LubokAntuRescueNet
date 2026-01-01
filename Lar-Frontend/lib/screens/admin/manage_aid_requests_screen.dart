@@ -385,6 +385,9 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFF0E9D63),
                   padding: EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
                 child: Text('Update Request', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
               ),
@@ -396,8 +399,12 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
                 onPressed: () => setState(() => editMode = false),
                 style: OutlinedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  side: BorderSide(color: Colors.grey[300]!),
                 ),
-                child: Text('Cancel', style: TextStyle(color: Colors.black87)),
+                child: Text('Cancel', style: TextStyle(color: Colors.grey[600])),
               ),
             ),
           ],
@@ -496,6 +503,9 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFF0E9D63),
                   padding: EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
                 child: Text('Update Status', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
               ),
@@ -507,8 +517,12 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
                 onPressed: () => setState(() => selectedRequestId = null),
                 style: OutlinedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  side: BorderSide(color: Colors.grey[300]!),
                 ),
-                child: Text('Back to List', style: TextStyle(color: Colors.black87)),
+                child: Text('Back to List', style: TextStyle(color: Colors.grey[600])),
               ),
             ),
           ],
@@ -687,6 +701,27 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
                           );
                         },
                       ),
+          ),
+          // Back Button
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: widget.onBack,
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  side: BorderSide(color: Colors.grey[300]!),
+                ),
+                child: Text(
+                  'Back',
+                  style: TextStyle(color: Colors.grey[600]),
+                ),
+              ),
+            ),
           ),
         ],
       ),
