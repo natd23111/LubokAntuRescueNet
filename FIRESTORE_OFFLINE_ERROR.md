@@ -67,17 +67,7 @@ In Firebase Console:
 
 Check `lib/firebase_options.dart` has correct web credentials:
 
-```dart
-static const FirebaseOptions web = FirebaseOptions(
-  apiKey: 'AIzaSyBJHR59qKN9jSNI6tRxV_LOt_RG1t3dytA',
-  appId: '1:156255050730:web:38456607a648d528ea3093',
-  messagingSenderId: '156255050730',
-  projectId: 'lubok-antu-rescuenet',
-  authDomain: 'lubok-antu-rescuenet.firebaseapp.com',
-  storageBucket: 'lubok-antu-rescuenet.firebasestorage.app',
-  measurementId: 'G-JXEP6XED9E',
-);
-```
+
 
 ✅ If this looks correct, Firebase is configured right.
 
