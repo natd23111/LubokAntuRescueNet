@@ -40,17 +40,24 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
       await FirebaseSeeder.seedDatabase();
       if (mounted) {
         // Refresh the reports list
-        await Provider.of<ReportsProvider>(context, listen: false).fetchReports();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Database seeded successfully!'),
-            backgroundColor: Colors.green,
-            duration: Duration(seconds: 3),
-          ),
-        );
+        final reportsProvider =
+            Provider.of<ReportsProvider>(context, listen: false);
+        await reportsProvider.fetchReports();
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).clearSnackBars();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('✅ Database seeded successfully!'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 3),
+            ),
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
+        ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error seeding database: $e'),
@@ -80,17 +87,24 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
                 await FirebaseSeeder.clearDatabase();
                 if (mounted) {
                   // Refresh the reports list
-                  await Provider.of<ReportsProvider>(context, listen: false).fetchReports();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('✅ Database cleared successfully!'),
-                      backgroundColor: Colors.orange,
-                      duration: Duration(seconds: 3),
-                    ),
-                  );
+                  final reportsProvider =
+                      Provider.of<ReportsProvider>(context, listen: false);
+                  await reportsProvider.fetchReports();
+                  
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).clearSnackBars();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('✅ Database cleared successfully!'),
+                        backgroundColor: Colors.orange,
+                        duration: Duration(seconds: 3),
+                      ),
+                    );
+                  }
                 }
               } catch (e) {
                 if (mounted) {
+                  ScaffoldMessenger.of(context).clearSnackBars();
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('Error clearing database: $e'),
@@ -106,6 +120,141 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
         ],
       ),
     );
+  }
+
+  void _showFullScreenImage(String imageUrl) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        insetPadding: EdgeInsets.zero,
+        backgroundColor: Colors.black,
+        child: Stack(
+          children: [
+            // Full-screen image with zoom capability
+            GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Center(
+                child: InteractiveViewer(
+                  panEnabled: true,
+                  minScale: 1.0,
+                  maxScale: 4.0,
+                  child: Image.network(
+                    imageUrl,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+            ),
+            // Close button
+            Positioned(
+              top: 16,
+              right: 16,
+              child: GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black54,
+                    shape: BoxShape.circle,
+                  ),
+                  padding: const EdgeInsets.all(8),
+                  child: const Icon(
+                    Icons.close,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showDeleteConfirmation(Report report) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Report'),
+        content: Text(
+          'Are you sure you want to delete report ${report.id}?\n\n'
+          'Type: ${report.type}\n'
+          'Location: ${report.location}\n\n'
+          'This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await _deleteReport(report.id);
+            },
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _deleteReport(String reportId) async {
+    try {
+      final reportsProvider =
+          Provider.of<ReportsProvider>(context, listen: false);
+      
+      // Clear any existing snackbars first
+      if (mounted) {
+        ScaffoldMessenger.of(context).clearSnackBars();
+      }
+      
+      // Show loading indicator
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Deleting report...'),
+            duration: Duration(seconds: 1),
+          ),
+        );
+      }
+
+      // Delete from Firestore
+      await reportsProvider.deleteReport(reportId);
+
+      // Go back to list
+      if (mounted) {
+        // Clear loading snackbar
+        ScaffoldMessenger.of(context).clearSnackBars();
+        
+        setState(() => selectedReportId = null);
+        
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Report $reportId deleted successfully'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        // Clear loading snackbar
+        ScaffoldMessenger.of(context).clearSnackBars();
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error deleting report: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 
   Color _getPriorityColor(String priority) {
@@ -512,6 +661,13 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
             color: Colors.white,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete, color: Colors.red),
+            onPressed: () => _showDeleteConfirmation(report),
+            tooltip: 'Delete Report',
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -610,7 +766,58 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
             ),
             const SizedBox(height: 16),
 
-            if (report.imageUrl != null)
+            if (report.imageUrls != null && report.imageUrls!.isNotEmpty)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    report.imageUrls!.length == 1 ? 'Image' : 'Images',
+                    style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                  ),
+                  const SizedBox(height: 8),
+                  if (report.imageUrls!.length == 1)
+                    GestureDetector(
+                      onTap: () => _showFullScreenImage(report.imageUrls!.first),
+                      child: Container(
+                        width: double.infinity,
+                        height: 200,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Image.network(report.imageUrls!.first, fit: BoxFit.cover),
+                      ),
+                    )
+                  else
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        crossAxisSpacing: 8,
+                        mainAxisSpacing: 8,
+                      ),
+                      itemCount: report.imageUrls!.length,
+                      itemBuilder: (context, index) {
+                        return GestureDetector(
+                          onTap: () => _showFullScreenImage(report.imageUrls![index]),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Image.network(
+                              report.imageUrls![index],
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  const SizedBox(height: 16),
+                ],
+              )
+            else if (report.imageUrl != null)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -619,14 +826,17 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
                     style: TextStyle(color: Colors.grey[600], fontSize: 12),
                   ),
                   const SizedBox(height: 8),
-                  Container(
-                    width: double.infinity,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(8),
+                  GestureDetector(
+                    onTap: () => _showFullScreenImage(report.imageUrl!),
+                    child: Container(
+                      width: double.infinity,
+                      height: 200,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Image.network(report.imageUrl!, fit: BoxFit.cover),
                     ),
-                    child: Image.network(report.imageUrl!, fit: BoxFit.cover),
                   ),
                   const SizedBox(height: 16),
                 ],
@@ -730,7 +940,15 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
         }
 
         if (selectedReportId != null && selectedReport != null) {
-          return _buildViewReportView(selectedReport);
+          return PopScope(
+            canPop: false,
+            onPopInvoked: (didPop) {
+              if (!didPop) {
+                setState(() => selectedReportId = null);
+              }
+            },
+            child: _buildViewReportView(selectedReport),
+          );
         }
 
         return Scaffold(

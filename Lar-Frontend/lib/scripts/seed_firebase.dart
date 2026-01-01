@@ -11,7 +11,7 @@ class FirebaseSeeder {
 
       // Create admin user
       print('Creating admin user...');
-      await _createUser(
+      final adminId = await _createUser(
         email: 'admin@rescuenet.com',
         password: 'password123',
         fullName: 'Admin User',
@@ -32,6 +32,11 @@ class FirebaseSeeder {
         address: 'Block A, Jalan Sejahtera, Lubok Antu',
         role: 'resident',
       );
+
+      // Only proceed if we have valid user IDs
+      if (adminId == null || citizenUserId == null) {
+        throw Exception('Failed to create seed users');
+      }
 
       // Create aid programs
       print('Creating aid programs...');
@@ -58,13 +63,39 @@ class FirebaseSeeder {
     required String role,
   }) async {
     try {
-      // Create Firebase Auth user
-      final userCredential = await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      // Check if user already exists in Firestore
+      final existingUsers = await _firestore
+          .collection('users')
+          .where('email', isEqualTo: email)
+          .limit(1)
+          .get();
+      
+      if (existingUsers.docs.isNotEmpty) {
+        print('  ℹ User already exists: $email');
+        return existingUsers.docs.first.id;
+      }
 
-      // Create user profile in Firestore
+      // Try to create Firebase Auth user
+      UserCredential? userCredential;
+      try {
+        userCredential = await _auth.createUserWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+      } catch (authError) {
+        if (authError.toString().contains('email-already-in-use')) {
+          // User exists in Auth, try to sign in instead
+          print('  ℹ Auth user already exists: $email');
+          userCredential = await _auth.signInWithEmailAndPassword(
+            email: email,
+            password: password,
+          );
+        } else {
+          rethrow;
+        }
+      }
+
+      // Create or update user profile in Firestore
       await _firestore.collection('users').doc(userCredential.user!.uid).set({
         'full_name': fullName,
         'ic_no': icNo,
@@ -77,26 +108,11 @@ class FirebaseSeeder {
         'updated_at': DateTime.now().toIso8601String(),
       });
 
-      print('  ✓ Created user: $email ($role)');
+      print('  ✓ Created/updated user: $email ($role)');
       return userCredential.user!.uid;
     } catch (e) {
-      if (e.toString().contains('email-already-in-use')) {
-        print('  ℹ User already exists: $email');
-        // Return existing user's UID
-        try {
-          final userList = await _firestore
-              .collection('users')
-              .where('email', isEqualTo: email)
-              .limit(1)
-              .get();
-          if (userList.docs.isNotEmpty) {
-            return userList.docs.first.id;
-          }
-        } catch (_) {}
-      } else {
-        print('  ✗ Error creating user $email: $e');
-        rethrow;
-      }
+      print('  ✗ Error creating user $email: $e');
+      rethrow;
     }
     return null;
   }
@@ -378,15 +394,24 @@ class FirebaseSeeder {
       }
       print('  ✓ Deleted ${reportsSnapshot.docs.length} emergency reports');
 
-      // Delete all users (except current user)
-      print('Deleting users...');
+      // Delete all users from Firestore
+      print('Deleting user profiles...');
       final usersSnapshot = await _firestore.collection('users').get();
       for (var doc in usersSnapshot.docs) {
         await doc.reference.delete();
       }
       print('  ✓ Deleted ${usersSnapshot.docs.length} user profiles');
 
+      // Delete metadata counters
+      print('Deleting metadata...');
+      final metadataSnapshot = await _firestore.collection('_metadata').get();
+      for (var doc in metadataSnapshot.docs) {
+        await doc.reference.delete();
+      }
+      print('  ✓ Deleted metadata');
+
       print('✅ Database cleared successfully!');
+      print('Note: Firebase Auth users should be deleted manually from Firebase Console');
     } catch (e) {
       print('❌ Error clearing database: $e');
       rethrow;

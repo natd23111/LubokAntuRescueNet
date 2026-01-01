@@ -102,6 +102,55 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
     );
   }
 
+  void _showFullScreenImage(String imageUrl) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        insetPadding: EdgeInsets.zero,
+        backgroundColor: Colors.black,
+        child: Stack(
+          children: [
+            // Full-screen image with zoom capability
+            GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Center(
+                child: InteractiveViewer(
+                  panEnabled: true,
+                  minScale: 1.0,
+                  maxScale: 4.0,
+                  child: Image.network(
+                    imageUrl,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+            ),
+            // Close button
+            Positioned(
+              top: 16,
+              right: 16,
+              child: GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black54,
+                    shape: BoxShape.circle,
+                  ),
+                  padding: const EdgeInsets.all(8),
+                  child: const Icon(
+                    Icons.close,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<ReportsProvider>(
@@ -117,7 +166,15 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
         }
 
         if (selectedReportId != null && selectedReport != null) {
-          return _buildDetailView(selectedReport);
+          return PopScope(
+            canPop: false,
+            onPopInvoked: (didPop) {
+              if (!didPop) {
+                setState(() => selectedReportId = null);
+              }
+            },
+            child: _buildDetailView(selectedReport),
+          );
         }
 
         return Scaffold(
@@ -127,7 +184,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
             elevation: 0,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => setState(() => selectedReportId = null),
             ),
             title: const Text(
               'Report Status',
@@ -663,7 +720,64 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
             const SizedBox(height: 16),
 
             // Image placeholder
-            if (report.imageUrl != null)
+            if (report.imageUrls != null && report.imageUrls!.isNotEmpty)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    report.imageUrls!.length == 1 ? 'Image' : 'Images',
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 12,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  if (report.imageUrls!.length == 1)
+                    GestureDetector(
+                      onTap: () => _showFullScreenImage(report.imageUrls!.first),
+                      child: Container(
+                        width: double.infinity,
+                        height: 200,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Image.network(
+                          report.imageUrls!.first,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    )
+                  else
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        crossAxisSpacing: 8,
+                        mainAxisSpacing: 8,
+                      ),
+                      itemCount: report.imageUrls!.length,
+                      itemBuilder: (context, index) {
+                        return GestureDetector(
+                          onTap: () => _showFullScreenImage(report.imageUrls![index]),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Image.network(
+                              report.imageUrls![index],
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  const SizedBox(height: 16),
+                ],
+              )
+            else if (report.imageUrl != null)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -675,16 +789,19 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Container(
-                    width: double.infinity,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Image.network(
-                      report.imageUrl!,
-                      fit: BoxFit.cover,
+                  GestureDetector(
+                    onTap: () => _showFullScreenImage(report.imageUrl!),
+                    child: Container(
+                      width: double.infinity,
+                      height: 200,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Image.network(
+                        report.imageUrl!,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),

@@ -3,9 +3,12 @@ import 'package:provider/provider.dart';
 import 'dart:async';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:typed_data';
 import '../../providers/reports_provider.dart';
 import '../../providers/auth_provider.dart';
 import 'location_picker_screen.dart';
+import '../../services/firebase_service.dart';
 
 class SubmitEmergencyScreen extends StatefulWidget {
   final VoidCallback onBack;
@@ -24,6 +27,9 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
   bool isSubmitting = false;
   String? selectedEmergencyType;
   String? reportReference;
+  List<XFile> selectedImages = [];
+  List<Uint8List> selectedImageBytes = [];
+  final ImagePicker _imagePicker = ImagePicker();
 
   final TextEditingController locationController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
@@ -62,12 +68,18 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
       final reportsProvider =
           Provider.of<ReportsProvider>(context, listen: false);
 
+      final currentUser = authProvider.currentUser;
+      if (currentUser == null) {
+        _showError('Please sign in before submitting a report.');
+        return;
+      }
+
       // Get user info from profile
       final userName = authProvider.userName ?? 'Anonymous';
       final userIc = authProvider.userIc ?? '';
       final userPhone = authProvider.userPhone ?? '';
       
-      // Create report object with user's profile data
+      // Create report object with user's profile data (exclude null values)
       final reportData = {
         'title': '${selectedEmergencyType} - ${locationController.text}',
         'type': selectedEmergencyType,
@@ -79,18 +91,68 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
         'reporter_ic': userIc,
         'reporter_contact': userPhone,
         'date_reported': DateTime.now().toIso8601String(),
-        'date_updated': null,
-        'admin_notes': null,
-        'image_url': null,
-        'user_id': authProvider.currentUser?.uid ?? '',
+        'user_id': currentUser.uid,
         'created_at': DateTime.now().toIso8601String(),
         'updated_at': DateTime.now().toIso8601String(),
       };
 
-      // Submit to Firebase
+      // Submit to Firebase (create report first)
+      print('DEBUG: Submitting report with data: $reportData');
       final reportId = await reportsProvider.createEmergencyReport(reportData);
+      print('DEBUG: Report creation returned: $reportId');
 
       if (reportId != null && mounted) {
+        print('DEBUG: Report created successfully: $reportId');
+        
+        // If images were selected, upload them to Firebase Storage and update the report
+        if (selectedImages.isNotEmpty) {
+          print('DEBUG: Uploading ${selectedImages.length} images...');
+          try {
+            final firebase = FirebaseService();
+            List<String> uploadedUrls = [];
+
+            for (int i = 0; i < selectedImages.length; i++) {
+              final xfile = selectedImages[i];
+              final bytes = selectedImageBytes.length > i ? selectedImageBytes[i] : await xfile.readAsBytes();
+              // derive extension from name if possible
+              String ext = 'jpg';
+              try {
+                final parts = xfile.name.split('.');
+                if (parts.length > 1) ext = parts.last;
+              } catch (_) {}
+
+              final storagePath = 'emergency_reports/$reportId/images/img_${i}_${DateTime.now().millisecondsSinceEpoch}.$ext';
+              print('DEBUG: Uploading image $i to: $storagePath');
+              final url = await firebase.uploadFile(storagePath, bytes);
+              print('DEBUG: Image $i uploaded successfully: $url');
+              uploadedUrls.add(url);
+            }
+
+            // Update Firestore document with image URLs (and first image for backward compatibility)
+            if (uploadedUrls.isNotEmpty) {
+              print('DEBUG: Updating report with ${uploadedUrls.length} image URLs');
+              await FirebaseService().updateDocument('emergency_reports', reportId, {
+                'image_urls': uploadedUrls,
+                'image_url': uploadedUrls.first,
+                'updated_at': DateTime.now().toIso8601String(),
+              });
+              print('DEBUG: Report updated with image URLs');
+            }
+
+            // Refresh provider to fetch updated docs
+            await reportsProvider.fetchReports();
+            if (Provider.of<AuthProvider>(context, listen: false).currentUser != null) {
+              await reportsProvider.fetchMyReports();
+            }
+          } catch (e) {
+            print('ERROR uploading images: $e');
+            // Non-fatal: show error but proceed to show report success
+            _showError('Uploaded report but failed to upload images: $e');
+          }
+        } else {
+          print('DEBUG: No images to upload');
+        }
+
         setState(() {
           showSuccess = true;
           reportReference = reportId;
@@ -107,10 +169,15 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
             widget.onBack();
           }
         });
+      } else {
+        print('ERROR: Report creation failed or returned null');
+        _showError('Failed to create report. Please try again.');
       }
     } catch (e) {
+      print('ERROR submitting report: $e');
       if (mounted) {
         _showError('Error submitting report: $e');
+        setState(() => isSubmitting = false);
       }
     } finally {
       if (mounted) {
@@ -206,11 +273,79 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
     }
   }
 
+  Future<void> _pickImage() async {
+    try {
+      // Check if already at max (3 images)
+      if (selectedImages.length >= 3) {
+        _showError('Maximum 3 images allowed. Remove an image to add more.');
+        return;
+      }
+
+      final List<XFile>? pickedFiles = await _imagePicker.pickMultiImage(
+        maxWidth: 1920,
+        maxHeight: 1080,
+        imageQuality: 80,
+      );
+
+      if (pickedFiles != null && pickedFiles.isNotEmpty) {
+        int added = 0;
+        int skipped = 0;
+
+        for (var pickedFile in pickedFiles) {
+          if (selectedImages.length + added >= 3) {
+            skipped++;
+            continue;
+          }
+
+          // Get file size in bytes (works on mobile and web)
+          final int fileSizeInBytes = await pickedFile.length();
+          final double fileSizeInMB = fileSizeInBytes / (1024 * 1024);
+
+          if (fileSizeInMB > 5) {
+            skipped++;
+            continue;
+          }
+
+          // Read bytes for preview and uploading
+          final bytes = await pickedFile.readAsBytes();
+
+          setState(() {
+            selectedImages.add(pickedFile);
+            selectedImageBytes.add(bytes);
+          });
+          added++;
+        }
+
+        if (added == 0) {
+          _showError('No valid images selected. Max 5MB per image.');
+          return;
+        }
+
+        String message = 'Added $added image(s)';
+        if (skipped > 0) message += ' ($skipped skipped)';
+        _showSuccess(message);
+      }
+    } catch (e) {
+      _showError('Error picking images: $e');
+      print('Image picker error: $e');
+    }
+  }
+
+  void _removeImage(int index) {
+    setState(() {
+      selectedImages.removeAt(index);
+      selectedImageBytes.removeAt(index);
+    });
+    _showSuccess('Image removed');
+  }
+
   void _clearForm() {
     setState(() {
       selectedEmergencyType = null;
       locationController.clear();
       descriptionController.clear();
+      selectedImages.clear();
+      selectedImageBytes.clear();
     });
   }
 
@@ -226,6 +361,7 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: const Color(0xFF059669),
@@ -503,13 +639,70 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Upload Image',
+                        'Upload Images',
                         style: TextStyle(
                           color: Colors.grey[700],
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      Text(
+                        'Maximum 3 images, up to 5MB each',
+                        style: TextStyle(
+                          color: Colors.grey[500],
+                          fontSize: 12,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      // Image Thumbnails
+                      if (selectedImages.isNotEmpty)
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          child: GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              crossAxisSpacing: 8,
+                              mainAxisSpacing: 8,
+                            ),
+                            itemCount: selectedImages.length,
+                            itemBuilder: (context, index) {
+                              return Stack(
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey[300]!),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Image.memory(
+                                      selectedImageBytes[index],
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  Positioned(
+                                    top: 0,
+                                    right: 0,
+                                    child: GestureDetector(
+                                      onTap: () => _removeImage(index),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.red,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(
+                                          Icons.close,
+                                          color: Colors.white,
+                                          size: 16,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                        ),
+                      // Upload Button
                       Container(
                         decoration: BoxDecoration(
                           border: Border.all(
@@ -543,14 +736,18 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                             ),
                             const SizedBox(height: 12),
                             ElevatedButton(
-                              onPressed: () {
-                                // TODO: Implement image picker
-                              },
+                              onPressed: selectedImages.length >= 3
+                                  ? null
+                                  : _pickImage,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.grey[100],
                                 foregroundColor: Colors.grey[700],
                               ),
-                              child: const Text('Choose File'),
+                              child: Text(
+                                selectedImages.length >= 3
+                                    ? 'Max Images Reached'
+                                    : 'Choose Images (${selectedImages.length}/3)',
+                              ),
                             ),
                           ],
                         ),

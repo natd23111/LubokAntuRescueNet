@@ -18,6 +18,7 @@ class Report {
   final DateTime? dateDispatched;
   final String? adminNotes;
   final String? imageUrl;
+  final List<String>? imageUrls;
   final String? userId;
 
   Report({
@@ -37,6 +38,7 @@ class Report {
     this.dateDispatched,
     this.adminNotes,
     this.imageUrl,
+    this.imageUrls,
     this.userId,
   });
 
@@ -75,6 +77,9 @@ class Report {
           : null,
       adminNotes: data['admin_notes'],
       imageUrl: data['image_url'],
+      imageUrls: data['image_urls'] != null
+          ? List<String>.from((data['image_urls'] as List).map((e) => e.toString()))
+          : (data['image_url'] != null ? [data['image_url'].toString()] : null),
       userId: data['user_id'],
     );
   }
@@ -96,6 +101,7 @@ class Report {
       'date_dispatched': dateDispatched,
       'admin_notes': adminNotes,
       'image_url': imageUrl,
+      'image_urls': imageUrls,
       'user_id': userId,
     };
   }
