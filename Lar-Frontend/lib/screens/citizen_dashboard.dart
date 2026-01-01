@@ -342,12 +342,74 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 6),
-                  child: Column(
-                    children: [
-                      _activityCard('Emergency Report #ER2025001', 'In Progress', Colors.amber.shade100, 'Flood - Jalan Sungai Besar', 'Nov 29, 2025'),
-                      SizedBox(height: 8),
-                      _activityCard('Aid Request #AR2025012', 'Pending', Colors.blue.shade50, 'Disaster Relief Aid', 'Nov 28, 2025'),
-                    ],
+                  child: Consumer2<ReportsProvider, AidRequestProvider>(
+                    builder: (context, reportsProvider, aidRequestProvider, _) {
+                      // Get most recent report
+                      final reports = reportsProvider.allReports;
+                      final recentReport = reports.isNotEmpty ? reports.first : null;
+                      
+                      // Get most recent aid request
+                      final requests = aidRequestProvider.aidRequests;
+                      final recentRequest = requests.isNotEmpty ? requests.first : null;
+                      
+                      return Column(
+                        children: [
+                          if (recentReport != null)
+                            GestureDetector(
+                              onTap: () async {
+                                final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                                await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => ChangeNotifierProvider(
+                                      create: (_) => ReportsProvider(authProvider: authProvider),
+                                      child: ViewReportsScreen(),
+                                    ),
+                                  ),
+                                );
+                                reportsProvider.fetchReports();
+                              },
+                              child: _activityCard(
+                                'Report ${recentReport.reportId}',
+                                recentReport.status,
+                                _getReportStatusBgColor(recentReport.status),
+                                recentReport.title,
+                                recentReport.formattedDate,
+                              ),
+                            ),
+                          if (recentReport != null && recentRequest != null)
+                            SizedBox(height: 8),
+                          if (recentRequest != null)
+                            GestureDetector(
+                              onTap: () async {
+                                final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                                await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => ChangeNotifierProvider(
+                                      create: (_) => AidRequestProvider(authProvider: authProvider),
+                                      child: ViewAidRequestScreen(),
+                                    ),
+                                  ),
+                                );
+                                aidRequestProvider.fetchUserAidRequests();
+                              },
+                              child: _activityCard(
+                                'Request ${recentRequest.requestId}',
+                                recentRequest.status,
+                                _getRequestStatusBgColor(recentRequest.status),
+                                recentRequest.aidType,
+                                recentRequest.formattedDate,
+                              ),
+                            ),
+                          if (recentReport == null && recentRequest == null)
+                            Container(
+                              padding: EdgeInsets.all(16),
+                              child: Text('No recent activity', style: TextStyle(color: Colors.grey[600])),
+                            ),
+                        ],
+                      );
+                    },
                   ),
                 ),
               ],
@@ -408,5 +470,31 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  Color _getReportStatusBgColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'unresolved':
+        return Colors.red.shade100;
+      case 'in-progress':
+        return Colors.amber.shade100;
+      case 'resolved':
+        return Colors.green.shade100;
+      default:
+        return Colors.grey.shade100;
+    }
+  }
+
+  Color _getRequestStatusBgColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return Colors.blue.shade50;
+      case 'approved':
+        return Colors.green.shade50;
+      case 'rejected':
+        return Colors.red.shade50;
+      default:
+        return Colors.grey.shade50;
+    }
   }
 }
