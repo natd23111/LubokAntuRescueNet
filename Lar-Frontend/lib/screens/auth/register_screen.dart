@@ -53,7 +53,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> _submit(AuthProvider auth) async {
     if (!_formKey.currentState!.validate()) return;
     if (!_agree) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('You must agree to the Terms & Conditions')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('You must agree to the Terms & Conditions')));
       return;
     }
 
@@ -68,37 +69,41 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     final success = await auth.register(data);
     if (success) {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => HomeScreen()));
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (_) => HomeScreen()));
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Registration failed')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Registration failed')));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
-    final primaryGreen = Color(0xFF0E9D63);
+    final primaryGreen = const Color(0xFF0E9D63);
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: primaryGreen,
-        title: Text('Register', style: TextStyle(color: Colors.white)),
-        leading: BackButton(color: Colors.white),
+        title: const Text('Register', style: TextStyle(color: Colors.white)),
+        leading: const BackButton(color: Colors.white),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text('Create a new citizen account', style: TextStyle(color: Colors.black54)),
-              SizedBox(height: 12),
+              const Text('Create a new citizen account',
+                  style: TextStyle(color: Colors.black54)),
+              const SizedBox(height: 12),
 
               Card(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
                 elevation: 2,
                 child: Padding(
-                  padding: EdgeInsets.all(14),
+                  padding: const EdgeInsets.all(14),
                   child: Form(
                     key: _formKey,
                     child: Column(
@@ -108,49 +113,80 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         TextFormField(
                           controller: _nameController,
                           maxLength: 40,
-                          decoration: InputDecoration(labelText: 'Full Name', hintText: 'Enter full name', border: OutlineInputBorder(), counterText: '',),
-                          validator: (v) => (v == null || v.trim().isEmpty) ? 'Please enter your full name' : null,
+                          decoration: InputDecoration(
+                            labelText: 'Full Name',
+                            hintText: 'Enter full name',
+                            border: const OutlineInputBorder(),
+                            counterText: '',
+                            prefixIcon: const Icon(Icons.person_outline),
+                          ),
+                          validator: (v) => (v == null || v.trim().isEmpty)
+                              ? 'Please enter your full name'
+                              : null,
                         ),
-                        SizedBox(height: 12),
+                        const SizedBox(height: 12),
 
                         // IC Number
                         TextFormField(
                           controller: _icController,
                           maxLength: 14,
-                          decoration: InputDecoration(labelText: 'IC Number', hintText: 'e.g., 950123-13-5678', border: OutlineInputBorder(), counterText: '',),
+                          decoration: InputDecoration(
+                            labelText: 'IC Number',
+                            hintText: 'e.g., 950123-13-5678',
+                            border: const OutlineInputBorder(),
+                            counterText: '',
+                            prefixIcon: const Icon(Icons.credit_card_outlined),
+                          ),
                           keyboardType: TextInputType.number,
                           onChanged: (value) {
                             final formatted = _formatIC(value);
                             if (formatted != value) {
                               _icController.value = _icController.value.copyWith(
                                 text: formatted,
-                                selection: TextSelection.collapsed(offset: formatted.length),
+                                selection: TextSelection.collapsed(
+                                    offset: formatted.length),
                               );
                             }
                           },
-                          validator: (v) => (v == null || v.trim().isEmpty) ? 'Please enter your IC number' : null,
+                          validator: (v) => (v == null || v.trim().isEmpty)
+                              ? 'Please enter your IC number'
+                              : null,
                         ),
-                        SizedBox(height: 12),
+                        const SizedBox(height: 12),
 
                         // Phone
                         TextFormField(
                           controller: _phoneController,
                           maxLength: 12,
-                          decoration: InputDecoration(labelText: 'Phone No', hintText: 'Enter Phone No', border: OutlineInputBorder(), counterText: '',),
+                          decoration: InputDecoration(
+                            labelText: 'Phone No',
+                            hintText: 'Enter Phone No',
+                            border: const OutlineInputBorder(),
+                            counterText: '',
+                            prefixIcon: const Icon(Icons.phone_outlined),
+                          ),
                           keyboardType: TextInputType.phone,
-                          validator: (v) => (v == null || v.trim().isEmpty) ? 'Please enter your phone number' : null,
+                          validator: (v) => (v == null || v.trim().isEmpty)
+                              ? 'Please enter your phone number'
+                              : null,
                         ),
-                        SizedBox(height: 12),
+                        const SizedBox(height: 12),
 
                         // Email
                         TextFormField(
                           controller: _emailController,
                           maxLength: 64,
-                          decoration: InputDecoration(labelText: 'Email', hintText: 'Enter email address', border: OutlineInputBorder(), counterText: '',),
+                          decoration: InputDecoration(
+                            labelText: 'Email',
+                            hintText: 'Enter email address',
+                            border: const OutlineInputBorder(),
+                            counterText: '',
+                            prefixIcon: const Icon(Icons.email_outlined),
+                          ),
                           keyboardType: TextInputType.emailAddress,
                           validator: _validateEmail,
                         ),
-                        SizedBox(height: 12),
+                        const SizedBox(height: 12),
 
                         // Password
                         TextFormField(
@@ -159,11 +195,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           decoration: InputDecoration(
                             labelText: 'Password',
                             hintText: 'Enter password',
-                            border: OutlineInputBorder(),
+                            border: const OutlineInputBorder(),
+                            counterText: '',
+                            prefixIcon: const Icon(Icons.lock_outline),
                             suffixIcon: IconButton(
-                              icon: Icon(_hidePassword ? Icons.visibility_off : Icons.visibility),
-                              onPressed: () => setState(() => _hidePassword = !_hidePassword),
-                            ), counterText: '',
+                              icon: Icon(_hidePassword
+                                  ? Icons.visibility_off
+                                  : Icons.visibility),
+                              onPressed: () =>
+                                  setState(() => _hidePassword = !_hidePassword),
+                            ),
                           ),
                           obscureText: _hidePassword,
                           validator: (v) {
@@ -173,9 +214,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             return null;
                           },
                         ),
-                        SizedBox(height: 6),
-                        Text('Minimum 8 characters', style: TextStyle(fontSize: 12, color: Colors.black45)),
-                        SizedBox(height: 12),
+                        const SizedBox(height: 6),
+                        const Text('Minimum 8 characters',
+                            style: TextStyle(fontSize: 12, color: Colors.black45)),
+                        const SizedBox(height: 12),
 
                         // Confirm password
                         TextFormField(
@@ -183,55 +225,84 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           decoration: InputDecoration(
                             labelText: 'Confirm Password',
                             hintText: 'Re-enter password',
-                            border: OutlineInputBorder(),
+                            border: const OutlineInputBorder(),
+                            prefixIcon: const Icon(Icons.lock_outline),
                             suffixIcon: IconButton(
-                              icon: Icon(_hideConfirm ? Icons.visibility_off : Icons.visibility),
-                              onPressed: () => setState(() => _hideConfirm = !_hideConfirm),
+                              icon: Icon(_hideConfirm
+                                  ? Icons.visibility_off
+                                  : Icons.visibility),
+                              onPressed: () =>
+                                  setState(() => _hideConfirm = !_hideConfirm),
                             ),
                           ),
                           obscureText: _hideConfirm,
                           validator: (v) {
-                            if (v == null || v.isEmpty) return 'Please confirm your password';
-                            if (v != _passwordController.text) return 'Passwords do not match';
+                            if (v == null || v.isEmpty)
+                              return 'Please confirm your password';
+                            if (v != _passwordController.text)
+                              return 'Passwords do not match';
                             return null;
                           },
                         ),
 
-                        SizedBox(height: 12),
+                        const SizedBox(height: 12),
 
                         // Terms checkbox
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Checkbox(value: _agree, onChanged: (v) => setState(() => _agree = v ?? false)),
+                            Checkbox(
+                                value: _agree,
+                                onChanged: (v) =>
+                                    setState(() => _agree = v ?? false)),
                             Expanded(
                               child: GestureDetector(
                                 onTap: () => setState(() => _agree = !_agree),
-                                child: Text('I agree to the Terms & Conditions and Privacy Policy *', style: TextStyle(height: 1.3)),
+                                child: const Text(
+                                  'I agree to the Terms & Conditions and Privacy Policy *',
+                                  style: TextStyle(height: 1.3),
+                                ),
                               ),
                             ),
                           ],
                         ),
 
-                        SizedBox(height: 12),
+                        const SizedBox(height: 12),
 
                         SizedBox(
                           height: 44,
                           child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(backgroundColor: primaryGreen, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-                            onPressed: auth.isLoading ? null : () => _submit(auth),
-                            child: auth.isLoading ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Text('Submit'),
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: primaryGreen,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8))),
+                            onPressed:
+                            auth.isLoading ? null : () => _submit(auth),
+                            child: auth.isLoading
+                                ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                                : const Text('Submit'),
                           ),
                         ),
 
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
 
                         SizedBox(
                           height: 44,
                           child: OutlinedButton(
-                            style: OutlinedButton.styleFrom(foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+                            style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.black,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8))),
                             onPressed: () => Navigator.pop(context),
-                            child: Text('Cancel'),
+                            child: const Text('Cancel'),
                           ),
                         ),
                       ],
@@ -246,3 +317,4 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 }
+
