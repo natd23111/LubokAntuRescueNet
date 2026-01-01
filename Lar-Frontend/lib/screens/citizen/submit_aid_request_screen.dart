@@ -103,6 +103,12 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
   }
 
   void addFamilyMember() {
+    if (familyMembers.length >= 20) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Maximum of 20 family members allowed')),
+      );
+      return;
+    }
     setState(() {
       familyMembers.add(
         FamilyMember(
@@ -125,6 +131,13 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
   void updateFamilyMemberCount(String value) {
     int? count = int.tryParse(value);
     if (count == null || count < 1) return;
+    if (count > 20) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Maximum of 20 family members allowed')),
+      );
+      familyCountController.text = '20';
+      count = 20;
+    }
 
     setState(() {
       if (count! > familyMembers.length) {

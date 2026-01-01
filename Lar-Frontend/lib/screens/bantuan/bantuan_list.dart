@@ -60,12 +60,14 @@ class _BantuanListScreenState extends State<BantuanListScreen> {
       builder: (context, provider, _) {
         // Get filtered programs
         final filteredPrograms = getFilteredPrograms(provider.programs);
-        final selectedProgram = selectedProgramId != null
-            ? provider.programs.firstWhere(
-                (p) => p.id == selectedProgramId,
-                orElse: () => provider.programs.isNotEmpty ? provider.programs[0] : null,
-              )
-            : null;
+        AidProgram? selectedProgram;
+        if (selectedProgramId != null && provider.programs.isNotEmpty) {
+          try {
+            selectedProgram = provider.programs.firstWhere((p) => p.id == selectedProgramId);
+          } catch (e) {
+            selectedProgram = null;
+          }
+        }
 
         // Show detail view if a program is selected
         if (selectedProgram != null && selectedProgramId != null) {
@@ -170,22 +172,112 @@ class _BantuanListScreenState extends State<BantuanListScreen> {
                 ),
               ),
             ),
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.inbox, size: 48, color: Colors.grey[400]),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No programs available',
-                    style: TextStyle(color: Colors.grey[600], fontSize: 16),
+            body: Column(
+              children: [
+                // Category Filter - keep visible
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(color: Colors.grey[200]!),
+                    ),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'No aid programs match the selected category',
-                    style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Filter by Category',
+                        style: TextStyle(
+                          color: Colors.grey[700],
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: categories.map((cat) {
+                            final isSelected = selectedCategory == cat['id'];
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: GestureDetector(
+                                onTap: () =>
+                                    setState(() => selectedCategory = cat['id']!),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: isSelected
+                                        ? const Color(0xFF059669)
+                                        : Colors.white,
+                                    border: Border.all(
+                                      color: isSelected
+                                          ? const Color(0xFF059669)
+                                          : Colors.grey[300]!,
+                                    ),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    cat['label']!,
+                                    style: TextStyle(
+                                      color: isSelected
+                                          ? Colors.white
+                                          : Colors.grey[700],
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
+                // Empty state message
+                Expanded(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.inbox, size: 48, color: Colors.grey[400]),
+                        const SizedBox(height: 16),
+                        Text(
+                          'No programs available',
+                          style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'No aid programs match the selected category',
+                          style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            bottomNavigationBar: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                border: Border(top: BorderSide(color: Colors.grey[200]!)),
+              ),
+              child: SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  child: Text(
+                    'Back',
+                    style: TextStyle(color: Colors.grey[600]),
+                  ),
+                ),
               ),
             ),
           );
@@ -319,7 +411,7 @@ class _BantuanListScreenState extends State<BantuanListScreen> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              program.description ?? '',
+                              program.description ?? 'No description available',
                               style: TextStyle(
                                 color: Colors.grey[600],
                                 fontSize: 13,
@@ -364,7 +456,7 @@ class _BantuanListScreenState extends State<BantuanListScreen> {
                                   ),
                                 ),
                                 Text(
-                                  program.aidAmount ?? 'N/A',
+                                  'RM ${program.aidAmount ?? 'N/A'}',
                                   style: const TextStyle(
                                     color: Color(0xFF059669),
                                     fontWeight: FontWeight.w600,
@@ -518,7 +610,7 @@ class _BantuanListScreenState extends State<BantuanListScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  program.description,
+                  program.description ?? 'No description available',
                   style: const TextStyle(
                     color: Colors.black87,
                     fontSize: 14,
@@ -616,7 +708,7 @@ class _BantuanListScreenState extends State<BantuanListScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  program.aidAmount ?? 'N/A',
+                  'RM ${program.aidAmount ?? 'N/A'}',
                   style: const TextStyle(
                     color: Color(0xFF059669),
                     fontSize: 16,

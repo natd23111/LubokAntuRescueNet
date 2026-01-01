@@ -46,7 +46,7 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
       context: context,
       initialDate: isStartDate ? (_startDate ?? DateTime.now()) : (_endDate ?? DateTime.now()),
       firstDate: DateTime(2024),
-      lastDate: DateTime(2026),
+      lastDate: DateTime(2027),
     );
     if (picked != null) {
       setState(() {
@@ -99,8 +99,11 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
 
     Future.delayed(const Duration(seconds: 1), () async {
       if (mounted) {
-        // Generate program ID
-        final programId = 'AID${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
+        // Generate sequential program ID based on year
+        final provider = context.read<AidProgramProvider>();
+        final year = DateTime.now().year;
+        final nextNumber = provider.programs.length + 1;
+        final programId = 'AID$year${nextNumber.toString().padLeft(3, '0')}'; // AID2026001, AID2026002, etc.
         
         final newProgram = AidProgram(
           id: programId,
@@ -116,7 +119,6 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
         );
 
         // Save to Firebase
-        final provider = context.read<AidProgramProvider>();
         final success = await provider.addAidProgram(newProgram);
 
         if (success) {
@@ -171,6 +173,7 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: const Color(0xFF0E9D63),
         elevation: 0,
@@ -354,7 +357,8 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
                       label: 'Aid Amount (RM)',
                       required: false,
                       controller: _aidAmountController,
-                      hintText: 'e.g., RM500 or Up to RM5,000',
+                      hintText: 'e.g., 500 or 5000',
+                      keyboardType: TextInputType.number,
                     ),
 
                     // Eligibility Criteria
@@ -466,6 +470,7 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
     required TextEditingController controller,
     String? hintText,
     int maxLines = 1,
+    TextInputType keyboardType = TextInputType.text,
     String? Function(String?)? validator,
   }) {
     return Padding(
@@ -493,9 +498,14 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
           const SizedBox(height: 8),
           TextFormField(
             controller: controller,
+            keyboardType: keyboardType,
             maxLines: maxLines,
             minLines: maxLines == 1 ? 1 : maxLines,
             decoration: InputDecoration(
+              prefixText: keyboardType == TextInputType.number ? 'RM ' : null,
+              prefixStyle: keyboardType == TextInputType.number 
+                  ? const TextStyle(color: Colors.black87, fontWeight: FontWeight.w600)
+                  : null,
               hintText: hintText,
               hintStyle: TextStyle(color: Colors.grey[400]),
               border: OutlineInputBorder(

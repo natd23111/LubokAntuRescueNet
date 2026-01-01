@@ -61,6 +61,11 @@ class AidProgramProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Alias for createProgram - used by form submissions
+  Future<bool> addAidProgram(AidProgram program) async {
+    return createProgram(program);
+  }
+
   // Create new aid program
   Future<bool> createProgram(AidProgram program) async {
     _isLoading = true;
@@ -86,25 +91,15 @@ class AidProgramProvider extends ChangeNotifier {
 
       print('DEBUG: Program data prepared: $programData');
 
-      final docRef = await _firestore.collection('aid_programs').add(programData);
+      // Use the program's ID (generated in form) with .doc().set()
+      await _firestore
+          .collection('aid_programs')
+          .doc(program.id.toString())
+          .set(programData);
       
-      print('DEBUG: Program created with ID: ${docRef.id}');
+      print('DEBUG: Program created with ID: ${program.id}');
       
-      // Create the program object with the new document ID
-      final newProgram = AidProgram(
-        id: docRef.id,
-        title: program.title,
-        category: program.category,
-        status: program.status,
-        startDate: program.startDate,
-        endDate: program.endDate,
-        description: program.description,
-        aidAmount: program.aidAmount,
-        eligibilityCriteria: program.eligibilityCriteria,
-        programType: program.programType,
-      );
-
-      _programs.add(newProgram);
+      _programs.add(program);
       _error = null;
       _isLoading = false;
       notifyListeners();

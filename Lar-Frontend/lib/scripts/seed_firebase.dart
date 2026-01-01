@@ -186,13 +186,24 @@ class FirebaseSeeder {
       },
     ];
 
+    // Generate sequential program IDs: AID2026001, AID2026002, etc.
+    int counter = 1;
+    final year = DateTime.now().year;
+
     for (var program in programs) {
       try {
         program['created_at'] = DateTime.now().toIso8601String();
         program['updated_at'] = DateTime.now().toIso8601String();
 
-        await _firestore.collection('aid_programs').add(program);
-        print('  ✓ Created program: ${program['title']}');
+        // Create custom ID in format AID2026001, AID2026002, etc.
+        final programId = 'AID$year${counter.toString().padLeft(3, '0')}';
+
+        await _firestore
+            .collection('aid_programs')
+            .doc(programId)
+            .set(program);
+        print('  ✓ Created program: ${program['title']} (ID: $programId)');
+        counter++;
       } catch (e) {
         print('  ✗ Error creating program ${program['title']}: $e');
         rethrow;

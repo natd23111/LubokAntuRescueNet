@@ -69,10 +69,10 @@ class AidRequestProvider extends ChangeNotifier {
   }
 
   String _generateRequestId() {
-    final timestamp = DateTime.now();
-    final year = timestamp.year;
-    final count = timestamp.millisecondsSinceEpoch % 1000;
-    return 'AR${year}${count.toString().padLeft(4, '0')}';
+    // Generate sequential request ID based on year: AR2026001, AR2026002, etc.
+    final year = DateTime.now().year;
+    final nextNumber = _aidRequests.length + 1;
+    return 'AR$year${nextNumber.toString().padLeft(3, '0')}';
   }
 
   Future<bool> submitAidRequest({
@@ -102,7 +102,7 @@ class AidRequestProvider extends ChangeNotifier {
       final now = DateTime.now();
 
       final aidRequest = AidRequestModel(
-        id: '', // Will be set by Firestore
+        id: requestId, // Use the sequential ID
         userId: _userId!,
         requestId: requestId,
         aidType: aidType,
@@ -114,10 +114,15 @@ class AidRequestProvider extends ChangeNotifier {
         createdAt: now,
       );
 
-      final docRef = await _firestore.collection('aid_requests').add(aidRequest.toFirestore());
+      // Use .doc(requestId).set() to create with sequential ID
+      await _firestore
+          .collection('aid_requests')
+          .doc(requestId)
+          .set(aidRequest.toFirestore());
+      
       _lastRequestId = requestId;
 
-      print('DEBUG: Aid request submitted with ID: ${docRef.id}, Request ID: $requestId');
+      print('DEBUG: Aid request submitted with ID: $requestId');
 
       // Refresh the list
       await fetchUserAidRequests();

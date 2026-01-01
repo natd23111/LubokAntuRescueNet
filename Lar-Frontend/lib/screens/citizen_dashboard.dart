@@ -23,6 +23,16 @@ class _HomeScreenState extends State<HomeScreen> {
   void _toggleMenu() => setState(() => _menuOpen = !_menuOpen);
 
   @override
+  void initState() {
+    super.initState();
+    // Load aid requests data when dashboard initializes
+    Future.microtask(() {
+      final aidRequestProvider = Provider.of<AidRequestProvider>(context, listen: false);
+      aidRequestProvider.fetchUserAidRequests();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final primaryGreen = Color(0xFF0E9D63);
 
@@ -189,20 +199,29 @@ class _HomeScreenState extends State<HomeScreen> {
                       Expanded(child: statTile('2', 'Active Reports', Colors.green.shade300)),
                       SizedBox(width: 8),
                       Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            final authProvider = Provider.of<AuthProvider>(context, listen: false);
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => ChangeNotifierProvider(
-                                  create: (_) => AidRequestProvider(authProvider: authProvider),
-                                  child: ViewAidRequestScreen(),
-                                ),
-                              ),
+                        child: Consumer<AidRequestProvider>(
+                          builder: (context, aidRequestProvider, _) {
+                            final pendingCount = aidRequestProvider.aidRequests
+                                .where((request) => request.status.toLowerCase() == 'pending')
+                                .length;
+                            return GestureDetector(
+                              onTap: () async {
+                                final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                                await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => ChangeNotifierProvider(
+                                      create: (_) => AidRequestProvider(authProvider: authProvider),
+                                      child: ViewAidRequestScreen(),
+                                    ),
+                                  ),
+                                );
+                                // Refresh the data when returning
+                                aidRequestProvider.fetchUserAidRequests();
+                              },
+                              child: statTile(pendingCount.toString(), 'Aid Requests', Colors.blue.shade200),
                             );
                           },
-                          child: statTile('1', 'Aid Requests', Colors.blue.shade200),
                         ),
                       ),
                       SizedBox(width: 8),
@@ -244,9 +263,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         );
                       }, Colors.blueAccent),
-                      quickAction(Icons.request_page, 'Request Aid', () {
+                      quickAction(Icons.request_page, 'Request Aid', () async {
                         final authProvider = Provider.of<AuthProvider>(context, listen: false);
-                        Navigator.push(
+                        final aidRequestProvider = Provider.of<AidRequestProvider>(context, listen: false);
+                        await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (_) => ChangeNotifierProvider(
@@ -255,6 +275,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                         );
+                        // Refresh aid requests when returning
+                        aidRequestProvider.fetchUserAidRequests();
                       }, Colors.purpleAccent),
                       quickAction(Icons.local_activity, 'Aid Programs', () => Navigator.push(context, MaterialPageRoute(builder: (_) => BantuanListScreen())), Colors.green),
                       quickAction(Icons.map, 'Map Warnings', () {}, Colors.orange),
