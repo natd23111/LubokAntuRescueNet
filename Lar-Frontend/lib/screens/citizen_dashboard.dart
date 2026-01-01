@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/reports_provider.dart';
 import '../../providers/aid_request_provider.dart';
+import '../../providers/aid_program_provider.dart';
 import 'aid/aid_list.dart';
 import 'citizen/view_aid_program_screen.dart';
 import 'profile/profile_screen.dart';
@@ -25,12 +26,14 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // Load aid requests and reports data when dashboard initializes
+    // Load aid requests, reports, and programs data when dashboard initializes
     Future.microtask(() {
       final aidRequestProvider = Provider.of<AidRequestProvider>(context, listen: false);
       final reportsProvider = Provider.of<ReportsProvider>(context, listen: false);
+      final aidProgramProvider = Provider.of<AidProgramProvider>(context, listen: false);
       aidRequestProvider.fetchUserAidRequests();
       reportsProvider.fetchReports();
+      aidProgramProvider.fetchPrograms();
     });
   }
 
@@ -250,7 +253,24 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       SizedBox(width: 8),
-                      Expanded(child: statTile('5', 'New Programs', Colors.purple.shade100)),
+                      Expanded(
+                        child: Consumer<AidProgramProvider>(
+                          builder: (context, aidProgramProvider, _) {
+                            final newProgramsCount = aidProgramProvider.newPrograms.length;
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => ViewAidProgramScreen(),
+                                  ),
+                                );
+                              },
+                              child: statTile(newProgramsCount.toString(), 'New Programs', Colors.purple.shade100),
+                            );
+                          },
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -303,7 +323,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         // Refresh aid requests when returning
                         aidRequestProvider.fetchUserAidRequests();
                       }, Colors.purpleAccent),
-                      quickAction(Icons.local_activity, 'Aid Programs', () => Navigator.push(context, MaterialPageRoute(builder: (_) => BantuanListScreen())), Colors.green),
+                      quickAction(Icons.local_activity, 'Aid Programs', () => Navigator.push(context, MaterialPageRoute(builder: (_) => ViewAidProgramScreen())), Colors.green),
                       quickAction(Icons.map, 'Map Warnings', () {}, Colors.orange),
                       quickAction(Icons.chat, 'AI Chatbot', () {}, Colors.teal),
                     ],

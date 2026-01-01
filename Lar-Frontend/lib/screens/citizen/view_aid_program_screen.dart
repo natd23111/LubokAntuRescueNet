@@ -3,12 +3,12 @@ import 'package:provider/provider.dart';
 import '../../models/aid_program.dart';
 import '../../providers/aid_program_provider.dart';
 
-class BantuanListScreen extends StatefulWidget {
+class ViewAidProgramScreen extends StatefulWidget {
   @override
-  _BantuanListScreenState createState() => _BantuanListScreenState();
+  _ViewAidProgramScreenState createState() => _ViewAidProgramScreenState();
 }
 
-class _BantuanListScreenState extends State<BantuanListScreen> {
+class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
   String? selectedProgramId;
   String selectedCategory = 'all';
 

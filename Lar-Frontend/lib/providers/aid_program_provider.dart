@@ -10,6 +10,12 @@ class AidProgramProvider extends ChangeNotifier {
   String? _error;
 
   List<AidProgram> get programs => _programs;
+  List<AidProgram> get newPrograms {
+    final thirtyDaysAgo = DateTime.now().subtract(Duration(days: 30));
+    return _programs
+        .where((program) => program.startDate.isAfter(thirtyDaysAgo))
+        .toList();
+  }
   bool get isLoading => _isLoading;
   String? get error => _error;
 
