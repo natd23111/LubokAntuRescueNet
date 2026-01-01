@@ -635,8 +635,9 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
+                  side: BorderSide(color: Colors.grey[300]!),
                 ),
-                child: const Text('Cancel'),
+                child: Text('Cancel', style: TextStyle(color: Colors.grey[600])),
               ),
             ),
           ],
@@ -912,8 +913,9 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
+                  side: BorderSide(color: Colors.grey[300]!),
                 ),
-                child: const Text('Back to List'),
+                child: Text('Back to List', style: TextStyle(color: Colors.grey[600])),
               ),
             ),
           ],

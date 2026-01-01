@@ -524,7 +524,8 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
                 onPressed: () => Navigator.of(context).pop(),
                 child: Text(
                   'Back',
-                  style: TextStyle(color: Colors.grey[600]),
+                  style: TextStyle(
+                  color: Colors.grey[600]),
                 ),
               ),
             ),

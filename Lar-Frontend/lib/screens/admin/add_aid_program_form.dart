@@ -410,7 +410,6 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
                   child: const Text(
                     'Submit',
                     style: TextStyle(
-                      fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: Colors.white,
                     ),
@@ -437,13 +436,10 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: const Text(
-                    'Clear / Reset',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  child: Text(
+                  'Clear / Reset',
+                  style: TextStyle(color: Colors.grey[700]),
+                ),
                 ),
                 const SizedBox(height: 12),
                 TextButton(
@@ -451,7 +447,6 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
                   child: Text(
                     'Back',
                     style: TextStyle(
-                      fontSize: 16,
                       color: Colors.grey[600],
                     ),
                   ),

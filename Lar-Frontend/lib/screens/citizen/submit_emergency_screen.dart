@@ -811,13 +811,12 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
+                      side: BorderSide(color: Colors.grey[300]!),
                     ),
-                    child: const Text(
-                      'Clear / Reset',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    child: Text(
+                  'Clear / Reset',
+                  style: TextStyle(color: Colors.grey[700]),
+                ),
                   ),
                 ),
                 const SizedBox(height: 8),
