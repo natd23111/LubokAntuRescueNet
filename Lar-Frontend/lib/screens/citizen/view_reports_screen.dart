@@ -182,7 +182,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
             elevation: 0,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back),
-              onPressed: () => setState(() => selectedReportId = null),
+              onPressed: () => Navigator.of(context).pop(),
             ),
             title: const Text(
               'Report Status',
