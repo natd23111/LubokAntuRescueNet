@@ -68,6 +68,36 @@ class AidRequestProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> fetchAllAidRequests() async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final snapshot = await _firestore
+          .collection('aid_requests')
+          .get();
+
+      print('DEBUG: Fetched ${snapshot.docs.length} total aid requests for admin');
+
+      _aidRequests = snapshot.docs
+          .map((doc) => AidRequestModel.fromFirestore(doc))
+          .toList();
+
+      // Sort by submission date in descending order (most recent first)
+      _aidRequests.sort((a, b) => b.submissionDate.compareTo(a.submissionDate));
+
+      _isLoading = false;
+      _error = null;
+      notifyListeners();
+    } catch (e) {
+      print('ERROR fetching all aid requests: $e');
+      _error = 'Failed to fetch aid requests: ${e.toString()}';
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   String _generateRequestId() {
     // Generate sequential request ID based on year: AR2026001, AR2026002, etc.
     final year = DateTime.now().year;
@@ -80,6 +110,11 @@ class AidRequestProvider extends ChangeNotifier {
     required double monthlyIncome,
     required List<FamilyMemberModel> familyMembers,
     required String description,
+    String? applicantName,
+    String? applicantIC,
+    String? applicantEmail,
+    String? applicantPhone,
+    String? applicantAddress,
   }) async {
     if (_userId == null) {
       _error = 'User not logged in';
@@ -112,6 +147,11 @@ class AidRequestProvider extends ChangeNotifier {
         familyMembers: familyMembers,
         monthlyIncome: monthlyIncome,
         createdAt: now,
+        applicantName: applicantName,
+        applicantIC: applicantIC,
+        applicantEmail: applicantEmail,
+        applicantPhone: applicantPhone,
+        applicantAddress: applicantAddress,
       );
 
       // Use .doc(requestId).set() to create with sequential ID
@@ -146,5 +186,75 @@ class AidRequestProvider extends ChangeNotifier {
   void clearError() {
     _error = null;
     notifyListeners();
+  }
+
+  Future<bool> updateRequestStatus({
+    required String requestId,
+    required String newStatus,
+    String? remarks,
+    String? approvedAmount,
+    String? notes,
+  }) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await _firestore
+          .collection('aid_requests')
+          .doc(requestId)
+          .update({
+            'status': newStatus,
+            if (remarks != null && remarks.isNotEmpty) 'remarks': remarks,
+            if (approvedAmount != null && approvedAmount.isNotEmpty) 'approved_amount': double.tryParse(approvedAmount) ?? 0,
+            if (notes != null && notes.isNotEmpty) 'internal_notes': notes,
+            'updated_at': DateTime.now(),
+          });
+
+      print('DEBUG: Request $requestId updated to status: $newStatus');
+
+      // Refresh the list to get updated data
+      await fetchAllAidRequests();
+
+      _isLoading = false;
+      _error = null;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      print('ERROR updating request status: $e');
+      _error = 'Failed to update request: ${e.toString()}';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> deleteRequest(String requestId) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await _firestore
+          .collection('aid_requests')
+          .doc(requestId)
+          .delete();
+
+      print('DEBUG: Request $requestId deleted successfully');
+
+      // Refresh the list to remove the deleted request
+      await fetchAllAidRequests();
+
+      _isLoading = false;
+      _error = null;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      print('ERROR deleting request: $e');
+      _error = 'Failed to delete request: ${e.toString()}';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
   }
 }

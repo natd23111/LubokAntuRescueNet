@@ -11,6 +11,11 @@ class AidRequestModel {
   final List<FamilyMemberModel> familyMembers;
   final double monthlyIncome;
   final DateTime createdAt;
+  final String? applicantName;
+  final String? applicantIC;
+  final String? applicantEmail;
+  final String? applicantPhone;
+  final String? applicantAddress;
 
   AidRequestModel({
     required this.id,
@@ -23,6 +28,11 @@ class AidRequestModel {
     required this.familyMembers,
     required this.monthlyIncome,
     required this.createdAt,
+    this.applicantName,
+    this.applicantIC,
+    this.applicantEmail,
+    this.applicantPhone,
+    this.applicantAddress,
   });
 
   factory AidRequestModel.fromFirestore(DocumentSnapshot doc) {
@@ -48,6 +58,11 @@ class AidRequestModel {
               ? (data['created_at'] as Timestamp).toDate()
               : DateTime.parse(data['created_at']))
           : DateTime.now(),
+      applicantName: data['applicant_name'] ?? data['full_name'],
+      applicantIC: data['applicant_ic'] ?? data['ic_number'],
+      applicantEmail: data['applicant_email'] ?? data['email'],
+      applicantPhone: data['applicant_phone'] ?? data['phone'],
+      applicantAddress: data['applicant_address'] ?? data['address'],
     );
   }
 
@@ -62,6 +77,11 @@ class AidRequestModel {
       'family_members': familyMembers.map((fm) => fm.toMap()).toList(),
       'monthly_income': monthlyIncome,
       'created_at': createdAt,
+      'applicant_name': applicantName,
+      'applicant_ic': applicantIC,
+      'applicant_email': applicantEmail,
+      'applicant_phone': applicantPhone,
+      'applicant_address': applicantAddress,
     };
   }
 

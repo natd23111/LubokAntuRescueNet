@@ -79,11 +79,18 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
 
     // Submit to Firebase
     final aidRequestProvider = Provider.of<AidRequestProvider>(context, listen: false);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    
     final success = await aidRequestProvider.submitAidRequest(
       aidType: selectedAidType,
       monthlyIncome: double.tryParse(incomeController.text) ?? 0,
       familyMembers: familyMembersData,
       description: descriptionController.text,
+      applicantName: authProvider.userName,
+      applicantIC: authProvider.userIc,
+      applicantEmail: authProvider.userEmail,
+      applicantPhone: authProvider.userPhone,
+      applicantAddress: authProvider.userAddress,
     );
 
     if (success && mounted) {
