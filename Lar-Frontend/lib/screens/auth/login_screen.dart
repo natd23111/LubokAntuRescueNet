@@ -13,6 +13,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isCitizen = true;
+  bool _showPassword = false;
 
   @override
   void dispose() {
@@ -27,19 +28,15 @@ class _LoginScreenState extends State<LoginScreen> {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
-    // Define admin accounts (hardcoded for security)
     const List<String> adminEmails = [
       'admin@rescuenet.com',
       'admin123@example.com',
     ];
 
-    // Check if this email should be admin
     bool isAdminEmail = adminEmails.contains(email.toLowerCase());
 
-    // Login with role info
     final success = await authProvider.login(email, password);
     if (success) {
-      // If login successful and they selected admin mode, check if they're authorized
       if (!_isCitizen && !isAdminEmail) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -50,12 +47,12 @@ class _LoginScreenState extends State<LoginScreen> {
         await authProvider.logout();
         return;
       }
-
       Navigator.pushReplacementNamed(context, '/home');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Sign in failed: ${authProvider.errorMessage ?? 'Unknown error'}'),
+          content: Text(
+              'Sign in failed: ${authProvider.errorMessage ?? 'Unknown error'}'),
           backgroundColor: Colors.red,
         ),
       );
@@ -65,7 +62,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
-
     final primaryGreen = Color(0xFF0E9D63);
 
     return Scaffold(
@@ -74,134 +70,221 @@ class _LoginScreenState extends State<LoginScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
+              // Top section with bigger logo
               Container(
-                color: primaryGreen,
                 width: double.infinity,
-                padding: EdgeInsets.symmetric(vertical: 28),
+                color: primaryGreen,
+                padding: const EdgeInsets.symmetric(vertical: 15),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    CircleAvatar(
-                      radius: 36,
-                      backgroundColor: Colors.white,
-                      child: Text('LA', style: TextStyle(color: primaryGreen, fontWeight: FontWeight.bold)),
+                    // Bigger logo
+                    Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.15),
+                            blurRadius: 12,
+                            offset: Offset(0, 5),
+                          ),
+                        ],
+                        image: const DecorationImage(
+                          image: AssetImage('assets/logo.png'),
+                          fit: BoxFit.contain,
+                        ),
+                      ),
                     ),
-                    SizedBox(height: 12),
-                    Text('Lubok Antu RescueNet', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                    SizedBox(height: 4),
-                    Text('Emergency & Aid Management', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Lubok Antu RescueNet',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Emergency and Community Aid Reporting System',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
                   ],
                 ),
               ),
 
+              // Form card
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                padding:
+                const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                 child: Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                   elevation: 4,
                   child: Padding(
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     child: Form(
                       key: _formKey,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Text('Sign In', style: TextStyle(fontSize: 16)),
-                          SizedBox(height: 12),
+                          Text(
+                            'Sign In',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 12),
 
-                          // Toggle
+                          // Role toggle
                           Row(
                             children: [
                               Expanded(
                                 child: OutlinedButton(
                                   style: OutlinedButton.styleFrom(
-                                    backgroundColor: _isCitizen ? primaryGreen.withOpacity(0.08) : Colors.transparent,
-                                    side: BorderSide(color: _isCitizen ? primaryGreen : Colors.grey.shade300),
+                                    backgroundColor: _isCitizen
+                                        ? primaryGreen.withOpacity(0.08)
+                                        : Colors.transparent,
+                                    side: BorderSide(
+                                        color: _isCitizen
+                                            ? primaryGreen
+                                            : Colors.grey.shade300),
                                   ),
-                                  onPressed: () => setState(() => _isCitizen = true),
-                                  child: Text('Citizen', style: TextStyle(color: _isCitizen ? primaryGreen : Colors.black54)),
+                                  onPressed: () =>
+                                      setState(() => _isCitizen = true),
+                                  child: Text('Citizen',
+                                      style: TextStyle(
+                                          color: _isCitizen
+                                              ? primaryGreen
+                                              : Colors.black54)),
                                 ),
                               ),
-                              SizedBox(width: 10),
+                              const SizedBox(width: 10),
                               Expanded(
                                 child: OutlinedButton(
                                   style: OutlinedButton.styleFrom(
-                                    backgroundColor: !_isCitizen ? primaryGreen.withOpacity(0.08) : Colors.transparent,
-                                    side: BorderSide(color: !_isCitizen ? primaryGreen : Colors.grey.shade300),
+                                    backgroundColor: !_isCitizen
+                                        ? primaryGreen.withOpacity(0.08)
+                                        : Colors.transparent,
+                                    side: BorderSide(
+                                        color: !_isCitizen
+                                            ? primaryGreen
+                                            : Colors.grey.shade300),
                                   ),
-                                  onPressed: () => setState(() => _isCitizen = false),
-                                  child: Text('Admin', style: TextStyle(color: !_isCitizen ? primaryGreen : Colors.black54)),
+                                  onPressed: () =>
+                                      setState(() => _isCitizen = false),
+                                  child: Text('Admin',
+                                      style: TextStyle(
+                                          color: !_isCitizen
+                                              ? primaryGreen
+                                              : Colors.black54)),
                                 ),
                               ),
                             ],
                           ),
 
-                          SizedBox(height: 14),
+                          const SizedBox(height: 14),
 
+                          // Email field with icon
                           TextFormField(
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
                             decoration: InputDecoration(
                               labelText: 'Email',
-                              hintText: 'Enter Email',
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                              hintText: 'Enter your email',
+                              prefixIcon: Icon(Icons.email_outlined),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8)),
                             ),
-                            validator: (v) => (v == null || v.trim().isEmpty) ? 'Please enter your Email' : null,
+                            validator: (v) => (v == null || v.trim().isEmpty)
+                                ? 'Please enter your Email'
+                                : null,
                           ),
+                          const SizedBox(height: 12),
 
-                          SizedBox(height: 12),
-
+                          // Password field with icon & show/hide
                           TextFormField(
                             controller: _passwordController,
-                            obscureText: true,
+                            obscureText: !_showPassword,
                             decoration: InputDecoration(
                               labelText: 'Password',
-                              hintText: 'Enter password',
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                              hintText: 'Enter your password',
+                              prefixIcon: Icon(Icons.lock_outline),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _showPassword
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
+                                ),
+                                onPressed: () =>
+                                    setState(() => _showPassword = !_showPassword),
+                              ),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8)),
                             ),
-                            validator: (v) => (v == null || v.isEmpty) ? 'Please enter your password' : null,
+                            validator: (v) => (v == null || v.isEmpty)
+                                ? 'Please enter your password'
+                                : null,
                           ),
+                          const SizedBox(height: 18),
 
-                          SizedBox(height: 18),
-
+                          // Sign In button
                           SizedBox(
                             height: 44,
                             child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(backgroundColor: primaryGreen, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))), 
-                              onPressed: authProvider.isLoading ? null : () => _submit(authProvider),
-                              child: authProvider.isLoading ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Text('Sign In'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: primaryGreen,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              onPressed: authProvider.isLoading
+                                  ? null
+                                  : () => _submit(authProvider),
+                              child: authProvider.isLoading
+                                  ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                                  : const Text('Sign In'),
                             ),
                           ),
+                          const SizedBox(height: 10),
 
-                          SizedBox(height: 10),
-
-                          SizedBox(
-                            height: 44,
-                            child: OutlinedButton(
-                              style: OutlinedButton.styleFrom(foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-                              onPressed: () => Navigator.pop(context),
-                              child: Text('Cancel'),
-                            ),
-                          ),
                         ],
                       ),
                     ),
-                    
                   ),
                 ),
               ),
-              SizedBox(height: 8),
+
+              const SizedBox(height: 8),
               Center(
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text("Don't have an account? ", style: TextStyle(color: Colors.black54)),
+                      const Text("Don't have an account? ",
+                          style: TextStyle(color: Colors.black54)),
                       TextButton(
-                        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => RegisterScreen())),
+                        onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => RegisterScreen())),
                         style: TextButton.styleFrom(foregroundColor: primaryGreen),
-                        child: Text('Register here'),
+                        child: const Text('Register here'),
                       ),
                     ],
                   ),

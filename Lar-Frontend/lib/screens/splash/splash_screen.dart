@@ -18,7 +18,6 @@ class _SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
 
-    // Controller for fade animation
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1700),
@@ -65,8 +64,8 @@ class _SplashScreenState extends State<SplashScreen>
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color(0xFF059669), // Emerald
-              Color(0xFF047857), // Darker emerald
+              Color(0xFF059669),
+              Color(0xFF047857),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -78,7 +77,6 @@ class _SplashScreenState extends State<SplashScreen>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Logo with subtle float animation
                 TweenAnimationBuilder<double>(
                   tween: Tween(begin: 20, end: 0),
                   duration: const Duration(milliseconds: 1200),
@@ -97,13 +95,11 @@ class _SplashScreenState extends State<SplashScreen>
                       shape: BoxShape.circle,
                       color: Colors.transparent,
                       boxShadow: const [
-                        // Subtle ambient glow
                         BoxShadow(
                           color: Color.fromRGBO(5, 150, 105, 0.12),
                           blurRadius: 18,
                           spreadRadius: 1.5,
                         ),
-                        // Depth shadow
                         BoxShadow(
                           color: Color.fromRGBO(0, 0, 0, 0.18),
                           blurRadius: 28,
