@@ -485,6 +485,10 @@ class _BantuanListScreenState extends State<BantuanListScreen> {
                 onPressed: () => Navigator.of(context).pop(),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  side: BorderSide(color: Colors.grey[300]!),
                 ),
                 child: Text(
                   'Back',

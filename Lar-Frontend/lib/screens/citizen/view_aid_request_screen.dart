@@ -13,6 +13,7 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
   String activeTab = 'pending';
   String searchQuery = '';
   String selectedStatus = 'All';
+  String? selectedRequestId;
   TextEditingController searchController = TextEditingController();
 
   @override
@@ -87,7 +88,7 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
   List<AidRequestModel> _getFilteredRequests(List<AidRequestModel> requests) {
     return requests
         .where((r) =>
-            (activeTab == 'all' || r.status.toLowerCase() == activeTab.toLowerCase()) &&
+            (activeTab == 'pending' || activeTab == 'approved' || activeTab == 'rejected' ? r.status.toLowerCase() == activeTab.toLowerCase() : true) &&
             (selectedStatus == 'All' || r.aidType.toLowerCase() == selectedStatus.toLowerCase()) &&
             (r.requestId.toLowerCase().contains(searchQuery.toLowerCase()) ||
                 r.aidType.toLowerCase().contains(searchQuery.toLowerCase()) ||
@@ -99,6 +100,10 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
   Widget build(BuildContext context) {
     return Consumer<AidRequestProvider>(
       builder: (context, aidRequestProvider, _) {
+        if (selectedRequestId != null) {
+          return _buildDetailView();
+        }
+
         final filteredRequests = _getFilteredRequests(aidRequestProvider.aidRequests);
 
         return Scaffold(
@@ -147,7 +152,7 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
                       ),
                       child: Center(
                         child: Text(
-                          'Pending',
+                          'Pending (${aidRequestProvider.aidRequests.where((r) => r.status.toLowerCase() == 'pending').length})',
                           style: TextStyle(
                             color: activeTab == 'pending'
                                 ? const Color(0xFF059669)
@@ -178,7 +183,7 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
                       ),
                       child: Center(
                         child: Text(
-                          'Approved',
+                          'Approved (${aidRequestProvider.aidRequests.where((r) => r.status.toLowerCase() == 'approved').length})',
                           style: TextStyle(
                             color: activeTab == 'approved'
                                 ? const Color(0xFF059669)
@@ -194,11 +199,11 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
                 ),
                 Expanded(
                   child: GestureDetector(
-                    onTap: () => setState(() => activeTab = 'all'),
+                    onTap: () => setState(() => activeTab = 'rejected'),
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        border: activeTab == 'all'
+                        border: activeTab == 'rejected'
                             ? Border(
                                 bottom: BorderSide(
                                   color: const Color(0xFF059669),
@@ -209,12 +214,12 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
                       ),
                       child: Center(
                         child: Text(
-                          'All Requests',
+                          'Rejected (${aidRequestProvider.aidRequests.where((r) => r.status.toLowerCase() == 'rejected').length})',
                           style: TextStyle(
-                            color: activeTab == 'all'
+                            color: activeTab == 'rejected'
                                 ? const Color(0xFF059669)
                                 : Colors.grey[600],
-                            fontWeight: activeTab == 'all'
+                            fontWeight: activeTab == 'rejected'
                                 ? FontWeight.w600
                                 : FontWeight.normal,
                           ),
@@ -370,6 +375,10 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
             onPressed: () => Navigator.of(context).pop(),
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              side: BorderSide(color: Colors.grey[300]!),
             ),
             child: Text(
               'Back',
@@ -384,59 +393,174 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
   }
 
   Widget _buildRequestCard(AidRequestModel request) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: Colors.grey[200]!),
-        borderRadius: BorderRadius.circular(8),
+    return GestureDetector(
+      onTap: () => setState(() => selectedRequestId = request.requestId),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color: Colors.grey[200]!),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  request.requestId,
+                  style: const TextStyle(
+                    color: Colors.black87,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                _buildStatusBadge(request.status),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              request.aidType,
+              style: const TextStyle(
+                color: Colors.black87,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              request.description,
+              style: TextStyle(color: Colors.grey[600], fontSize: 13),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  request.formattedDate,
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 12,
+                  ),
+                ),
+                Icon(Icons.chevron_right,
+                    color: Colors.grey[400], size: 20),
+              ],
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildDetailView() {
+    return Consumer<AidRequestProvider>(
+      builder: (context, aidRequestProvider, _) {
+        final request = aidRequestProvider.aidRequests.firstWhere((r) => r.requestId == selectedRequestId);
+
+        return Scaffold(
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+            backgroundColor: const Color(0xFF059669),
+            title: const Text('Request Details'),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => setState(() => selectedRequestId = null),
+            ),
+          ),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Request ID', style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+                        Text(request.requestId, style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w600)),
+                      ],
+                    ),
+                    _buildStatusBadge(request.status),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _buildDetailRow('Aid Type', request.aidType),
+                if (request.applicantName != null)
+                  _buildDetailRow('Full Name', request.applicantName!),
+                if (request.applicantIC != null)
+                  _buildDetailRow('IC Number', request.applicantIC!),
+                if (request.applicantEmail != null)
+                  _buildDetailRow('Email', request.applicantEmail!),
+                if (request.applicantPhone != null)
+                  _buildDetailRow('Phone', request.applicantPhone!),
+                if (request.applicantAddress != null)
+                  _buildDetailRow('Address', request.applicantAddress!),
+                _buildDetailRow('Date Submitted', request.formattedDate),
+                _buildDetailRow('Monthly Income', 'RM ${request.monthlyIncome.toStringAsFixed(2)}'),
+                _buildDetailRow('Family Members', request.familyMembers.length.toString()),
+                const SizedBox(height: 16),
+                Text('Family Composition', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600)),
+                const SizedBox(height: 8),
+                ...request.familyMembers.map((member) {
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade50,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(member.name, style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w500)),
+                        Text(member.status, style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+                      ],
+                    ),
+                  );
+                }).toList(),
+                const SizedBox(height: 16),
+                _buildDetailRow('Description', request.description),
+              ],
+            ),
+          ),
+          bottomNavigationBar: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              border: Border(top: BorderSide(color: Colors.grey[200]!)),
+            ),
+            child: SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: () => setState(() => selectedRequestId = null),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  side: BorderSide(color: Colors.grey[300]!),
+                ),
+                child: Text('Back to List', style: TextStyle(color: Colors.grey[600])),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                request.requestId,
-                style: const TextStyle(
-                  color: Colors.black87,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              _buildStatusBadge(request.status),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            request.aidType,
-            style: const TextStyle(
-              color: Colors.black87,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+          Text(label, style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
           const SizedBox(height: 4),
-          Text(
-            request.description,
-            style: TextStyle(color: Colors.grey[600], fontSize: 13),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                request.formattedDate,
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 12,
-                ),
-              ),
-              Icon(Icons.chevron_right,
-                  color: Colors.grey[400], size: 20),
-            ],
-          ),
+          Text(value, style: const TextStyle(color: Colors.black87)),
         ],
       ),
     );

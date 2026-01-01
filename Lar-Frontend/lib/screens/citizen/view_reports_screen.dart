@@ -335,6 +335,10 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                 onPressed: () => Navigator.of(context).pop(),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  side: BorderSide(color: Colors.grey[300]!),
                 ),
                 child: Text(
                   'Back',
@@ -861,8 +865,12 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
             onPressed: () => setState(() => selectedReportId = null),
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              side: BorderSide(color: Colors.grey[300]!),
             ),
-            child: const Text('Back to Reports'),
+            child: Text('Back to Reports', style: TextStyle(color: Colors.grey[600])),
           ),
         ),
       ),

@@ -174,7 +174,7 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
     requests = requests.where((req) {
       String status = req.status.toLowerCase();
       if (activeTab == 'pending') return status == 'pending';
-      if (activeTab == 'accepted') return status == 'accepted';
+      if (activeTab == 'approved') return status == 'approved';
       if (activeTab == 'rejected') return status == 'rejected';
       return true;
     }).toList();
@@ -201,10 +201,10 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
       bgColor = Colors.amber.shade100;
       textColor = Colors.amber.shade800;
       label = 'Pending';
-    } else if (status == 'accepted') {
+    } else if (status == 'approved') {
       bgColor = Colors.green.shade100;
       textColor = Colors.green.shade800;
-      label = 'Accepted';
+      label = 'Approved';
     } else {
       bgColor = Colors.red.shade100;
       textColor = Colors.red.shade800;
@@ -298,7 +298,7 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
             SizedBox(height: 8),
             DropdownButtonFormField<String>(
               value: selectedStatus ?? request.status.toLowerCase(),
-              items: ['pending', 'accepted', 'rejected']
+              items: ['pending', 'approved', 'rejected']
                   .map((status) => DropdownMenuItem(
                         value: status,
                         child: Text(status[0].toUpperCase() + status.substring(1)),
@@ -575,20 +575,20 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
                 ),
                 Expanded(
                   child: GestureDetector(
-                    onTap: () => setState(() => activeTab = 'accepted'),
+                    onTap: () => setState(() => activeTab = 'approved'),
                     child: Container(
                       padding: EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        border: activeTab == 'accepted'
+                        border: activeTab == 'approved'
                             ? Border(bottom: BorderSide(color: Color(0xFF0E9D63), width: 2))
                             : null,
                       ),
                       child: Center(
                         child: Text(
-                          'Accepted (${aidRequestProvider.aidRequests.where((r) => r.status.toLowerCase() == 'accepted').length})',
+                          'Approved (${aidRequestProvider.aidRequests.where((r) => r.status.toLowerCase() == 'approved').length})',
                           style: TextStyle(
-                            color: activeTab == 'accepted' ? Color(0xFF0E9D63) : Colors.grey.shade600,
-                            fontWeight: activeTab == 'accepted' ? FontWeight.w600 : FontWeight.normal,
+                            color: activeTab == 'approved' ? Color(0xFF0E9D63) : Colors.grey.shade600,
+                            fontWeight: activeTab == 'approved' ? FontWeight.w600 : FontWeight.normal,
                           ),
                         ),
                       ),

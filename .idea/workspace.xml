@@ -6,10 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="c73decfb-371e-4850-b835-a74b93fcf489" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/add_aid_program_form.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/add_aid_program_form.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/manage_reports_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/manage_reports_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/submit_aid_request_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/submit_aid_request_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/submit_emergency_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/submit_emergency_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/manage_aid_requests_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/manage_aid_requests_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/view_aid_program_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/view_aid_program_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/view_aid_request_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/view_aid_request_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/view_reports_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/view_reports_screen.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
