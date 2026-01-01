@@ -22,6 +22,20 @@ service cloud.firestore {
                              get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
     
+    // Aid requests - users can create/read their own, admins can read/update/delete all
+    match /aid_requests/{requestId} {
+      allow read: if request.auth != null
+                  && (resource.data.user_id == request.auth.uid || 
+                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
+      allow create: if request.auth != null
+                    && request.resource.data.user_id == request.auth.uid;
+      allow update: if request.auth != null
+                    && (resource.data.user_id == request.auth.uid || 
+                        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
+      allow delete: if request.auth != null
+                    && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
     // Test data - open access for testing (remove before production)
     match /test_data/{document=**} {
       allow read, write: if true;

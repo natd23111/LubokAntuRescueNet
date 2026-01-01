@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../models/aid_program.dart';
+import '../../providers/aid_program_provider.dart';
 
 class AddAidProgramForm extends StatefulWidget {
   final VoidCallback onBack;
@@ -95,10 +97,13 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
 
     setState(() => _showSuccess = true);
 
-    Future.delayed(const Duration(seconds: 3), () {
+    Future.delayed(const Duration(seconds: 1), () async {
       if (mounted) {
+        // Generate program ID
+        final programId = 'AID${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
+        
         final newProgram = AidProgram(
-          id: 'AID${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+          id: programId,
           title: _titleController.text,
           category: _selectedCategory ?? 'other',
           status: _selectedStatus ?? 'active',
@@ -109,7 +114,55 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
           eligibilityCriteria: _eligibilityController.text,
           programType: _selectedProgramType,
         );
-        widget.onSubmit(newProgram);
+
+        // Save to Firebase
+        final provider = context.read<AidProgramProvider>();
+        final success = await provider.addAidProgram(newProgram);
+
+        if (success) {
+          // Clear form
+          _titleController.clear();
+          _descriptionController.clear();
+          _aidAmountController.clear();
+          _eligibilityController.clear();
+          
+          setState(() {
+            _selectedCategory = null;
+            _selectedProgramType = null;
+            _selectedStatus = null;
+            _startDate = null;
+            _endDate = null;
+            _showSuccess = false;
+          });
+
+          // Show success message
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Aid program added successfully!'),
+                backgroundColor: Colors.green,
+                duration: Duration(seconds: 2),
+              ),
+            );
+            
+            // Navigate back after 2 seconds
+            Future.delayed(const Duration(seconds: 2), () {
+              if (mounted) {
+                widget.onBack();
+              }
+            });
+          }
+        } else {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(provider.error ?? 'Failed to add program'),
+                backgroundColor: Colors.red,
+              ),
+            );
+            setState(() => _showSuccess = false);
+          }
+        }
       }
     });
   }

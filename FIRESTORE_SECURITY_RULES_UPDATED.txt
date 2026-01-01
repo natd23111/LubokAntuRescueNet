@@ -53,6 +53,17 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
     
+    // Aid requests - users can create/read their own, admins can read/update/delete all
+    match /aid_requests/{requestId} {
+      allow read: if isSignedIn()
+                  && (resource.data.user_id == request.auth.uid || isAdmin());
+      allow create: if isSignedIn()
+                    && request.resource.data.user_id == request.auth.uid;
+      allow update: if isSignedIn()
+                    && (resource.data.user_id == request.auth.uid || isAdmin());
+      allow delete: if isAdmin();
+    }
+    
     // Metadata for counters - authenticated users or seeding
     match /_metadata/{document=**} {
       allow read, write: if isSignedIn() || canSeed();

@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/reports_provider.dart';
+import '../../providers/aid_request_provider.dart';
 import 'aid/aid_list.dart';
 import 'bantuan/bantuan_list.dart';
 import 'profile/profile_screen.dart';
 import 'notifications/notification_settings_screen.dart';
 import 'citizen/view_reports_screen.dart';
 import 'citizen/submit_emergency_screen.dart';
+import 'citizen/submit_aid_request_screen.dart';
+import 'citizen/view_aid_request_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -185,7 +188,23 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       Expanded(child: statTile('2', 'Active Reports', Colors.green.shade300)),
                       SizedBox(width: 8),
-                      Expanded(child: statTile('1', 'Aid Requests', Colors.blue.shade200)),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ChangeNotifierProvider(
+                                  create: (_) => AidRequestProvider(authProvider: authProvider),
+                                  child: ViewAidRequestScreen(),
+                                ),
+                              ),
+                            );
+                          },
+                          child: statTile('1', 'Aid Requests', Colors.blue.shade200),
+                        ),
+                      ),
                       SizedBox(width: 8),
                       Expanded(child: statTile('5', 'New Programs', Colors.purple.shade100)),
                     ],
@@ -225,7 +244,18 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         );
                       }, Colors.blueAccent),
-                      quickAction(Icons.request_page, 'Request Aid', () => Navigator.push(context, MaterialPageRoute(builder: (_) => AidListScreen())), Colors.purpleAccent),
+                      quickAction(Icons.request_page, 'Request Aid', () {
+                        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ChangeNotifierProvider(
+                              create: (_) => AidRequestProvider(authProvider: authProvider),
+                              child: SubmitAidRequestScreen(),
+                            ),
+                          ),
+                        );
+                      }, Colors.purpleAccent),
                       quickAction(Icons.local_activity, 'Aid Programs', () => Navigator.push(context, MaterialPageRoute(builder: (_) => BantuanListScreen())), Colors.green),
                       quickAction(Icons.map, 'Map Warnings', () {}, Colors.orange),
                       quickAction(Icons.chat, 'AI Chatbot', () {}, Colors.teal),
