@@ -32,6 +32,23 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Refresh data when app comes to foreground
+    if (state == AppLifecycleState.resumed) {
+      _refreshDashboardData();
+    }
+  }
+
+  void _refreshDashboardData() {
+    Future.microtask(() {
+      final reportsProvider = Provider.of<ReportsProvider>(context, listen: false);
+      final aidRequestProvider = Provider.of<AidRequestProvider>(context, listen: false);
+      reportsProvider.fetchReports();
+      aidRequestProvider.fetchUserAidRequests();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final primaryGreen = Color(0xFF0E9D63);
 
@@ -426,7 +443,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                               builder: (context) => ChangeNotifierProvider(
                                                 create: (_) => ReportsProvider(authProvider: authProvider),
                                                 child: ManageReportsScreen(
-                                                  onBack: () => Navigator.of(context).pop(),
+                                                  onBack: () {
+                                                    Navigator.of(context).pop();
+                                                    _refreshDashboardData();
+                                                  },
                                                 ),
                                               ),
                                             ),
@@ -680,7 +700,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   Widget _buildWeeklyChart(List<Report> reports) {
-    final dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    final dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     
     // Count reports for each day of the week (last 7 days)
     List<int> values = [];
@@ -696,7 +716,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     }
     
     for (int i = 0; i < 7; i++) {
-      final dayDate = now.subtract(Duration(days: 6 - i));
+      final dayDate = now.subtract(Duration(days: 5 - i));
       
       // Create label with day name and date
       final dayName = dayNames[dayDate.weekday % 7];
@@ -861,7 +881,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   builder: (context) => ChangeNotifierProvider(
                     create: (_) => ReportsProvider(authProvider: authProvider),
                     child: ManageReportsScreen(
-                      onBack: () => Navigator.of(context).pop(),
+                      onBack: () {
+                        Navigator.of(context).pop();
+                        _refreshDashboardData();
+                      },
                     ),
                   ),
                 ),
