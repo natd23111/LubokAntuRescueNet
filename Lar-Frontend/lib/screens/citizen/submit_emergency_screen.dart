@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:async';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 import '../../providers/reports_provider.dart';
 import '../../providers/auth_provider.dart';
+import 'location_picker_screen.dart';
 
 class SubmitEmergencyScreen extends StatefulWidget {
   final VoidCallback onBack;
@@ -23,6 +27,11 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
 
   final TextEditingController locationController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -118,6 +127,83 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
         duration: const Duration(seconds: 3),
       ),
     );
+  }
+
+  void _showSuccess(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.green,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  Future<void> _openLocationPicker() async {
+    final result = await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const LocationPickerScreen(),
+      ),
+    );
+
+    if (result != null && mounted) {
+      setState(() {
+        locationController.text = result['address'];
+      });
+      _showSuccess('Location selected: ${result['address']}');
+    }
+  }
+
+  Future<void> _getCurrentLocation() async {
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        _showError('Location services are disabled. Please enable them.');
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+
+      if (permission == LocationPermission.denied) {
+        _showError('Location permission was denied.');
+        return;
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        _showError('Location permissions are permanently denied. Open app settings to enable.');
+        return;
+      }
+
+      final Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      ).timeout(
+        const Duration(seconds: 15),
+        onTimeout: () => throw TimeoutException('Location request timed out'),
+      );
+
+      // Open map picker with current location as initial position
+      final result = await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => LocationPickerScreen(
+            initialLatitude: position.latitude,
+            initialLongitude: position.longitude,
+          ),
+        ),
+      );
+
+      if (result != null && mounted) {
+        setState(() {
+          locationController.text = result['address'];
+        });
+        _showSuccess('Location selected: ${result['address']}');
+      }
+    } catch (e) {
+      _showError('Error getting location: $e');
+      print('Location error: $e');
+    }
   }
 
   void _clearForm() {
@@ -302,14 +388,20 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      TextButton.icon(
-                        onPressed: () {
-                          // TODO: Implement location service
-                        },
-                        icon: const Text('📍'),
-                        label: const Text('Use Current Location'),
-                        style: TextButton.styleFrom(
-                          foregroundColor: const Color(0xFF059669),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: _getCurrentLocation,
+                          icon: const Icon(Icons.location_on),
+                          label: const Text('Use Current Location on Map'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF059669),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
                         ),
                       ),
                     ],

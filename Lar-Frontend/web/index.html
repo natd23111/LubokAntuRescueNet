@@ -31,6 +31,36 @@
 
   <title>lar</title>
   <link rel="manifest" href="manifest.json">
+  
+  <!-- Web Geolocation Script -->
+  <script>
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          function(position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+            // Call the Flutter method with coordinates
+            // Note: This assumes the app instance is available as 'flutterAppInstance'
+            if (window.flutterCallback) {
+              window.flutterCallback(latitude, longitude);
+            }
+          },
+          function(error) {
+            console.error('Geolocation error:', error);
+            alert('Location access denied or unavailable: ' + error.message);
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 0
+          }
+        );
+      } else {
+        alert('Geolocation is not supported by your browser');
+      }
+    }
+  </script>
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>

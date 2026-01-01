@@ -4,7 +4,19 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c73decfb-371e-4850-b835-a74b93fcf489" name="Changes" comment="" />
+    <list default="true" id="c73decfb-371e-4850-b835-a74b93fcf489" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lar-Frontend/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/android/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/submit_emergency_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/submit_emergency_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lar-Frontend/macos/Flutter/GeneratedPluginRegistrant.swift" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/macos/Flutter/GeneratedPluginRegistrant.swift" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lar-Frontend/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/pubspec.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lar-Frontend/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lar-Frontend/web/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/web/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lar-Frontend/windows/flutter/generated_plugin_registrant.cc" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/windows/flutter/generated_plugin_registrant.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lar-Frontend/windows/flutter/generated_plugins.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/windows/flutter/generated_plugins.cmake" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
