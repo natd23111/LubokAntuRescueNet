@@ -25,7 +25,7 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'pending':
-        return const Color(0xFFFCD34D);
+        return const Color(0xFFD97706);
       case 'approved':
         return const Color(0xFF059669);
       case 'rejected':
@@ -112,7 +112,7 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
         backgroundColor: const Color(0xFF059669),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(

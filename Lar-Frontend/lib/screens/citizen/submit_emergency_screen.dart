@@ -367,7 +367,7 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
         backgroundColor: const Color(0xFF059669),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: widget.onBack,
         ),
         title: const Text(
@@ -528,7 +528,7 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                         width: double.infinity,
                         child: ElevatedButton.icon(
                           onPressed: _getCurrentLocation,
-                          icon: const Icon(Icons.location_on),
+                          icon: const Icon(Icons.location_on, color: Colors.red),
                           label: const Text('Use Current Location on Map'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF059669),
@@ -822,8 +822,15 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                 const SizedBox(height: 8),
                 SizedBox(
                   width: double.infinity,
-                  child: TextButton(
+                  child: OutlinedButton(
                     onPressed: widget.onBack,
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    side: BorderSide(color: Colors.grey[300]!),
+                    ),
                     child: Text(
                       'Back',
                       style: TextStyle(

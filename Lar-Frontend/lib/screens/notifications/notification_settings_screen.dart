@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class NotificationSettingsScreen extends StatefulWidget {
+  const NotificationSettingsScreen({super.key});
+
   @override
   _NotificationSettingsScreenState createState() => _NotificationSettingsScreenState();
 }
@@ -20,9 +22,9 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
       backgroundColor: Color(0xFFF6F7F9),
       appBar: AppBar(
         backgroundColor: primaryGreen,
-        title: Text('Notification Settings'),
+        title: Text('Notification Settings', style: TextStyle(color: Colors.white)),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
         elevation: 0,

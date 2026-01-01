@@ -5,6 +5,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../providers/auth_provider.dart' as auth_provider;
 
 class ProfileScreen extends StatefulWidget {
+  const ProfileScreen({super.key});
+
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
 }
@@ -63,7 +65,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       if (_auth.currentUser == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('User not authenticated')),
+          const SnackBar(content: Text('User not authenticated')),
         );
         return;
       }
@@ -80,7 +82,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       authProvider.userAddress = _addressController.text.trim();
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Profile updated successfully'),
           backgroundColor: Colors.green,
         ),
@@ -101,21 +103,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _newPasswordController.text.isEmpty ||
         _confirmPasswordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('All password fields are required')),
+        const SnackBar(content: Text('All password fields are required')),
       );
       return;
     }
 
     if (_newPasswordController.text != _confirmPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('New passwords do not match')),
+        const SnackBar(content: Text('New passwords do not match')),
       );
       return;
     }
 
     if (_newPasswordController.text.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('New password must be at least 6 characters')),
+        const SnackBar(content: Text('New password must be at least 6 characters')),
       );
       return;
     }
@@ -124,7 +126,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final user = _auth.currentUser;
       if (user == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('User not authenticated')),
+          const SnackBar(content: Text('User not authenticated')),
         );
         return;
       }
@@ -144,7 +146,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _confirmPasswordController.clear();
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Password changed successfully'),
           backgroundColor: Colors.green,
         ),

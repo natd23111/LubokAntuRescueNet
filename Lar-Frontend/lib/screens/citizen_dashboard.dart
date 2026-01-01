@@ -296,7 +296,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     physics: NeverScrollableScrollPhysics(),
                     children: [
                       quickAction(Icons.report_problem, 'Submit Emergency', () => Navigator.push(context, MaterialPageRoute(builder: (_) => SubmitEmergencyScreen(onBack: () => Navigator.pop(context)))), Colors.redAccent),
-                      quickAction(Icons.list_alt, 'View Reports', () {
+                      quickAction(Icons.description_rounded, 'View Reports', () {
                         final authProvider = Provider.of<AuthProvider>(context, listen: false);
                         Navigator.push(
                           context,
@@ -308,7 +308,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         );
                       }, Colors.blueAccent),
-                      quickAction(Icons.request_page, 'Request Aid', () async {
+                      quickAction(Icons.volunteer_activism, 'Request Aid', () async {
                         final authProvider = Provider.of<AuthProvider>(context, listen: false);
                         final aidRequestProvider = Provider.of<AidRequestProvider>(context, listen: false);
                         await Navigator.push(
@@ -323,9 +323,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         // Refresh aid requests when returning
                         aidRequestProvider.fetchUserAidRequests();
                       }, Colors.purpleAccent),
-                      quickAction(Icons.local_activity, 'Aid Programs', () => Navigator.push(context, MaterialPageRoute(builder: (_) => ViewAidProgramScreen())), Colors.green),
-                      quickAction(Icons.map, 'Map Warnings', () {}, Colors.orange),
-                      quickAction(Icons.chat, 'AI Chatbot', () {}, Colors.teal),
+                      quickAction(Icons.notification_important, 'Aid Programs', () => Navigator.push(context, MaterialPageRoute(builder: (_) => ViewAidProgramScreen())), Colors.green),
+                      quickAction(Icons.map_rounded, 'Map Warnings', () {}, Colors.orange),
+                      quickAction(Icons.chat_rounded, 'AI Chatbot', () {}, Colors.teal),
                     ],
                   ),
                 ),
@@ -347,11 +347,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       // Get most recent report
                       final reports = reportsProvider.allReports;
                       final recentReport = reports.isNotEmpty ? reports.first : null;
-                      
+
                       // Get most recent aid request
                       final requests = aidRequestProvider.aidRequests;
                       final recentRequest = requests.isNotEmpty ? requests.first : null;
-                      
+
                       return Column(
                         children: [
                           if (recentReport != null)
