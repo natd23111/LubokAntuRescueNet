@@ -30,6 +30,8 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
   List<XFile> selectedImages = [];
   List<Uint8List> selectedImageBytes = [];
   final ImagePicker _imagePicker = ImagePicker();
+  double? selectedLatitude;
+  double? selectedLongitude;
 
   final TextEditingController locationController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
@@ -44,6 +46,64 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
     locationController.dispose();
     descriptionController.dispose();
     super.dispose();
+  }
+
+  // Geocode location text to get coordinates
+  Future<void> _geocodeLocationIfNeeded() async {
+    // If coordinates already set via map picker, skip geocoding
+    if (selectedLatitude != null && selectedLongitude != null) {
+      return;
+    }
+
+    try {
+      // Try to geocode the entered location text
+      if (locationController.text.isNotEmpty) {
+        final locations = await locationFromAddress(locationController.text);
+        if (locations.isNotEmpty) {
+          final location = locations.first;
+          setState(() {
+            selectedLatitude = location.latitude;
+            selectedLongitude = location.longitude;
+          });
+          print('[Geocoding] Converted "${locationController.text}" to coordinates: ${location.latitude}, ${location.longitude}');
+          return;
+        }
+      }
+    } catch (e) {
+      print('[Geocoding] Failed to geocode location text: $e');
+    }
+
+    // Fallback to current user GPS location
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        _showError('Location services disabled. Please enter location or use map picker.');
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+
+      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+        _showError('Location permission denied. Please use map picker to set location.');
+        return;
+      }
+
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      ).timeout(const Duration(seconds: 10));
+
+      setState(() {
+        selectedLatitude = position.latitude;
+        selectedLongitude = position.longitude;
+      });
+      print('[Geocoding] Using current GPS location: ${position.latitude}, ${position.longitude}');
+    } catch (e) {
+      print('[Geocoding] Failed to get GPS location: $e');
+      _showError('Could not determine location. Please use map picker.');
+    }
   }
 
   Future<void> _handleSubmit() async {
@@ -64,6 +124,16 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
     setState(() => isSubmitting = true);
 
     try {
+      // Auto-geocode location if no coordinates set yet
+      await _geocodeLocationIfNeeded();
+
+      // Validate that we have coordinates now
+      if (selectedLatitude == null || selectedLongitude == null) {
+        _showError('Could not determine location. Please use map picker.');
+        setState(() => isSubmitting = false);
+        return;
+      }
+
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final reportsProvider =
           Provider.of<ReportsProvider>(context, listen: false);
@@ -92,6 +162,8 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
         'reporter_contact': userPhone,
         'date_reported': DateTime.now().toIso8601String(),
         'user_id': currentUser.uid,
+        'latitude': selectedLatitude ?? 2.1234,
+        'longitude': selectedLongitude ?? 112.5678,
         'created_at': DateTime.now().toIso8601String(),
         'updated_at': DateTime.now().toIso8601String(),
       };
@@ -215,7 +287,9 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
 
     if (result != null && mounted) {
       setState(() {
-        locationController.text = result['address'];
+        locationController.text = result['address'] ?? '';
+        selectedLatitude = result['latitude'];
+        selectedLongitude = result['longitude'];
       });
       _showSuccess('Location selected: ${result['address']}');
     }
@@ -263,7 +337,9 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
 
       if (result != null && mounted) {
         setState(() {
-          locationController.text = result['address'];
+          locationController.text = result['address'] ?? '';
+          selectedLatitude = result['latitude'];
+          selectedLongitude = result['longitude'];
         });
         _showSuccess('Location selected: ${result['address']}');
       }
@@ -344,6 +420,8 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
       selectedEmergencyType = null;
       locationController.clear();
       descriptionController.clear();
+      selectedLatitude = null;
+      selectedLongitude = null;
       selectedImages.clear();
       selectedImageBytes.clear();
     });

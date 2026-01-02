@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/reports_provider.dart';
 import '../../providers/aid_request_provider.dart';
 import '../../providers/aid_program_provider.dart';
-import 'aid/aid_list.dart';
+import '../../providers/weather_provider.dart';
 import 'citizen/view_aid_program_screen.dart';
+import 'citizen/weather_details_screen.dart';
+import 'citizen/map_warnings_screen.dart';
+import 'citizen/ai_chatbot_screen.dart';
 import 'profile/profile_screen.dart';
 import 'notifications/notification_settings_screen.dart';
 import 'citizen/view_reports_screen.dart';
@@ -31,15 +35,25 @@ class _HomeScreenState extends State<HomeScreen> {
       final aidRequestProvider = Provider.of<AidRequestProvider>(context, listen: false);
       final reportsProvider = Provider.of<ReportsProvider>(context, listen: false);
       final aidProgramProvider = Provider.of<AidProgramProvider>(context, listen: false);
+      final weatherProvider = Provider.of<WeatherProvider>(context, listen: false);
       aidRequestProvider.fetchUserAidRequests();
       reportsProvider.fetchReports();
       aidProgramProvider.fetchPrograms();
+      weatherProvider.fetchWeather();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final primaryGreen = Color(0xFF0E9D63);
+
+    // Set status bar color to green
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        statusBarColor: primaryGreen,
+        statusBarIconBrightness: Brightness.light,
+      ),
+    );
 
     Widget statTile(String count, String label, Color borderColor) {
       return Container(
@@ -89,24 +103,33 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Color(0xFFF6F7F9),
       body: Column(
         children: [
-          // Header
-          Container(
-            color: primaryGreen,
-            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 20),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('RescueNet', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
-                      SizedBox(height: 4),
-                      Text('Citizen Dashboard', style: TextStyle(color: Colors.white70)),
-                    ],
+          // Header with SafeArea to protect from punch-out but extend color behind status bar
+          SafeArea(
+            top: false,
+            bottom: false,
+            child: Container(
+              color: primaryGreen,
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).padding.top + 12,
+                bottom: 12,
+                left: 12,
+                right: 12,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('RescueNet', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+                        SizedBox(height: 4),
+                        Text('Citizen Dashboard', style: TextStyle(color: Colors.white70)),
+                      ],
+                    ),
                   ),
-                ),
-                IconButton(onPressed: _toggleMenu, icon: Icon(_menuOpen ? Icons.close : Icons.menu, color: Colors.white)),
-              ],
+                  IconButton(onPressed: _toggleMenu, icon: Icon(_menuOpen ? Icons.close : Icons.menu, color: Colors.white)),
+                ],
+              ),
             ),
           ),
 
@@ -141,7 +164,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
           // Scrollable body content
           Expanded(
-            child: ListView(
+            child: RefreshIndicator(
+              onRefresh: _refreshDashboard,
+              color: primaryGreen,
+              backgroundColor: Colors.white,
+              strokeWidth: 3,
+              child: ListView(
               padding: EdgeInsets.all(12),
               children: [
                 // Welcome
@@ -166,30 +194,134 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 SizedBox(height: 12),
 
-                // Alert card
+                // Alert card - Weather
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 6),
-                  child: Container(
-                    padding: EdgeInsets.all(12),
-                    decoration: BoxDecoration(color: Colors.orange.shade50, borderRadius: BorderRadius.circular(10), border: Border.all(color: Colors.orange.shade200)),
-                    child: Row(
-                      children: [
-                        Icon(Icons.warning_amber_rounded, color: Colors.orange),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Consumer<WeatherProvider>(
+                    builder: (context, weatherProvider, _) {
+                      if (weatherProvider.isLoading) {
+                        return Container(
+                          padding: EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade50,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.blue.shade200),
+                          ),
+                          child: Row(
                             children: [
-                              Text('Weather Alert', style: TextStyle(fontWeight: FontWeight.bold)),
-                              SizedBox(height: 6),
-                              Text('Heavy rainfall expected in your area. Stay alert.', style: TextStyle(color: Colors.black87)),
-                              SizedBox(height: 8),
-                              Text('Dec 1, 2025 - 10:30 AM', style: TextStyle(color: Colors.black54, fontSize: 12)),
+                              SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                              SizedBox(width: 10),
+                              Expanded(
+                                child: Text('Loading weather data...', style: TextStyle(color: Colors.black87)),
+                              )
                             ],
                           ),
-                        )
-                      ],
-                    ),
+                        );
+                      }
+
+                      if (weatherProvider.error != null) {
+                        return Container(
+                          padding: EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.orange.shade50,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.orange.shade200),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.warning_amber_rounded, color: Colors.orange),
+                              SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Weather Alert', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    SizedBox(height: 6),
+                                    Text(weatherProvider.error!, style: TextStyle(color: Colors.black87)),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        );
+                      }
+
+                      if (weatherProvider.currentWeather == null) {
+                        return Container(
+                          padding: EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade50,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.grey.shade300),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.cloud_off, color: Colors.grey),
+                              SizedBox(width: 10),
+                              Expanded(
+                                child: Text('Weather data unavailable', style: TextStyle(color: Colors.black87)),
+                              )
+                            ],
+                          ),
+                        );
+                      }
+
+                      final shouldShowAlert = weatherProvider.shouldShowAlert();
+                      final alertColor = shouldShowAlert ? Colors.orange : Colors.blue;
+                      final alertBgColor = shouldShowAlert ? Colors.orange.shade50 : Colors.blue.shade50;
+                      final alertBorderColor = shouldShowAlert ? Colors.orange.shade200 : Colors.blue.shade200;
+
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => WeatherDetailsScreen()),
+                          );
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: alertBgColor,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: alertBorderColor),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                shouldShowAlert ? Icons.warning_amber_rounded : weatherProvider.getWeatherIcon(),
+                                color: alertColor,
+                              ),
+                              SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      shouldShowAlert ? 'Weather Alert' : 'Weather Update',
+                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                    ),
+                                    SizedBox(height: 6),
+                                    Text(
+                                      weatherProvider.getAlertMessage(),
+                                      style: TextStyle(color: Colors.black87),
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      'Last updated: ${DateTime.now().toString().split('.')[0]}',
+                                      style: TextStyle(color: Colors.black54, fontSize: 12),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
 
@@ -324,8 +456,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         aidRequestProvider.fetchUserAidRequests();
                       }, Colors.purpleAccent),
                       quickAction(Icons.notification_important, 'Aid Programs', () => Navigator.push(context, MaterialPageRoute(builder: (_) => ViewAidProgramScreen())), Colors.green),
-                      quickAction(Icons.map_rounded, 'Map Warnings', () {}, Colors.orange),
-                      quickAction(Icons.chat_rounded, 'AI Chatbot', () {}, Colors.teal),
+                      quickAction(Icons.map_rounded, 'Map Warnings', () => Navigator.push(context, MaterialPageRoute(builder: (_) => MapWarningsScreen())), Colors.orange),
+                      quickAction(Icons.chat_rounded, 'AI Chatbot', () => Navigator.push(context, MaterialPageRoute(builder: (_) => AIChatbotScreen())), Colors.teal),
                     ],
                   ),
                 ),
@@ -414,10 +546,42 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
+            ),
           ),
         ],
       ),
     );
+  }
+
+  /// Refresh all dashboard data
+  Future<void> _refreshDashboard() async {
+    try {
+      final reportsProvider = Provider.of<ReportsProvider>(context, listen: false);
+      final aidRequestProvider = Provider.of<AidRequestProvider>(context, listen: false);
+      final aidProgramProvider = Provider.of<AidProgramProvider>(context, listen: false);
+      final weatherProvider = Provider.of<WeatherProvider>(context, listen: false);
+
+      // Refresh all data in parallel
+      await Future.wait([
+        reportsProvider.fetchReports(),
+        aidRequestProvider.fetchUserAidRequests(),
+        aidProgramProvider.fetchPrograms(),
+        weatherProvider.fetchWeather(),
+      ]);
+
+      print('✅ Dashboard refreshed successfully');
+    } catch (e) {
+      print('❌ Error refreshing dashboard: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error refreshing dashboard'),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    }
   }
 
   Widget _activityCard(String title, String status, Color bg, String subtitle, String date) {

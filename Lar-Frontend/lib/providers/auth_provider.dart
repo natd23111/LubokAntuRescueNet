@@ -22,6 +22,12 @@ class AuthProvider with ChangeNotifier {
 
   // Listen to Firebase auth changes
   AuthProvider() {
+    _initializeAuth();
+  }
+
+  /// Initialize auth and check for existing session
+  void _initializeAuth() {
+    // Listen to Firebase auth state changes
     _auth.authStateChanges().listen((User? user) {
       currentUser = user;
       if (user != null) {
@@ -31,6 +37,14 @@ class AuthProvider with ChangeNotifier {
       }
       notifyListeners();
     });
+
+    // Check if user is already logged in from previous session
+    if (_auth.currentUser != null) {
+      currentUser = _auth.currentUser;
+      userId = _auth.currentUser!.uid;
+      userEmail = _auth.currentUser!.email;
+      _loadUserProfile();
+    }
   }
 
   // Load user profile from Firestore

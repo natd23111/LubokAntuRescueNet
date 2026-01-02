@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/notifications_provider.dart';
 
 class NotificationSettingsScreen extends StatefulWidget {
   const NotificationSettingsScreen({super.key});
@@ -13,6 +15,15 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   bool _fireAlerts = true;
   bool _landslideAlerts = true;
   bool _weatherWarnings = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // Fetch notifications when screen loads
+    Future.microtask(() {
+      Provider.of<NotificationsProvider>(context, listen: false).fetchNotifications();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,45 +100,142 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
               SizedBox(height: 24),
 
               // Recent Notifications Section
-              Text(
-                'Recent Notifications',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Recent Notifications',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87),
+                  ),
+                  Consumer<NotificationsProvider>(
+                    builder: (context, provider, _) {
+                      if (provider.unreadCount > 0) {
+                        return Container(
+                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            '${provider.unreadCount} new',
+                            style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+                          ),
+                        );
+                      }
+                      return SizedBox.shrink();
+                    },
+                  ),
+                ],
               ),
 
               SizedBox(height: 12),
 
-              // Flood Warning Notification
-              _buildNotificationCard(
-                '🌧️ Flood Warning',
-                'Heavy rainfall expected in Lubok Antu area',
-                'Dec 1, 2025 - 10:30 AM',
-                Color(0xFFFFF3CD),
-                Colors.orange.shade700,
-              ),
+              // Dynamic Notifications List
+              Consumer<NotificationsProvider>(
+                builder: (context, provider, _) {
+                  if (provider.isLoading) {
+                    return Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(primaryGreen),
+                      ),
+                    );
+                  }
 
-              SizedBox(height: 8),
+                  if (provider.recentNotifications.isEmpty) {
+                    return Container(
+                      padding: EdgeInsets.symmetric(vertical: 32),
+                      child: Center(
+                        child: Column(
+                          children: [
+                            Icon(Icons.notifications_none, size: 48, color: Colors.grey.shade300),
+                            SizedBox(height: 12),
+                            Text(
+                              'No notifications yet',
+                              style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
 
-              // Report Update Notification
-              _buildNotificationCard(
-                '📋 Report Update',
-                'Your report ER2025001 status changed to "In Progress"',
-                'Nov 29, 2025 - 4:15 PM',
-                Color(0xFFF8F9FA),
-                Colors.grey.shade700,
-              ),
-
-              SizedBox(height: 8),
-
-              // Aid Program Notification
-              _buildNotificationCard(
-                '🤝 New Aid Program',
-                'B40 Financial Assistance 2025 is now available',
-                'Nov 28, 2025 - 9:00 AM',
-                Color(0xFFF8F9FA),
-                Colors.grey.shade700,
+                  return Column(
+                    children: provider.recentNotifications.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final notification = entry.value;
+                      return Column(
+                        children: [
+                          _buildDynamicNotificationCard(
+                            notification: notification,
+                            onDismiss: () {
+                              Provider.of<NotificationsProvider>(context, listen: false)
+                                  .deleteNotification(notification.id);
+                            },
+                            onRead: () {
+                              Provider.of<NotificationsProvider>(context, listen: false)
+                                  .markAsRead(notification.id);
+                            },
+                          ),
+                          if (index < provider.recentNotifications.length - 1)
+                            SizedBox(height: 8),
+                        ],
+                      );
+                    }).toList(),
+                  );
+                },
               ),
 
               SizedBox(height: 24),
+
+              // Clear All Button
+              Consumer<NotificationsProvider>(
+                builder: (context, provider, _) {
+                  if (provider.notifications.isNotEmpty) {
+                    return SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: Text('Clear All Notifications?'),
+                              content: Text('This action cannot be undone.'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: Text('Cancel'),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Provider.of<NotificationsProvider>(context, listen: false)
+                                        .clearAllNotifications();
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text('Clear All', style: TextStyle(color: Colors.red)),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: Colors.red.shade300),
+                          padding: EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          'Clear All Notifications',
+                          style: TextStyle(color: Colors.red.shade600, fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                    );
+                  }
+                  return SizedBox.shrink();
+                },
+              ),
+
+              SizedBox(height: 16),
 
               // Back Button
               SizedBox(
@@ -135,9 +243,8 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                 child: ElevatedButton(
                   onPressed: () => Navigator.pop(context),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.grey.shade700,
-                    side: BorderSide(color: Colors.grey.shade300),
+                    backgroundColor: primaryGreen,
+                    foregroundColor: Colors.white,
                     padding: EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -346,33 +453,142 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
     );
   }
 
-  Widget _buildNotificationCard(String title, String message, String time, Color bgColor, Color textColor) {
-    return Container(
-      padding: EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: textColor),
-          ),
-          SizedBox(height: 4),
-          Text(
-            message,
-            style: TextStyle(fontSize: 12, color: textColor.withOpacity(0.9)),
-          ),
-          SizedBox(height: 8),
-          Text(
-            time,
-            style: TextStyle(fontSize: 11, color: textColor.withOpacity(0.7)),
-          ),
-        ],
+  Widget _buildDynamicNotificationCard({
+    required dynamic notification,
+    required VoidCallback onDismiss,
+    required VoidCallback onRead,
+  }) {
+    final bgColor = notification.isRead 
+      ? Colors.white 
+      : Color(0xFFF0F9FF);
+    
+    final borderColor = notification.isRead 
+      ? Colors.grey.shade200 
+      : Color(0xFF0E9D63).withOpacity(0.3);
+
+    return GestureDetector(
+      onTap: () => _handleNotificationTap(notification),
+      child: Container(
+        padding: EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: borderColor),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    '${notification.typeIcon} ${notification.title}',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Color(int.parse('0xFF${notification.typeColor.replaceFirst('#', '')}')),
+                    ),
+                  ),
+                ),
+                if (!notification.isRead)
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: Color(0xFF0E9D63),
+                      shape: BoxShape.circle,
+                    ),
+                  )
+              ],
+            ),
+            SizedBox(height: 6),
+            Text(
+              notification.body,
+              style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  notification.formattedTime,
+                  style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+                ),
+                Row(
+                  children: [
+                    if (!notification.isRead)
+                      GestureDetector(
+                        onTap: onRead,
+                        child: Text(
+                          'Mark as read',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Color(0xFF0E9D63),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    SizedBox(width: 12),
+                    GestureDetector(
+                      onTap: onDismiss,
+                      child: Icon(Icons.close, size: 16, color: Colors.grey.shade400),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  /// Handle notification tap - navigate to the relevant report
+  void _handleNotificationTap(dynamic notification) {
+    if (notification.type != 'report_status' || notification.data == null) {
+      return;
+    }
+
+    final data = notification.data as Map<String, dynamic>;
+    final reportId = data['reportId'];
+    final reportType = data['reportType'];
+
+    if (reportId == null) return;
+
+    // Mark as read if not already
+    if (!notification.isRead) {
+      Provider.of<NotificationsProvider>(context, listen: false)
+          .markAsRead(notification.id);
+    }
+
+    // Navigate to the appropriate report screen
+    if (reportType == 'emergency') {
+      _navigateToEmergencyReport(reportId);
+    } else if (reportType == 'aid') {
+      _navigateToAidRequest(reportId);
+    }
+  }
+
+  /// Navigate to emergency report details
+  void _navigateToEmergencyReport(String reportId) {
+    print('Navigating to emergency report: $reportId');
+    // Navigate to my reports screen
+    Navigator.of(context).pushNamed('/view-reports', arguments: {
+      'reportType': 'emergency',
+      'reportId': reportId,
+    });
+  }
+
+  /// Navigate to aid request details
+  void _navigateToAidRequest(String reportId) {
+    print('Navigating to aid request: $reportId');
+    // Navigate to my reports screen
+    Navigator.of(context).pushNamed('/view-reports', arguments: {
+      'reportType': 'aid',
+      'reportId': reportId,
+    });
   }
 }

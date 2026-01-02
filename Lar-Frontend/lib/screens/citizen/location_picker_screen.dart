@@ -52,7 +52,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
   Map<String, AddressComponents> _placemarkCache = {}; // Cache for placemark results
   List<LatLng> _locationHistory = []; // Recent locations for quick access
   bool _isDraggingMarker = false;
-  double _zoomLevel = 15.0;
+  double _zoomLevel = 17.0;
 
   @override
   void initState() {
@@ -192,8 +192,11 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
         });
 
         print('Moving map to: ${location.latitude}, ${location.longitude}');
-        // Move camera to location immediately
+        // Move camera to location immediately and reset rotation
+        // Add small delay to ensure map is fully rendered
+        await Future.delayed(const Duration(milliseconds: 100));
         _mapController.move(location, _zoomLevel);
+        _mapController.rotate(0); // Reset rotation to face north
       }
 
       // Fetch address in background while map is moving
@@ -418,8 +421,8 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
           FlutterMap(
                   mapController: _mapController,
                   options: MapOptions(
-                    initialCenter: selectedLocation ?? const LatLng(2.8127, 112.3277),
-                    initialZoom: 1.0,
+                    initialCenter: selectedLocation ?? const LatLng(2.1234, 112.5678),
+                    initialZoom: 13.0,
                     onTap: (tapPosition, latLng) => _onMapTap(latLng),
                   ),
                   children: [
