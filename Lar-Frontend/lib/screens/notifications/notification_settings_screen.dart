@@ -466,80 +466,129 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
       ? Colors.grey.shade200 
       : Color(0xFF0E9D63).withOpacity(0.3);
 
-    return Container(
-      padding: EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: borderColor),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  '${notification.typeIcon} ${notification.title}',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: Color(int.parse('0xFF${notification.typeColor.replaceFirst('#', '')}')),
+    return GestureDetector(
+      onTap: () => _handleNotificationTap(notification),
+      child: Container(
+        padding: EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: borderColor),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    '${notification.typeIcon} ${notification.title}',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Color(int.parse('0xFF${notification.typeColor.replaceFirst('#', '')}')),
+                    ),
                   ),
                 ),
-              ),
-              if (!notification.isRead)
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: Color(0xFF0E9D63),
-                    shape: BoxShape.circle,
-                  ),
-                )
-            ],
-          ),
-          SizedBox(height: 6),
-          Text(
-            notification.body,
-            style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                notification.formattedTime,
-                style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
-              ),
-              Row(
-                children: [
-                  if (!notification.isRead)
-                    GestureDetector(
-                      onTap: onRead,
-                      child: Text(
-                        'Mark as read',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Color(0xFF0E9D63),
-                          fontWeight: FontWeight.w500,
+                if (!notification.isRead)
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: Color(0xFF0E9D63),
+                      shape: BoxShape.circle,
+                    ),
+                  )
+              ],
+            ),
+            SizedBox(height: 6),
+            Text(
+              notification.body,
+              style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  notification.formattedTime,
+                  style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+                ),
+                Row(
+                  children: [
+                    if (!notification.isRead)
+                      GestureDetector(
+                        onTap: onRead,
+                        child: Text(
+                          'Mark as read',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Color(0xFF0E9D63),
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
+                    SizedBox(width: 12),
+                    GestureDetector(
+                      onTap: onDismiss,
+                      child: Icon(Icons.close, size: 16, color: Colors.grey.shade400),
                     ),
-                  SizedBox(width: 12),
-                  GestureDetector(
-                    onTap: onDismiss,
-                    child: Icon(Icons.close, size: 16, color: Colors.grey.shade400),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ],
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  /// Handle notification tap - navigate to the relevant report
+  void _handleNotificationTap(dynamic notification) {
+    if (notification.type != 'report_status' || notification.data == null) {
+      return;
+    }
+
+    final data = notification.data as Map<String, dynamic>;
+    final reportId = data['reportId'];
+    final reportType = data['reportType'];
+
+    if (reportId == null) return;
+
+    // Mark as read if not already
+    if (!notification.isRead) {
+      Provider.of<NotificationsProvider>(context, listen: false)
+          .markAsRead(notification.id);
+    }
+
+    // Navigate to the appropriate report screen
+    if (reportType == 'emergency') {
+      _navigateToEmergencyReport(reportId);
+    } else if (reportType == 'aid') {
+      _navigateToAidRequest(reportId);
+    }
+  }
+
+  /// Navigate to emergency report details
+  void _navigateToEmergencyReport(String reportId) {
+    print('Navigating to emergency report: $reportId');
+    // Navigate to my reports screen
+    Navigator.of(context).pushNamed('/view-reports', arguments: {
+      'reportType': 'emergency',
+      'reportId': reportId,
+    });
+  }
+
+  /// Navigate to aid request details
+  void _navigateToAidRequest(String reportId) {
+    print('Navigating to aid request: $reportId');
+    // Navigate to my reports screen
+    Navigator.of(context).pushNamed('/view-reports', arguments: {
+      'reportType': 'aid',
+      'reportId': reportId,
+    });
   }
 }

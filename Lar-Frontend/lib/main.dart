@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
 import 'screens/citizen_dashboard.dart';
+import 'screens/citizen/view_reports_screen.dart';
 import 'screens/admin/admin_dashboard_screen.dart';
 import 'screens/firebase_test_screen.dart';
 import 'screens/splash/splash_screen.dart';
@@ -66,6 +67,7 @@ class MyApp extends StatelessWidget {
         '/login': (_) => LoginScreen(),
         '/register': (_) => RegisterScreen(),
         '/home': (_) => HomeRouter(),
+        '/view-reports': (_) => ViewReportsScreen(),
         '/firebase-test': (_) => FirebaseTestScreen(),  // For testing if needed
       },
     );
