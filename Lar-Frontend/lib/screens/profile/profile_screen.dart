@@ -181,34 +181,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          // Header
-          Container(
-            color: primaryGreen,
-            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-            child: Row(
-              children: [
-                IconButton(
-                  icon: Icon(Icons.arrow_back, color: Colors.white),
-                  onPressed: () => Navigator.pop(context),
-                ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('RescueNet', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                      Text('User Profile', style: TextStyle(color: Colors.white70, fontSize: 12)),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Scrollable content
-          Expanded(
-            child: ListView(
+      appBar: AppBar(
+        backgroundColor: primaryGreen,
+        title: Text('User Profile', style: TextStyle(color: Colors.white)),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        elevation: 0,
+      ),
+      body: ListView(
               padding: EdgeInsets.all(16),
               children: [
                 // Profile Avatar Section
@@ -501,9 +483,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
+      );
   }
 }

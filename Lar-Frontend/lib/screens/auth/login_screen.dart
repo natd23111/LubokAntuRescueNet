@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import 'register_screen.dart';
@@ -64,17 +65,30 @@ class _LoginScreenState extends State<LoginScreen> {
     final authProvider = Provider.of<AuthProvider>(context);
     final primaryGreen = Color(0xFF0E9D63);
 
+    // Set status bar color to match header
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        statusBarColor: primaryGreen,
+        statusBarIconBrightness: Brightness.light,
+      ),
+    );
+
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // Top section with bigger logo
-              Container(
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            // Top section with bigger logo - extend behind status bar
+            SafeArea(
+              top: false,
+              bottom: false,
+              child: Container(
                 width: double.infinity,
                 color: primaryGreen,
-                padding: const EdgeInsets.symmetric(vertical: 15),
+                padding: EdgeInsets.only(
+                  top: MediaQuery.of(context).padding.top + 15,
+                  bottom: 15,
+                ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -119,12 +133,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
               ),
+            ),
 
-              // Form card
-              Padding(
-                padding:
-                const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-                child: Card(
+            // Form card
+            Padding(
+              padding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+              child: Card(
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
                   elevation: 4,
@@ -269,29 +284,28 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
 
-              const SizedBox(height: 8),
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text("Don't have an account? ",
-                          style: TextStyle(color: Colors.black54)),
-                      TextButton(
-                        onPressed: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => RegisterScreen())),
-                        style: TextButton.styleFrom(foregroundColor: primaryGreen),
-                        child: const Text('Register here'),
-                      ),
-                    ],
-                  ),
+            const SizedBox(height: 8),
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text("Don't have an account? ",
+                        style: TextStyle(color: Colors.black54)),
+                    TextButton(
+                      onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => RegisterScreen())),
+                      style: TextButton.styleFrom(foregroundColor: primaryGreen),
+                      child: const Text('Register here'),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

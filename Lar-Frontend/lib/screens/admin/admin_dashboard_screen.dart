@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../providers/auth_provider.dart';
@@ -52,44 +53,61 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   Widget build(BuildContext context) {
     final primaryGreen = Color(0xFF0E9D63);
 
+    // Set status bar color to green
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        statusBarColor: primaryGreen,
+        statusBarIconBrightness: Brightness.light,
+      ),
+    );
+
     return Scaffold(
       backgroundColor: Color(0xFFF6F7F9),
       body: Column(
         children: [
-          // Header
-          Container(
-            color: primaryGreen,
-            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 20),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'RescueNet',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
+          // Header with SafeArea to protect from punch-out but extend color behind status bar
+          SafeArea(
+            top: false,
+            bottom: false,
+            child: Container(
+              color: primaryGreen,
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).padding.top + 12,
+                bottom: 12,
+                left: 12,
+                right: 12,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'RescueNet',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        'Admin Dashboard',
-                        style: TextStyle(color: Colors.white70),
-                      ),
-                    ],
+                        SizedBox(height: 4),
+                        Text(
+                          'Admin Dashboard',
+                          style: TextStyle(color: Colors.white70),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                IconButton(
-                  onPressed: _toggleMenu,
-                  icon: Icon(
-                    _menuOpen ? Icons.close : Icons.menu,
-                    color: Colors.white,
+                  IconButton(
+                    onPressed: _toggleMenu,
+                    icon: Icon(
+                      _menuOpen ? Icons.close : Icons.menu,
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
 
