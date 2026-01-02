@@ -418,8 +418,8 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
           FlutterMap(
                   mapController: _mapController,
                   options: MapOptions(
-                    initialCenter: selectedLocation ?? const LatLng(2.8127, 112.3277),
-                    initialZoom: 1.0,
+                    initialCenter: selectedLocation ?? const LatLng(2.1234, 112.5678),
+                    initialZoom: 13.0,
                     onTap: (tapPosition, latLng) => _onMapTap(latLng),
                   ),
                   children: [

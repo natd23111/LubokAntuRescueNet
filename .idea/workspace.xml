@@ -7,9 +7,9 @@
     <list default="true" id="c73decfb-371e-4850-b835-a74b93fcf489" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/location_picker_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/location_picker_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/weather_details_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/weather_details_screen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen_dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen_dashboard.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/pubspec.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/pubspec.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

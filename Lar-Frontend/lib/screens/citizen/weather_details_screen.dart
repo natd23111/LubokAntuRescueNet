@@ -141,7 +141,6 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen> {
 
           final weather = weatherProvider.currentWeather!;
           final shouldShowAlert = weatherProvider.shouldShowAlert();
-          final alertColor = shouldShowAlert ? Colors.orange : Colors.blue;
 
           return SingleChildScrollView(
             padding: EdgeInsets.all(16),
@@ -235,7 +234,7 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen> {
                     _buildDetailCard(
                       icon: Icons.location_on,
                       label: 'Location',
-                      value: '${weatherProvider.currentPosition?.latitude?.toStringAsFixed(2) ?? 'N/A'},${weatherProvider.currentPosition?.longitude?.toStringAsFixed(2) ?? 'N/A'}',
+                      value: '${weatherProvider.currentPosition?.latitude.toStringAsFixed(2) ?? 'N/A'},${weatherProvider.currentPosition?.longitude.toStringAsFixed(2) ?? 'N/A'}',
                       bgColor: Colors.purple,
                     ),
                   ],

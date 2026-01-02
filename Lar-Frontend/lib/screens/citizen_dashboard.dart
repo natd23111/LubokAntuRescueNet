@@ -8,6 +8,7 @@ import '../../providers/aid_program_provider.dart';
 import '../../providers/weather_provider.dart';
 import 'citizen/view_aid_program_screen.dart';
 import 'citizen/weather_details_screen.dart';
+import 'citizen/map_warnings_screen.dart';
 import 'profile/profile_screen.dart';
 import 'notifications/notification_settings_screen.dart';
 import 'citizen/view_reports_screen.dart';
@@ -449,7 +450,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         aidRequestProvider.fetchUserAidRequests();
                       }, Colors.purpleAccent),
                       quickAction(Icons.notification_important, 'Aid Programs', () => Navigator.push(context, MaterialPageRoute(builder: (_) => ViewAidProgramScreen())), Colors.green),
-                      quickAction(Icons.map_rounded, 'Map Warnings', () {}, Colors.orange),
+                      quickAction(Icons.map_rounded, 'Map Warnings', () => Navigator.push(context, MaterialPageRoute(builder: (_) => MapWarningsScreen())), Colors.orange),
                       quickAction(Icons.chat_rounded, 'AI Chatbot', () {}, Colors.teal),
                     ],
                   ),
