@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/aid_program.dart';
 import '../../providers/aid_program_provider.dart';
+import 'submit_aid_request_screen.dart';
 
 class ViewAidProgramScreen extends StatefulWidget {
   @override
@@ -804,11 +805,14 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  // TODO: Implement apply functionality
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                          'Redirecting to Request Aid form...'),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => SubmitAidRequestScreen(
+                        preselectedProgramId: program.id,
+                        preselectedCategory: program.category,
+                        preselectedAmount: program.aidAmount,
+                      ),
                     ),
                   );
                 },

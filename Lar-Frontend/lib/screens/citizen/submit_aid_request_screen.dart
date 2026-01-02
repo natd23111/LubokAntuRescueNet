@@ -17,18 +17,61 @@ class FamilyMember {
 }
 
 class SubmitAidRequestScreen extends StatefulWidget {
+  final String? preselectedProgramId;
+  final String? preselectedCategory;
+  final String? preselectedAmount;
+
+  const SubmitAidRequestScreen({
+    this.preselectedProgramId,
+    this.preselectedCategory,
+    this.preselectedAmount,
+  });
+
   @override
   _SubmitAidRequestScreenState createState() => _SubmitAidRequestScreenState();
 }
 
 class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
   bool showSuccess = false;
-  String selectedAidType = '';
+  late String selectedAidType;
   String monthlyIncome = '';
   String description = '';
+  String? programId;
+  String? programAmount;
   List<FamilyMember> familyMembers = [
     FamilyMember(id: 1, name: '', status: 'student')
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Pre-populate with program details if provided
+    // Map program categories to dropdown values
+    if (widget.preselectedCategory != null) {
+      selectedAidType = _mapCategoryToDropdownValue(widget.preselectedCategory!);
+    } else {
+      selectedAidType = '';
+    }
+    programId = widget.preselectedProgramId;
+    programAmount = widget.preselectedAmount;
+  }
+
+  String _mapCategoryToDropdownValue(String category) {
+    switch (category.toLowerCase()) {
+      case 'financial':
+        return 'Financial Aid';
+      case 'disaster':
+        return 'Disaster Relief';
+      case 'medical':
+        return 'Medical Emergency Fund';
+      case 'education':
+        return 'Education Aid';
+      case 'housing':
+        return 'Housing Assistance';
+      default:
+        return 'Other';
+    }
+  }
 
   final TextEditingController incomeController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
