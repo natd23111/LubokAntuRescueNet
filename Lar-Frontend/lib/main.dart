@@ -9,6 +9,7 @@ import 'providers/auth_provider.dart';
 import 'providers/aid_program_provider.dart';
 import 'providers/reports_provider.dart';
 import 'providers/aid_request_provider.dart';
+import 'providers/weather_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -25,6 +26,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => AidProgramProvider()),
+        ChangeNotifierProvider(create: (_) => WeatherProvider()),
         ChangeNotifierProxyProvider<AuthProvider, ReportsProvider>(
           create: (context) => ReportsProvider(authProvider: Provider.of<AuthProvider>(context, listen: false)),
           update: (context, authProvider, previous) => 

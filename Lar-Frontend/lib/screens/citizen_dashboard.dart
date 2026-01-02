@@ -5,8 +5,9 @@ import '../../providers/auth_provider.dart';
 import '../../providers/reports_provider.dart';
 import '../../providers/aid_request_provider.dart';
 import '../../providers/aid_program_provider.dart';
-import 'aid/aid_list.dart';
+import '../../providers/weather_provider.dart';
 import 'citizen/view_aid_program_screen.dart';
+import 'citizen/weather_details_screen.dart';
 import 'profile/profile_screen.dart';
 import 'notifications/notification_settings_screen.dart';
 import 'citizen/view_reports_screen.dart';
@@ -32,9 +33,11 @@ class _HomeScreenState extends State<HomeScreen> {
       final aidRequestProvider = Provider.of<AidRequestProvider>(context, listen: false);
       final reportsProvider = Provider.of<ReportsProvider>(context, listen: false);
       final aidProgramProvider = Provider.of<AidProgramProvider>(context, listen: false);
+      final weatherProvider = Provider.of<WeatherProvider>(context, listen: false);
       aidRequestProvider.fetchUserAidRequests();
       reportsProvider.fetchReports();
       aidProgramProvider.fetchPrograms();
+      weatherProvider.fetchWeather();
     });
   }
 
@@ -184,30 +187,134 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 SizedBox(height: 12),
 
-                // Alert card
+                // Alert card - Weather
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 6),
-                  child: Container(
-                    padding: EdgeInsets.all(12),
-                    decoration: BoxDecoration(color: Colors.orange.shade50, borderRadius: BorderRadius.circular(10), border: Border.all(color: Colors.orange.shade200)),
-                    child: Row(
-                      children: [
-                        Icon(Icons.warning_amber_rounded, color: Colors.orange),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Consumer<WeatherProvider>(
+                    builder: (context, weatherProvider, _) {
+                      if (weatherProvider.isLoading) {
+                        return Container(
+                          padding: EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade50,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.blue.shade200),
+                          ),
+                          child: Row(
                             children: [
-                              Text('Weather Alert', style: TextStyle(fontWeight: FontWeight.bold)),
-                              SizedBox(height: 6),
-                              Text('Heavy rainfall expected in your area. Stay alert.', style: TextStyle(color: Colors.black87)),
-                              SizedBox(height: 8),
-                              Text('Dec 1, 2025 - 10:30 AM', style: TextStyle(color: Colors.black54, fontSize: 12)),
+                              SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                              SizedBox(width: 10),
+                              Expanded(
+                                child: Text('Loading weather data...', style: TextStyle(color: Colors.black87)),
+                              )
                             ],
                           ),
-                        )
-                      ],
-                    ),
+                        );
+                      }
+
+                      if (weatherProvider.error != null) {
+                        return Container(
+                          padding: EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.orange.shade50,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.orange.shade200),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.warning_amber_rounded, color: Colors.orange),
+                              SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Weather Alert', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    SizedBox(height: 6),
+                                    Text(weatherProvider.error!, style: TextStyle(color: Colors.black87)),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        );
+                      }
+
+                      if (weatherProvider.currentWeather == null) {
+                        return Container(
+                          padding: EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade50,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.grey.shade300),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.cloud_off, color: Colors.grey),
+                              SizedBox(width: 10),
+                              Expanded(
+                                child: Text('Weather data unavailable', style: TextStyle(color: Colors.black87)),
+                              )
+                            ],
+                          ),
+                        );
+                      }
+
+                      final shouldShowAlert = weatherProvider.shouldShowAlert();
+                      final alertColor = shouldShowAlert ? Colors.orange : Colors.blue;
+                      final alertBgColor = shouldShowAlert ? Colors.orange.shade50 : Colors.blue.shade50;
+                      final alertBorderColor = shouldShowAlert ? Colors.orange.shade200 : Colors.blue.shade200;
+
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => WeatherDetailsScreen()),
+                          );
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: alertBgColor,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: alertBorderColor),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                shouldShowAlert ? Icons.warning_amber_rounded : weatherProvider.getWeatherIcon(),
+                                color: alertColor,
+                              ),
+                              SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      shouldShowAlert ? 'Weather Alert' : 'Weather Update',
+                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                    ),
+                                    SizedBox(height: 6),
+                                    Text(
+                                      weatherProvider.getAlertMessage(),
+                                      style: TextStyle(color: Colors.black87),
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      'Last updated: ${DateTime.now().toString().split('.')[0]}',
+                                      style: TextStyle(color: Colors.black54, fontSize: 12),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
 
