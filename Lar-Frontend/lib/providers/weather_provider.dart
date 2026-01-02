@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -65,12 +66,14 @@ class WeatherProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
   Position? _currentPosition;
+  String _areaName = 'Your area';
 
   // Getters
   WeatherData? get currentWeather => _currentWeather;
   bool get isLoading => _isLoading;
   String? get error => _error;
   Position? get currentPosition => _currentPosition;
+  String get areaName => _areaName;
 
   WeatherProvider() {
     _initializeLocation();
@@ -81,6 +84,7 @@ class WeatherProvider extends ChangeNotifier {
       final hasPermission = await _checkLocationPermission();
       if (hasPermission) {
         await _getCurrentLocation();
+        await _getAreaName();
         await fetchWeather();
       }
     } catch (e) {
@@ -124,6 +128,37 @@ class WeatherProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> _getAreaName() async {
+    if (_currentPosition == null) return;
+    
+    try {
+      final placemarks = await placemarkFromCoordinates(
+        _currentPosition!.latitude,
+        _currentPosition!.longitude,
+      );
+      
+      if (placemarks.isNotEmpty) {
+        final place = placemarks.first;
+        // Try to get the most descriptive name available
+        final locality = place.locality ?? '';
+        final administrativeArea = place.administrativeArea ?? '';
+        final country = place.country ?? '';
+        
+        if (locality.isNotEmpty) {
+          _areaName = administrativeArea.isNotEmpty ? '$locality, $administrativeArea' : locality;
+        } else if (administrativeArea.isNotEmpty) {
+          _areaName = administrativeArea;
+        } else if (country.isNotEmpty) {
+          _areaName = country;
+        }
+      }
+      notifyListeners();
+    } catch (e) {
+      print('Error getting area name: $e');
+      _areaName = 'Your area';
+    }
+  }
+
   Future<void> fetchWeather() async {
     if (_currentPosition == null) {
       _error = 'Location not available';
@@ -136,8 +171,14 @@ class WeatherProvider extends ChangeNotifier {
       _error = null;
       notifyListeners();
 
+      // Fetch current + hourly data for better alert detection
       final url = Uri.parse(
-        '$_apiUrl?latitude=${_currentPosition!.latitude}&longitude=${_currentPosition!.longitude}&current=temperature_2m,weather_code,wind_speed_10m&timezone=auto'
+        '$_apiUrl?latitude=${_currentPosition!.latitude}&longitude=${_currentPosition!.longitude}'
+        '&current=temperature_2m,weather_code,wind_speed_10m,precipitation,relative_humidity_2m'
+        '&hourly=precipitation,weather_code,wind_speed_10m'
+        '&daily=weather_code,precipitation_sum,wind_speed_10m_max'
+        '&forecast_days=7'
+        '&timezone=auto'
       );
 
       final response = await http.get(url);
@@ -179,6 +220,72 @@ class WeatherProvider extends ChangeNotifier {
            description.contains('storm');
   }
 
+  // Helper method to determine if flood alert should be shown
+  bool shouldShowFloodAlert() {
+    if (_currentWeather == null) return false;
+    
+    final main = _currentWeather!.main.toLowerCase();
+    
+    // Heavy rain (codes 80-82) or thunderstorm (codes 95-99) indicates flood risk
+    return _currentWeather!.weatherCode >= 80 && _currentWeather!.weatherCode <= 82 ||
+           _currentWeather!.weatherCode >= 95 && _currentWeather!.weatherCode <= 99;
+  }
+
+  // Get weather alert details for notification
+  Map<String, dynamic>? getAlertDetails() {
+    if (_currentWeather == null) return null;
+    
+    final main = _currentWeather!.main.toLowerCase();
+    final description = _currentWeather!.description;
+    final temp = _currentWeather!.temperature.toStringAsFixed(1);
+    final windSpeed = _currentWeather!.windSpeed.toStringAsFixed(1);
+    final code = _currentWeather!.weatherCode;
+    
+    // Determine alert type and icon
+    String alertType = 'weather';
+    String icon = '⚠️';
+    String title = 'Weather Alert';
+    String body = description;
+    
+    if (code >= 80 && code <= 82) {
+      // Heavy rain/showers
+      alertType = 'flood';
+      icon = '🌧️';
+      title = 'Heavy Rainfall Warning';
+      body = 'Heavy rainfall expected in your area';
+    } else if (code >= 95 && code <= 99) {
+      // Thunderstorm
+      alertType = 'thunderstorm';
+      icon = '⛈️';
+      title = 'Thunderstorm Alert';
+      body = 'Severe thunderstorm warning';
+    } else if (main.contains('snow')) {
+      alertType = 'snow';
+      icon = '❄️';
+      title = 'Snow Warning';
+      body = 'Heavy snow conditions';
+    } else if (main.contains('wind')) {
+      alertType = 'wind';
+      icon = '💨';
+      title = 'High Wind Alert';
+      body = 'Strong winds expected';
+    }
+    
+    return {
+      'type': alertType,
+      'icon': icon,
+      'title': title,
+      'body': body,
+      'temperature': temp,
+      'windSpeed': windSpeed,
+      'weatherCode': code,
+      'description': description,
+      'location': _areaName,
+      'latitude': _currentPosition?.latitude ?? 0,
+      'longitude': _currentPosition?.longitude ?? 0,
+    };
+  }
+
   // Helper method to get alert message
   String getAlertMessage() {
     if (_currentWeather == null) {
@@ -193,6 +300,14 @@ class WeatherProvider extends ChangeNotifier {
         .map((word) => word.replaceFirst(word[0], word[0].toUpperCase()))
         .join(' ');
     return '$capitalizedDescription. Current temperature: ${temp}°C';
+  }
+
+  // Get formatted weather alert message for notifications
+  String getFormattedAlertMessage() {
+    final details = getAlertDetails();
+    if (details == null) return '';
+    
+    return '${details['description']}. Temperature: ${details['temperature']}°C, Wind: ${details['windSpeed']} km/h';
   }
 
   // Helper method to get weather icon

@@ -80,7 +80,7 @@ class AppNotification {
   String get typeIcon {
     switch (type) {
       case 'report_status':
-        return '📋';
+        return '';
       case 'aid_update':
         return '🆘';
       case 'alert':

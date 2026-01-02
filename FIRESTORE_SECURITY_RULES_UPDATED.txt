@@ -33,6 +33,14 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if request.auth.uid == userId;
       allow write: if request.auth.uid == userId || canSeed();
+      
+      // Users can read/write their own notifications
+      match /notifications/{notificationId} {
+        allow read: if request.auth.uid == userId;
+        allow write: if request.auth.uid == userId || isAdmin();
+        allow create: if request.auth.uid == userId || isAdmin();
+        allow delete: if request.auth.uid == userId || isAdmin();
+      }
     }
     
     // Aid programs - public read, admin write or seeding

@@ -31,6 +31,21 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
         // Fetch the user's reports
         reportsProvider.fetchMyReports();
       }
+
+      // Check if a specific report was requested via navigation
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args is Map<String, dynamic>) {
+        final reportId = args['reportId'];
+        if (reportId != null) {
+          print('📍 Auto-selecting report from navigation: $reportId');
+          // Delay setting to allow reports to load first
+          Future.delayed(Duration(milliseconds: 500), () {
+            if (mounted) {
+              setState(() => selectedReportId = reportId);
+            }
+          });
+        }
+      }
     });
   }
 
