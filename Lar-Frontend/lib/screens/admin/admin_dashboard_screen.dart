@@ -149,33 +149,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     ),
                     SizedBox(height: 24),
 
-                    // Stats Grid
-                    Consumer2<ReportsProvider, AidRequestProvider>(
-                      builder: (context, reportsProvider, aidRequestProvider, _) {
-                        final totalReports = reportsProvider.allReports.length;
-                        final unresolvedCount = reportsProvider.allReports
-                            .where((r) => r.status.toLowerCase() == 'unresolved')
-                            .length;
-                        final totalRequests = aidRequestProvider.aidRequests.length;
-                        
-                        return GridView.count(
-                          crossAxisCount: 2,
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          mainAxisSpacing: 12,
-                          crossAxisSpacing: 12,
-                          children: [
-                            _buildStatCard('Total Reports', totalReports.toString(), '+5 today', Icons.description, Color(0xFF3B82F6)),
-                            _buildStatCard('Unresolved', unresolvedCount.toString(), 'Needs attention', Icons.warning, Color(0xFFF59E0B)),
-                            _buildStatCard('Aid Requests', totalRequests.toString(), '+3 today', Icons.favorite, Color(0xFFA855F7)),
-                            _buildStatCard('Active Users', '1,245', '+18 this week', Icons.people, Color(0xFF10B981)),
-                          ],
-                        );
-                      },
-                    ),
-
-                    SizedBox(height: 24),
-
                     // Report Types Chart
                     Consumer<ReportsProvider>(
                       builder: (context, reportsProvider, _) {
