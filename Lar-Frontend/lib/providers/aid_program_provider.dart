@@ -13,7 +13,7 @@ class AidProgramProvider extends ChangeNotifier {
   List<AidProgram> get newPrograms {
     final thirtyDaysAgo = DateTime.now().subtract(Duration(days: 30));
     return _programs
-        .where((program) => program.startDate.isAfter(thirtyDaysAgo))
+        .where((program) => program.startDate.isAfter(thirtyDaysAgo) && program.status.toLowerCase() == 'active')
         .toList();
   }
   bool get isLoading => _isLoading;

@@ -2,41 +2,82 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Users can read/write their own profile
-    match /users/{userId} {
-      allow read, write: if request.auth.uid == userId;
+    // Temporarily allow seeding - REMOVE AFTER SEEDING IS COMPLETE
+    function canSeed() {
+      return request.auth != null;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
     }
     
-    // Aid programs - public read, admins only write
+    function isAdmin() {
+      return isSignedIn() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    function isValidImageFields() {
+      return (
+        // if image_urls present it must be a list with at most 3 items
+        (!('image_urls' in request.resource.data) ||
+        (request.resource.data.image_urls is list && request.resource.data.image_urls.size() <= 3))
+        &&
+        // if image_url present it must be a string
+        (!('image_url' in request.resource.data) ||
+        (request.resource.data.image_url is string))
+      );
+    }
+    
+    // Users can read/write their own profile OR for seeding
+    match /users/{userId} {
+      allow read: if request.auth.uid == userId;
+      allow write: if request.auth.uid == userId || canSeed();
+      
+      // Users can read/write their own notifications
+      match /notifications/{notificationId} {
+        allow read: if request.auth.uid == userId;
+        allow write: if request.auth.uid == userId || isAdmin();
+        allow create: if request.auth.uid == userId || isAdmin();
+        allow delete: if request.auth.uid == userId || isAdmin();
+      }
+    }
+    
+    // Aid programs - public read, admin write or seeding
     match /aid_programs/{document=**} {
       allow read: if true;
-      allow write: if request.auth != null && 
-                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      allow write: if isAdmin() || canSeed();
     }
     
-    // Emergency reports - authenticated read, citizens create, admins manage
-    match /emergency_reports/{document=**} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null;
-      allow update, delete: if request.auth != null && 
-                             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    // Emergency reports - anyone logged in can create, only owner/admin can update/delete
+    match /emergency_reports/{reportId} {
+      allow read: if true;
+      allow create: if isSignedIn()
+                    && request.resource.data.user_id == request.auth.uid
+                    && isValidImageFields();
+      allow update: if isSignedIn()
+                    && (resource.data.user_id == request.auth.uid || isAdmin())
+                    && isValidImageFields();
+      allow delete: if isAdmin();
     }
     
     // Aid requests - users can create/read their own, admins can read/update/delete all
     match /aid_requests/{requestId} {
-      allow read: if request.auth != null
-                  && (resource.data.user_id == request.auth.uid || 
-                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
-      allow create: if request.auth != null
+      allow read: if isSignedIn()
+                  && (resource.data.user_id == request.auth.uid || isAdmin());
+      allow create: if isSignedIn()
                     && request.resource.data.user_id == request.auth.uid;
-      allow update: if request.auth != null
-                    && (resource.data.user_id == request.auth.uid || 
-                        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
-      allow delete: if request.auth != null
-                    && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      allow update: if isSignedIn()
+                    && (resource.data.user_id == request.auth.uid || isAdmin());
+      allow delete: if isAdmin();
     }
     
-    // Test data - open access for testing (remove before production)
+    // Metadata for counters - authenticated users or seeding
+    match /_metadata/{document=**} {
+      allow read, write: if isSignedIn() || canSeed();
+    }
+    
+    // Test data - open for testing
     match /test_data/{document=**} {
       allow read, write: if true;
     }

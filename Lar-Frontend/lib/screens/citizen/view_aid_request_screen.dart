@@ -22,6 +22,32 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
     super.dispose();
   }
 
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args is Map<String, dynamic>) {
+        final requestId = args['requestId'] ?? args['reportId'];
+        if (requestId != null) {
+          print('📍 Auto-selecting aid request from navigation: $requestId');
+          Future.delayed(Duration(milliseconds: 500), () {
+            if (mounted) {
+              setState(() => selectedRequestId = requestId);
+            }
+          });
+        }
+      }
+
+      // Ensure provider has userId set and data loaded
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final aidProvider = Provider.of<AidRequestProvider>(context, listen: false);
+      if (authProvider.userId != null) {
+        aidProvider.setUserId(authProvider.userId!);
+      }
+    });
+  }
+
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'pending':

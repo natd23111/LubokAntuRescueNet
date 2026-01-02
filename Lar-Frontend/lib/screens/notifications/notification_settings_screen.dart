@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../providers/notifications_provider.dart';
+import '../../models/notification.dart';
 
 class NotificationSettingsScreen extends StatefulWidget {
   const NotificationSettingsScreen({super.key});
@@ -19,10 +23,98 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   @override
   void initState() {
     super.initState();
-    // Fetch notifications when screen loads
-    Future.microtask(() {
-      Provider.of<NotificationsProvider>(context, listen: false).fetchNotifications();
+    _loadPreferences();
+    _setupNotificationTapHandler();
+  }
+
+  /// Setup handler for when user taps notification in status bar
+  void _setupNotificationTapHandler() {
+    final notificationsProvider = Provider.of<NotificationsProvider>(context, listen: false);
+    notificationsProvider.onNotificationTapped = _handleStatusBarNotificationTap;
+  }
+
+  /// Handle tap from status bar notification
+  void _handleStatusBarNotificationTap(String notificationId) {
+    print('👆 Status bar notification tapped: $notificationId');
+    // Find the notification in the provider and handle its tap
+    final notificationsProvider = Provider.of<NotificationsProvider>(context, listen: false);
+    
+    print('📋 Current notifications count: ${notificationsProvider.notifications.length}');
+    for (var n in notificationsProvider.notifications) {
+      print('  - ${n.id} | ${n.title}');
+    }
+    
+    try {
+      final notification = notificationsProvider.notifications
+          .firstWhere((n) => n.id == notificationId);
+      print('✅ Found notification: ${notification.title}');
+      _handleNotificationTap(notification);
+    } catch (e) {
+      print('⚠️ Notification not found in list, attempting to parse payload');
+      // Try to parse the payload if it's JSON coming from FCM/local message
+      try {
+        final Map<String, dynamic> payloadMap = jsonDecode(notificationId) as Map<String, dynamic>;
+        print('📦 Parsed payload: $payloadMap');
+        final String? reportId = payloadMap['reportId'] ?? payloadMap['requestId'];
+        final String? reportType = payloadMap['reportType'] ?? payloadMap['type'];
+
+        if (reportId != null && reportType != null) {
+          print('➡️ Navigating based on payload: reportId=$reportId, reportType=$reportType');
+          if (reportType == 'aid' || reportType.toLowerCase() == 'aid') {
+            _navigateToAidRequest(reportId);
+            return;
+          } else if (reportType == 'emergency' || reportType.toLowerCase() == 'emergency') {
+            _navigateToEmergencyReport(reportId);
+            return;
+          } else {
+            _navigateToPublicReport(reportId, reportType);
+            return;
+          }
+        }
+
+        // Fallback: navigate to home
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      } catch (parseErr) {
+        print('❌ Could not parse payload: $parseErr');
+        try {
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        } catch (navError) {
+          print('❌ Navigation error: $navError');
+        }
+      }
+    }
+  }
+
+  Future<void> _loadPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _telegramEnabled = prefs.getBool('telegram_enabled') ?? true;
+      _floodAlerts = prefs.getBool('flood_alerts') ?? true;
+      _fireAlerts = prefs.getBool('fire_alerts') ?? true;
+      _landslideAlerts = prefs.getBool('landslide_alerts') ?? true;
+      _weatherWarnings = prefs.getBool('weather_warnings') ?? true;
     });
+    
+    // Fetch notifications when screen loads
+    if (mounted) {
+      Provider.of<NotificationsProvider>(context, listen: false).fetchNotifications();
+    }
+  }
+
+  Future<void> _savePreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('flood_alerts', _floodAlerts);
+    await prefs.setBool('fire_alerts', _fireAlerts);
+    await prefs.setBool('landslide_alerts', _landslideAlerts);
+    await prefs.setBool('weather_warnings', _weatherWarnings);
+    
+    // Update the provider with new preferences
+    Provider.of<NotificationsProvider>(context, listen: false).setAlertPreferences(
+      floodAlerts: _floodAlerts,
+      fireAlerts: _fireAlerts,
+      landslideAlerts: _landslideAlerts,
+      weatherWarnings: _weatherWarnings,
+    );
   }
 
   @override
@@ -64,7 +156,10 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                 'Flood Warnings',
                 'Heavy rainfall & flood alerts',
                 _floodAlerts,
-                (value) => setState(() => _floodAlerts = value),
+                (value) {
+                  setState(() => _floodAlerts = value);
+                  _savePreferences();
+                },
               ),
 
               SizedBox(height: 8),
@@ -74,7 +169,10 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                 'Fire Alerts',
                 'Fire incidents in your area',
                 _fireAlerts,
-                (value) => setState(() => _fireAlerts = value),
+                (value) {
+                  setState(() => _fireAlerts = value);
+                  _savePreferences();
+                },
               ),
 
               SizedBox(height: 8),
@@ -84,7 +182,10 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                 'Landslide Warnings',
                 'Landslide risk notifications',
                 _landslideAlerts,
-                (value) => setState(() => _landslideAlerts = value),
+                (value) {
+                  setState(() => _landslideAlerts = value);
+                  _savePreferences();
+                },
               ),
 
               SizedBox(height: 8),
@@ -94,8 +195,16 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                 'Weather Warnings',
                 'Severe weather updates',
                 _weatherWarnings,
-                (value) => setState(() => _weatherWarnings = value),
+                (value) {
+                  setState(() => _weatherWarnings = value);
+                  _savePreferences();
+                },
               ),
+
+              SizedBox(height: 24),
+
+              // Test Weather Notification (Debug Section)
+              _buildTestNotificationSection(primaryGreen),
 
               SizedBox(height: 24),
 
@@ -464,12 +573,13 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
     
     final borderColor = notification.isRead 
       ? Colors.grey.shade200 
-      : Color(0xFF0E9D63).withOpacity(0.3);
+      : Color(0xFF0E9D63).withOpacity(0.2);
 
     return GestureDetector(
       onTap: () => _handleNotificationTap(notification),
       child: Container(
-        padding: EdgeInsets.all(12),
+        padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        margin: EdgeInsets.only(bottom: 6),
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(8),
@@ -478,60 +588,49 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Title and close button row
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: Text(
-                    '${notification.typeIcon} ${notification.title}',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: Color(int.parse('0xFF${notification.typeColor.replaceFirst('#', '')}')),
-                    ),
-                  ),
-                ),
-                if (!notification.isRead)
-                  Container(
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: Color(0xFF0E9D63),
-                      shape: BoxShape.circle,
-                    ),
-                  )
-              ],
-            ),
-            SizedBox(height: 6),
-            Text(
-              notification.body,
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  notification.formattedTime,
-                  style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
-                ),
-                Row(
-                  children: [
-                    if (!notification.isRead)
-                      GestureDetector(
-                        onTap: onRead,
-                        child: Text(
-                          'Mark as read',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Color(0xFF0E9D63),
-                            fontWeight: FontWeight.w500,
-                          ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        notification.title,
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        notification.formattedTime,
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Colors.grey.shade500,
                         ),
                       ),
-                    SizedBox(width: 12),
+                    ],
+                  ),
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (!notification.isRead)
+                      Container(
+                        width: 6,
+                        height: 6,
+                        margin: EdgeInsets.only(right: 8),
+                        decoration: BoxDecoration(
+                          color: Color(0xFF0E9D63),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
                     GestureDetector(
                       onTap: onDismiss,
                       child: Icon(Icons.close, size: 16, color: Colors.grey.shade400),
@@ -540,23 +639,62 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                 ),
               ],
             ),
+
+            SizedBox(height: 8),
+
+            // Body text only
+            Text(
+              notification.body,
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey.shade700,
+                height: 1.3,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+
+            SizedBox(height: 8),
+
+            // Simple mark as read action
+            if (!notification.isRead)
+              GestureDetector(
+                onTap: onRead,
+                child: Text(
+                  'Mark as read',
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: Color(0xFF0E9D63),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
           ],
         ),
       ),
     );
   }
 
-  /// Handle notification tap - navigate to the relevant report
+  String _getNotificationType(String type) {
+    switch (type) {
+      case 'report_status':
+        return 'Report Update';
+      case 'aid_program':
+        return 'Aid Program';
+      case 'alert':
+        return 'Alert';
+      default:
+        return type.replaceAll('_', ' ').toUpperCase();
+    }
+  }
+
+  /// Handle notification tap - navigate to the relevant report/program
   void _handleNotificationTap(dynamic notification) {
-    if (notification.type != 'report_status' || notification.data == null) {
+    if (notification.data == null) {
       return;
     }
 
     final data = notification.data as Map<String, dynamic>;
-    final reportId = data['reportId'];
-    final reportType = data['reportType'];
-
-    if (reportId == null) return;
 
     // Mark as read if not already
     if (!notification.isRead) {
@@ -564,12 +702,69 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
           .markAsRead(notification.id);
     }
 
-    // Navigate to the appropriate report screen
-    if (reportType == 'emergency') {
-      _navigateToEmergencyReport(reportId);
-    } else if (reportType == 'aid') {
-      _navigateToAidRequest(reportId);
+    // Route based on notification type
+    switch (notification.type) {
+      case 'report_status':
+        // Own report status change
+        final reportId = data['reportId'];
+        final reportType = data['reportType'];
+        if (reportId != null) {
+          if (reportType == 'emergency') {
+            _navigateToEmergencyReport(reportId);
+          } else if (reportType == 'aid') {
+            _navigateToAidRequest(reportId);
+          }
+        }
+        break;
+
+      case 'public_report':
+        // Report from another citizen
+        final reportId = data['reportId'];
+        final reportType = data['reportType'];
+        if (reportId != null && reportType != null) {
+          _navigateToPublicReport(reportId, reportType);
+        }
+        break;
+
+      case 'aid_program':
+        // New program activation
+        final programId = data['programId'];
+        if (programId != null) {
+          _navigateToProgram(programId);
+        }
+        break;
+
+      case 'weather_alert':
+        // Weather alert - navigate to map or alerts view
+        _navigateToWeatherAlerts();
+        break;
+
+      default:
+        break;
     }
+  }
+
+  /// Navigate to public report from another citizen
+  void _navigateToPublicReport(String reportId, String reportType) {
+    print('Navigating to public $reportType report: $reportId');
+    Navigator.of(context).pushNamed('/view-public-reports', arguments: {
+      'reportType': reportType,
+      'reportId': reportId,
+    });
+  }
+
+  /// Navigate to aid program details
+  void _navigateToProgram(String programId) {
+    print('Navigating to program: $programId');
+    Navigator.of(context).pushNamed('/program-details', arguments: {
+      'programId': programId,
+    });
+  }
+
+  /// Navigate to weather alerts
+  void _navigateToWeatherAlerts() {
+    print('Navigating to weather alerts');
+    Navigator.of(context).pushNamed('/weather-alerts');
   }
 
   /// Navigate to emergency report details
@@ -586,9 +781,146 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   void _navigateToAidRequest(String reportId) {
     print('Navigating to aid request: $reportId');
     // Navigate to my reports screen
-    Navigator.of(context).pushNamed('/view-reports', arguments: {
-      'reportType': 'aid',
-      'reportId': reportId,
+    Navigator.of(context).pushNamed('/view-aid-requests', arguments: {
+      'requestId': reportId,
     });
   }
-}
+
+  /// Build test notification section for UI testing
+  Widget _buildTestNotificationSection(Color primaryGreen) {
+    return Container(
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Color(0xFFFFF3E0),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Color(0xFFFFB74D)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.science, color: Color(0xFFF57C00), size: 18),
+              SizedBox(width: 8),
+              Text(
+                'Test Notifications',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFFF57C00),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 10),
+          Text(
+            'Click below to create sample notifications for UI testing:',
+            style: TextStyle(fontSize: 11, color: Colors.grey.shade700),
+          ),
+          SizedBox(height: 10),
+          // Weather Alert Buttons
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () => _createTestFloodAlert(),
+                  icon: Text('🌧️', style: TextStyle(fontSize: 14)),
+                  label: Text('Flood Alert', style: TextStyle(fontSize: 11)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF0277BD),
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                  ),
+                ),
+              ),
+              SizedBox(width: 8),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () => _createTestThunderstormAlert(),
+                  icon: Text('⛈️', style: TextStyle(fontSize: 14)),
+                  label: Text('Thunderstorm', style: TextStyle(fontSize: 11)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF6A1B9A),
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Create test flood alert notification
+  void _createTestFloodAlert() {
+    final notificationsProvider = Provider.of<NotificationsProvider>(context, listen: false);
+    final weatherDetails = notificationsProvider.getWeatherAlertDetails();
+    
+    final location = weatherDetails != null && weatherDetails['location'] != null
+        ? weatherDetails['location']
+        : 'your area';
+    
+    notificationsProvider.sendNotification(
+      title: '🌧️ Heavy Rainfall Warning',
+      body: 'Heavy rainfall expected in $location',
+      type: 'weather_alert',
+      data: {
+        'alertType': 'flood',
+        'temperature': '28.5',
+        'windSpeed': '15.2',
+        'weatherCode': '80',
+        'description': 'Heavy rainfall expected',
+        'location': location,
+        'detailedInfo': 'Heavy rainfall expected\n\nTemperature: 28.5°C\nWind Speed: 15.2 km/h\nLocation: $location',
+      },
+      icon: '🌧️',
+      actionUrl: '/alerts/weather',
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('✅ Test flood alert created!'),
+        backgroundColor: Colors.green,
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  /// Create test thunderstorm alert notification
+  void _createTestThunderstormAlert() {
+    final notificationsProvider = Provider.of<NotificationsProvider>(context, listen: false);
+    final weatherDetails = notificationsProvider.getWeatherAlertDetails();
+    
+    final location = weatherDetails != null && weatherDetails['location'] != null
+        ? weatherDetails['location']
+        : 'your area';
+    
+    notificationsProvider.sendNotification(
+      title: '⛈️ Thunderstorm Alert',
+      body: 'Severe thunderstorm warning for $location',
+      type: 'weather_alert',
+      data: {
+        'alertType': 'thunderstorm',
+        'temperature': '26.3',
+        'windSpeed': '22.8',
+        'weatherCode': '95',
+        'description': 'Severe thunderstorm with heavy rainfall',
+        'location': location,
+        'detailedInfo': 'Severe thunderstorm with heavy rainfall\n\nTemperature: 26.3°C\nWind Speed: 22.8 km/h\nLocation: $location',
+      },
+      icon: '⛈️',
+      actionUrl: '/alerts/weather',
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('✅ Test thunderstorm alert created!'),
+        backgroundColor: Colors.green,
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }}

@@ -4,6 +4,10 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <!-- Internet permission for Google Maps -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Notification permission for Android 13+ -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Foreground service for notifications -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     
     <application
         android:label="lar"

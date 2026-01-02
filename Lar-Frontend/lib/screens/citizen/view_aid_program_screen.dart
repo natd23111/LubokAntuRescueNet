@@ -19,6 +19,21 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
     // Fetch programs when screen loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<AidProgramProvider>().fetchPrograms(status: 'active');
+
+      // Check if a specific program was requested via navigation
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args is Map<String, dynamic>) {
+        final programId = args['programId'];
+        if (programId != null) {
+          print('📍 Auto-selecting program from navigation: $programId');
+          // Delay setting to allow programs to load first
+          Future.delayed(Duration(milliseconds: 500), () {
+            if (mounted) {
+              setState(() => selectedProgramId = programId);
+            }
+          });
+        }
+      }
     });
   }
 
