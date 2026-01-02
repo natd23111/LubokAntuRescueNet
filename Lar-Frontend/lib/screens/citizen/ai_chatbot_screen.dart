@@ -185,7 +185,7 @@ class _AIChatbotScreenState extends State<AIChatbotScreen> {
         elevation: 0,
         title: Text(
           'AI Assistant',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),

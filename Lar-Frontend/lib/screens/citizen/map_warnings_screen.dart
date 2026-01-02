@@ -361,7 +361,7 @@ class _MapWarningsScreenState extends State<MapWarningsScreen> {
           appBar: AppBar(
             backgroundColor: primaryGreen,
             elevation: 0,
-            title: Text('Map Warnings', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            title: Text('Map Warnings', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
             leading: IconButton(
               icon: Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () => Navigator.pop(context),
@@ -663,8 +663,9 @@ class _MapWarningsScreenState extends State<MapWarningsScreen> {
                         height: 48,
                         child: ElevatedButton.icon(
                           onPressed: () => warningsProvider.refreshWarnings(),
-                          icon: Icon(Icons.refresh),
-                          label: Text('Refresh Map'),
+                          icon: Icon(Icons.refresh, color: Colors.white),
+                          label: Text('Refresh Map',
+                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: primaryGreen,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -676,7 +677,8 @@ class _MapWarningsScreenState extends State<MapWarningsScreen> {
                         height: 48,
                         child: OutlinedButton(
                           onPressed: () => Navigator.pop(context),
-                          child: Text('Back'),
+                          child: Text('Back',
+                              style: TextStyle(color: Colors.grey[600], fontWeight: FontWeight.w600)),
                           style: OutlinedButton.styleFrom(
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                           ),
