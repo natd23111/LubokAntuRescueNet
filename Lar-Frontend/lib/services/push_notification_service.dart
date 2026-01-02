@@ -90,37 +90,76 @@ class PushNotificationService {
     print('   Payload: $payload');
     print('   ID: ${response.id}');
     print('   Action ID: ${response.actionId}');
+    print('   NavigationKey currentState: ${navigationKey.currentState}');
     
     if (payload != null && payload.isNotEmpty) {
       // Try to parse JSON payload (used for FCM/local map payloads)
       try {
+        print('🔍 Attempting to parse payload as JSON...');
         final dynamic parsed = jsonDecode(payload);
+        print('✅ Payload parsed successfully: $parsed');
         if (parsed is Map<String, dynamic>) {
           final map = parsed;
-          // Aid request
-          final reportId = map['reportId'] ?? map['requestId'];
-          final reportType = map['reportType'] ?? map['type'];
-          final programId = map['programId'];
+          print('✅ Payload is a Map with keys: ${map.keys.toList()}');
+          
+          // Check if there's a nested 'data' object (most notifications have this structure)
+          final dataMap = map['data'] is Map<String, dynamic> ? map['data'] as Map<String, dynamic> : null;
+          
+          // Extract from nested data object first, then from top level
+          final reportId = dataMap?['reportId'] ?? dataMap?['report_id'] ?? map['reportId'] ?? map['report_id'] ?? dataMap?['requestId'] ?? map['requestId'];
+          final reportType = dataMap?['reportType'] ?? dataMap?['report_type'] ?? map['reportType'] ?? map['report_type'] ?? map['type'];
+          final programId = dataMap?['programId'] ?? dataMap?['program_id'] ?? map['programId'] ?? map['program_id'];
+
+          print('🔍 Extracted - reportId: $reportId, reportType: $reportType, programId: $programId');
 
           if (reportId != null && reportType != null) {
+            print('✅ Both reportId and reportType found');
             if (reportType.toString().toLowerCase() == 'aid') {
               print('➡️ Navigating (global) to aid request: $reportId');
-              navigationKey.currentState?.pushNamed('/view-aid-requests', arguments: {'requestId': reportId});
+              final state = navigationKey.currentState;
+              print('   State is null? ${state == null}');
+              if (state != null) {
+                state.pushNamed('/view-aid-requests', arguments: {'requestId': reportId});
+                print('✅ Navigation executed');
+              } else {
+                print('❌ NavigationState is null - cannot navigate');
+              }
               return;
             } else if (reportType.toString().toLowerCase() == 'emergency') {
               print('➡️ Navigating (global) to emergency report: $reportId');
-              navigationKey.currentState?.pushNamed('/view-reports', arguments: {'reportType': 'emergency', 'reportId': reportId});
+              final state = navigationKey.currentState;
+              print('   State is null? ${state == null}');
+              if (state != null) {
+                state.pushNamed('/view-reports', arguments: {'reportType': 'emergency', 'reportId': reportId});
+                print('✅ Navigation executed');
+              } else {
+                print('❌ NavigationState is null - cannot navigate');
+              }
               return;
             } else {
               print('➡️ Navigating (global) to public report: $reportId');
-              navigationKey.currentState?.pushNamed('/view-public-reports', arguments: {'reportType': reportType, 'reportId': reportId});
+              final state = navigationKey.currentState;
+              print('   State is null? ${state == null}');
+              if (state != null) {
+                state.pushNamed('/view-public-reports', arguments: {'reportType': reportType, 'reportId': reportId});
+                print('✅ Navigation executed');
+              } else {
+                print('❌ NavigationState is null - cannot navigate');
+              }
               return;
             }
           }
 
           if (programId != null) {
             print('➡️ Navigating (global) to program details: $programId');
-            navigationKey.currentState?.pushNamed('/program-details', arguments: {'programId': programId});
+            final state = navigationKey.currentState;
+            print('   State is null? ${state == null}');
+            if (state != null) {
+              state.pushNamed('/program-details', arguments: {'programId': programId});
+              print('✅ Navigation executed');
+            } else {
+              print('❌ NavigationState is null - cannot navigate');
+            }
             return;
           }
         }
