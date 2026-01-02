@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../providers/notifications_provider.dart';
 import '../../models/notification.dart';
+import '../../services/telegram_service.dart';
+import 'telegram_linking_dialog.dart';
 
 class NotificationSettingsScreen extends StatefulWidget {
   const NotificationSettingsScreen({super.key});
@@ -375,6 +377,8 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   }
 
   Widget _buildTelegramSection(Color primaryGreen) {
+    final telegramService = TelegramService();
+
     return Container(
       padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -384,114 +388,198 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
       ),
       child: Column(
         children: [
+          StreamBuilder<bool>(
+            stream: telegramService.telegramLinkStatusStream(),
+            builder: (context, snapshot) {
+              final isLinked = snapshot.data ?? false;
+
+              return Column(
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        isLinked ? Icons.notifications_active : Icons.notifications_off,
+                        color: isLinked ? primaryGreen : Colors.grey.shade400,
+                      ),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Telegram Alerts',
+                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
+                            ),
+                            SizedBox(height: 2),
+                            Text(
+                              isLinked ? 'Connected to @rescuenet_bot' : 'Receive alerts via Telegram',
+                              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: 12),
+                      _buildToggleSwitch(
+                        _telegramEnabled,
+                        (value) async {
+                          setState(() => _telegramEnabled = value);
+                          await telegramService.toggleTelegramNotifications(value);
+                        },
+                        primaryGreen,
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 12),
+                  if (isLinked && _telegramEnabled)
+                    _buildTelegramConnectedUI(telegramService, primaryGreen)
+                  else if (_telegramEnabled)
+                    _buildTelegramConnectUI(telegramService, primaryGreen),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// UI when Telegram is connected
+  Widget _buildTelegramConnectedUI(TelegramService telegramService, Color primaryGreen) {
+    return Container(
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Color(0xFFE3F2FD),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.blue.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           Row(
             children: [
-              Icon(
-                _telegramEnabled ? Icons.notifications_active : Icons.notifications_off,
-                color: _telegramEnabled ? primaryGreen : Colors.grey.shade400,
+              Icon(Icons.check_circle, color: Colors.green, size: 20),
+              SizedBox(width: 8),
+              Text(
+                'Connected to Telegram',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.blue.shade800),
               ),
-              SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Telegram Alerts',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
-                    ),
-                    SizedBox(height: 2),
-                    Text(
-                      'Receive alerts via Telegram',
-                      style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(width: 12),
-              _buildToggleSwitch(_telegramEnabled, (value) => setState(() => _telegramEnabled = value), primaryGreen),
             ],
           ),
-          SizedBox(height: 12),
-          if (_telegramEnabled)
-            Container(
-              padding: EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Color(0xFFE3F2FD),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.blue.shade200),
+          SizedBox(height: 6),
+          Text(
+            '@rescuenet_bot',
+            style: TextStyle(fontSize: 12, color: Colors.blue.shade700, fontWeight: FontWeight.w500),
+          ),
+          SizedBox(height: 10),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => _showUnlinkDialog(telegramService),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.red.shade700,
+                side: BorderSide(color: Colors.red.shade300),
+                padding: EdgeInsets.symmetric(vertical: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6),
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Connected to Telegram',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.blue.shade800),
-                  ),
-                  SizedBox(height: 6),
-                  Text(
-                    '@rescuenet_bot',
-                    style: TextStyle(fontSize: 12, color: Colors.blue.shade700),
-                  ),
-                  SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: Colors.blue.shade700,
-                        side: BorderSide(color: Colors.blue.shade300),
-                        padding: EdgeInsets.symmetric(vertical: 8),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                      ),
-                      child: Text(
-                        'Manage Connection',
-                        style: TextStyle(fontSize: 12),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            )
-          else
-            Container(
-              padding: EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Color(0xFFF5F5F5),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey.shade300),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Connect your Telegram account to receive instant alerts',
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                  ),
-                  SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF0E9D63),
-                        foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(vertical: 8),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                      ),
-                      child: Text(
-                        'Connect Telegram',
-                        style: TextStyle(fontSize: 12),
-                      ),
-                    ),
-                  ),
-                ],
+              child: Text(
+                'Disconnect Telegram',
+                style: TextStyle(fontSize: 12),
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// UI to connect Telegram
+  Widget _buildTelegramConnectUI(TelegramService telegramService, Color primaryGreen) {
+    return Container(
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Color(0xFFF5F5F5),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Connect your Telegram account to receive instant alerts',
+            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+          ),
+          SizedBox(height: 10),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => _showTelegramLinkingFlow(telegramService),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF0E9D63),
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(vertical: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              ),
+              child: Text(
+                'Connect Telegram',
+                style: TextStyle(fontSize: 12),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Show dialog for Telegram linking flow
+  void _showTelegramLinkingFlow(TelegramService telegramService) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => TelegramLinkingDialog(telegramService: telegramService),
+    ).then((result) {
+      if (result == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('✅ Telegram account linked successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        setState(() {});
+      }
+    });
+  }
+
+  /// Show confirmation dialog before unlinking
+  void _showUnlinkDialog(TelegramService telegramService) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Disconnect Telegram'),
+        content: Text('Are you sure you want to disconnect your Telegram account? You will stop receiving Telegram alerts.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await telegramService.unlinkTelegram();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Telegram account disconnected'),
+                  backgroundColor: Colors.orange,
+                ),
+              );
+              setState(() {});
+            },
+            child: Text('Disconnect', style: TextStyle(color: Colors.red)),
+          ),
         ],
       ),
     );

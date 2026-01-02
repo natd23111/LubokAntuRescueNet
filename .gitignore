@@ -3,6 +3,12 @@ FIREBASE_STORAGE_RULES.txt
 Lar-Frontend/package-lock.json
 Lar-Frontend/package.json
 Lar-Frontend/node_modules/.package-lock.json
+
+# Firebase Functions
+firebase-functions/node_modules/
+firebase-functions/.env.local
+firebase-functions/.runtimeconfig.json
+.env.local
 Lar-Frontend/node_modules/.bin/fxparser
 Lar-Frontend/node_modules/.bin/fxparser.cmd
 Lar-Frontend/node_modules/.bin/fxparser.ps1
