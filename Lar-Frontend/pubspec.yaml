@@ -40,6 +40,7 @@ dependencies:
   firebase_auth: ^5.3.4
   cloud_firestore: ^5.4.0
   firebase_storage: ^12.3.0
+  firebase_messaging: ^15.2.10
   geolocator: ^14.0.2
   geocoding: ^2.2.0
   web: ^1.0.0

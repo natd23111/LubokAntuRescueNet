@@ -11,6 +11,8 @@ import 'providers/reports_provider.dart';
 import 'providers/aid_request_provider.dart';
 import 'providers/weather_provider.dart';
 import 'providers/warnings_provider.dart';
+import 'providers/notifications_provider.dart';
+import 'services/push_notification_service.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -21,6 +23,9 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Initialize push notifications
+  await PushNotificationService.initializePushNotifications();
   
   runApp(
     MultiProvider(
@@ -29,6 +34,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => AidProgramProvider()),
         ChangeNotifierProvider(create: (_) => WeatherProvider()),
         ChangeNotifierProvider(create: (_) => WarningsProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationsProvider()),
         ChangeNotifierProxyProvider<AuthProvider, ReportsProvider>(
           create: (context) => ReportsProvider(authProvider: Provider.of<AuthProvider>(context, listen: false)),
           update: (context, authProvider, previous) => 
