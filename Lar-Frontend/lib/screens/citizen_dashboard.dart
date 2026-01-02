@@ -164,7 +164,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
           // Scrollable body content
           Expanded(
-            child: ListView(
+            child: RefreshIndicator(
+              onRefresh: _refreshDashboard,
+              color: primaryGreen,
+              backgroundColor: Colors.white,
+              strokeWidth: 3,
+              child: ListView(
               padding: EdgeInsets.all(12),
               children: [
                 // Welcome
@@ -541,10 +546,42 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
+            ),
           ),
         ],
       ),
     );
+  }
+
+  /// Refresh all dashboard data
+  Future<void> _refreshDashboard() async {
+    try {
+      final reportsProvider = Provider.of<ReportsProvider>(context, listen: false);
+      final aidRequestProvider = Provider.of<AidRequestProvider>(context, listen: false);
+      final aidProgramProvider = Provider.of<AidProgramProvider>(context, listen: false);
+      final weatherProvider = Provider.of<WeatherProvider>(context, listen: false);
+
+      // Refresh all data in parallel
+      await Future.wait([
+        reportsProvider.fetchReports(),
+        aidRequestProvider.fetchUserAidRequests(),
+        aidProgramProvider.fetchPrograms(),
+        weatherProvider.fetchWeather(),
+      ]);
+
+      print('✅ Dashboard refreshed successfully');
+    } catch (e) {
+      print('❌ Error refreshing dashboard: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error refreshing dashboard'),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    }
   }
 
   Widget _activityCard(String title, String status, Color bg, String subtitle, String date) {

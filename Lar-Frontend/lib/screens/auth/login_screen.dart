@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../services/push_notification_service.dart';
+import '../../services/location_service.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -48,6 +50,10 @@ class _LoginScreenState extends State<LoginScreen> {
         await authProvider.logout();
         return;
       }
+
+      // Request permissions after successful login
+      await _requestPermissions();
+
       Navigator.pushReplacementNamed(context, '/home');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -57,6 +63,23 @@ class _LoginScreenState extends State<LoginScreen> {
           backgroundColor: Colors.red,
         ),
       );
+    }
+  }
+
+  /// Request notifications and location permissions
+  Future<void> _requestPermissions() async {
+    try {
+      print('📱 Requesting permissions after login...');
+      
+      // Initialize push notifications
+      await PushNotificationService.initializePushNotifications();
+      print('✅ Push notifications initialized');
+
+      // Request location permission
+      await LocationService.requestLocationPermission();
+      print('✅ Location permission requested');
+    } catch (e) {
+      print('⚠️ Permission request error: $e');
     }
   }
 
