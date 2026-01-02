@@ -1,8 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:http/http.dart' as http;
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math';
 import '../models/warning.dart';
 
@@ -11,7 +10,6 @@ class WarningsProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
   Position? _currentPosition;
-  bool useDemo = false; // Toggle for demo mode
 
   // Getters
   List<Warning> get warnings => _warnings;
@@ -103,17 +101,8 @@ class WarningsProvider extends ChangeNotifier {
         await _getCurrentLocation();
       }
 
-      // Use demo data if toggle is on
-      if (useDemo) {
-        _warnings = _generateDemoWarnings();
-      } else {
-        // Fetch from both APIs
-        final weatherAlerts = await _fetchWeatherAlerts();
-        final floodReports = await _fetchFloodReports();
-
-        // Merge both sources
-        _warnings = [...weatherAlerts, ...floodReports];
-      }
+      // Fetch from Firebase emergency reports
+      _warnings = await _fetchFirebaseWarnings();
       
       // Sort by severity (high > medium > low) then by distance
       _warnings.sort((a, b) {
@@ -128,6 +117,7 @@ class WarningsProvider extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       _error = 'Failed to fetch warnings: $e';
+      debugPrint('Warning fetch error: $e');
       _isLoading = false;
       notifyListeners();
     }
@@ -137,186 +127,186 @@ class WarningsProvider extends ChangeNotifier {
     await fetchWarnings();
   }
 
-  Future<List<Warning>> _fetchWeatherAlerts() async {
+  Future<List<Warning>> _fetchFirebaseWarnings() async {
     try {
-      final response = await http
-          .get(Uri.parse('https://api.data.gov.my/weather/warning'))
-          .timeout(const Duration(seconds: 10));
+      final firestore = FirebaseFirestore.instance;
+      final warnings = <Warning>[];
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final warnings = <Warning>[];
+      debugPrint('=== FIREBASE WARNINGS FETCH START ===');
+      debugPrint('Demo mode: $useDemo');
+      debugPrint('Current location: ${_currentPosition?.latitude}, ${_currentPosition?.longitude}');
 
-        // Parse weather alerts from data.gov.my
-        if (data is Map && data['metadata'] != null) {
-          // Filter for Sarawak warnings
-          final alerts = data['data'] ?? [];
-          if (alerts is List) {
-            for (var alert in alerts) {
-              try {
-                // Map weather warning types to our severity levels
-                final description = alert['description'] ?? 'Weather alert';
-                final affectedState = alert['state'] ?? '';
+      // Query emergency reports from Firestore
+      final snapshot = await firestore
+          .collection('emergency_reports')
+          .orderBy('created_at', descending: true)
+          .limit(50)
+          .get()
+          .timeout(const Duration(seconds: 15));
 
-                // Only include Sarawak alerts
-                if (!affectedState
-                    .toLowerCase()
-                    .contains('sarawak')) {
-                  continue;
-                }
+      debugPrint('[WarningsProvider] Found ${snapshot.docs.length} emergency reports in Firebase');
 
-                final severity = _getWeatherAlertSeverity(description);
-                final type = _getWeatherAlertType(description);
+      for (var doc in snapshot.docs) {
+        try {
+          final data = doc.data();
+          debugPrint('[WarningsProvider] Report ${data['id']}:');
+          debugPrint('  Type: ${data['type']}');
+          debugPrint('  Title: ${data['title']}');
+          debugPrint('  Location: ${data['location']}');
+          debugPrint('  Status: ${data['status']}');
+          debugPrint('  Priority: ${data['priority']}');
+          debugPrint('  Lat: ${data['latitude']}, Lon: ${data['longitude']}');
+          
+          // Parse emergency report data using correct field names from Firebase schema
+          final incidentType = (data['type'] ?? 'Unknown') as String;
+          final incidentLocation = (data['location'] ?? 'Unknown Location') as String;
+          final description = (data['description'] ?? '') as String;
+          final status = (data['status'] ?? 'reported') as String;
+          final priority = (data['priority'] ?? 'medium') as String;
+          
+          // Parse created_at timestamp
+          final createdAt = data['created_at'] != null
+              ? DateTime.parse(data['created_at'].toString())
+              : DateTime.now();
 
-                warnings.add(Warning(
-                  id: 'weather_${alert['id'] ?? DateTime.now().millisecondsSinceEpoch}',
-                  type: type,
-                  location: affectedState.isEmpty
-                      ? 'Sarawak Region'
-                      : affectedState,
-                  severity: severity,
-                  distance: _currentPosition != null
-                      ? 5.0
-                      : 10.0, // Approx distance; can be refined with geocoding
-                  description:
-                      description,
-                  timestamp: DateTime.parse(alert['dateIssued'] ??
-                      DateTime.now().toIso8601String()),
-                  latitude: 2.1234, // Sarawak center
-                  longitude: 112.5678,
-                ));
-              } catch (e) {
-                debugPrint('Error parsing weather alert: $e');
-                continue;
-              }
-            }
+          // Get coordinates from the report (citizen-provided location)
+          double latitude = 2.1234; // Default: Lubok Antu center
+          double longitude = 112.5678;
+
+          if (data['latitude'] != null && data['longitude'] != null) {
+            latitude = (data['latitude'] as num).toDouble();
+            longitude = (data['longitude'] as num).toDouble();
           }
+
+          // Calculate distance from current position
+          double distance = _calculateDistance(
+            _currentPosition?.latitude ?? 2.1234,
+            _currentPosition?.longitude ?? 112.5678,
+            latitude,
+            longitude,
+          );
+
+          // Map incident type to warning type and severity
+          final warningType = _mapIncidentTypeToWarning(incidentType);
+          // Use both incident type AND priority to determine severity
+          final severity = _mapIncidentSeverity(incidentType, status, priority);
+
+          debugPrint('[WarningsProvider] Mapped to: type=$warningType, severity=$severity, distance=${distance.toStringAsFixed(2)}km');
+
+          warnings.add(Warning(
+            id: doc.id,
+            type: warningType,
+            location: incidentLocation,
+            severity: severity,
+            distance: distance,
+            description: description.isEmpty
+                ? 'Citizen reported: $incidentType'
+                : description,
+            timestamp: createdAt,
+            latitude: latitude,
+            longitude: longitude,
+          ));
+        } catch (e) {
+          debugPrint('[WarningsProvider] Error parsing emergency report: $e');
+          continue;
         }
-        return warnings;
-      } else {
-        debugPrint(
-            'Weather API error: ${response.statusCode}');
-        return [];
       }
+
+      debugPrint('[WarningsProvider] Total warnings extracted: ${warnings.length}');
+      debugPrint('[WarningsProvider] Firebase fetch complete\n');
+      return warnings;
     } catch (e) {
-      debugPrint('Error fetching weather alerts: $e');
+      debugPrint('[WarningsProvider] Error fetching Firebase warnings: $e');
       return [];
     }
   }
 
-  Future<List<Warning>> _fetchFloodReports() async {
-    try {
-      final response = await http
-          .get(Uri.parse(
-              'https://banjir-api.herokuapp.com/api/v1/reports.json?negeri=sarawak'))
-          .timeout(const Duration(seconds: 10));
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final warnings = <Warning>[];
-
-        // Parse flood reports from banjir-api
-        if (data is Map && data['data'] is List) {
-          for (var report in data['data']) {
-            try {
-              final severity = _getFloodSeverity(report['level'] ?? 'Normal');
-              final location = report['nama_lokasi'] ??
-                  report['lokasi'] ??
-                  'Sarawak Location';
-              final coords = report['coords'];
-
-              double lat = 2.1234;
-              double lng = 112.5678;
-
-              // Try to parse coordinates if available
-              if (coords is Map) {
-                if (coords['lat'] != null) lat = (coords['lat'] as num).toDouble();
-                if (coords['lng'] != null) lng = (coords['lng'] as num).toDouble();
-              }
-
-              // Calculate distance if we have current position
-              double distance = 5.0;
-              if (_currentPosition != null) {
-                distance = _calculateDistance(
-                  _currentPosition!.latitude,
-                  _currentPosition!.longitude,
-                  lat,
-                  lng,
-                );
-              }
-
-              warnings.add(Warning(
-                id: 'flood_${report['id'] ?? report['lokasi'] ?? DateTime.now().millisecondsSinceEpoch}',
-                type: 'Flood',
-                location: location,
-                severity: severity,
-                distance: distance,
-                description:
-                    'Water level: ${report['level'] ?? 'Unknown'}. Status: ${report['status'] ?? 'Monitoring'}',
-                timestamp: DateTime.tryParse(
-                        report['timestamp'] ?? '') ??
-                    DateTime.now(),
-                latitude: lat,
-                longitude: lng,
-              ));
-            } catch (e) {
-              debugPrint('Error parsing flood report: $e');
-              continue;
-            }
-          }
-        }
-        return warnings;
-      } else {
-        debugPrint('Flood API error: ${response.statusCode}');
-        return [];
-      }
-    } catch (e) {
-      debugPrint('Error fetching flood reports: $e');
-      return [];
+  // Map incident types from emergency reports to warning types
+  String _mapIncidentTypeToWarning(String incidentType) {
+    if (incidentType.isEmpty || incidentType.toLowerCase() == 'unknown') {
+      return 'Emergency Alert';
     }
-  }
-
-  String _getWeatherAlertType(String description) {
-    final desc = description.toLowerCase();
-    if (desc.contains('heavy rain') || desc.contains('hujan lebat')) {
-      return 'Heavy Rain';
-    } else if (desc.contains('thunderstorm') || desc.contains('ribut')) {
-      return 'Thunderstorm';
-    } else if (desc.contains('landslide') || desc.contains('longsoran')) {
-      return 'Landslide';
-    } else if (desc.contains('flood') || desc.contains('banjir')) {
+    
+    final type = incidentType.toLowerCase().trim();
+    
+    // Exact matches first
+    if (type == 'flood' || type == 'banjir') {
       return 'Flood';
+    } else if (type == 'landslide' || type == 'longsoran') {
+      return 'Landslide';
+    } else if (type == 'heavy rain' || type == 'hujan lebat') {
+      return 'Heavy Rain';
+    } else if (type == 'road closure' || type == 'penutupan jalan') {
+      return 'Road Closure';
+    } else if (type == 'bridge closure' || type == 'penutupan jambatan') {
+      return 'Bridge Closure';
+    } else if (type == 'fire' || type == 'kebakaran') {
+      return 'Fire';
+    } else if (type == 'accident' || type == 'kemalangan') {
+      return 'Accident';
+    } else if (type == 'thunderstorm' || type == 'ribut') {
+      return 'Thunderstorm';
     }
-    return 'Weather Alert';
+    
+    // Substring matches
+    if (type.contains('flood') || type.contains('banjir')) {
+      return 'Flood';
+    } else if (type.contains('landslide') || type.contains('longsoran')) {
+      return 'Landslide';
+    } else if (type.contains('rain') || type.contains('hujan')) {
+      return 'Heavy Rain';
+    } else if (type.contains('road') || type.contains('jalan')) {
+      return 'Road Closure';
+    } else if (type.contains('bridge') || type.contains('jambatan')) {
+      return 'Bridge Closure';
+    } else if (type.contains('fire') || type.contains('kebakaran')) {
+      return 'Fire';
+    } else if (type.contains('accident') || type.contains('kemalangan')) {
+      return 'Accident';
+    } else if (type.contains('storm') || type.contains('ribut')) {
+      return 'Thunderstorm';
+    }
+    
+    // Return original if no match found
+    return incidentType;
   }
 
-  String _getWeatherAlertSeverity(String description) {
-    final desc = description.toLowerCase();
-    if (desc.contains('extreme') ||
-        desc.contains('ekstrim') ||
-        desc.contains('danger')) {
-      return 'high';
-    } else if (desc.contains('warning') || desc.contains('amaran')) {
+  // Map incident severity based on type, status, and priority from Firebase
+  // Available types: Flood, Fire, Accident, Medical Emergency, Landslide, Other
+  String _mapIncidentSeverity(String incidentType, String status, String priority) {
+    if (incidentType.isEmpty) {
       return 'medium';
     }
-    return 'low';
-  }
+    
+    final type = incidentType.toLowerCase().trim();
+    final pri = priority.toLowerCase().trim();
 
-  String _getFloodSeverity(String level) {
-    switch (level.toLowerCase()) {
-      case 'danger':
-      case 'bahaya':
-        return 'high';
-      case 'warning':
-      case 'amaran':
-        return 'medium';
-      case 'alert':
-      case 'alert zone':
-      case 'zon amaran':
-        return 'low';
-      default:
-        return 'low';
+    // HIGH SEVERITY - Life-threatening incidents
+    // Flood, Fire, Landslide, Medical Emergency
+    if (type.contains('flood') || type.contains('banjir') ||
+        type.contains('fire') || type.contains('kebakaran') || 
+        type.contains('landslide') || type.contains('longsoran') ||
+        type.contains('medical') || type.contains('emergency')) {
+      return 'high';
     }
+
+    // MEDIUM SEVERITY - Accidents
+    if (type.contains('accident') || type.contains('kemalangan')) {
+      // Priority can upgrade accident to high if explicitly marked
+      if (pri == 'high' || pri == 'urgent') {
+        return 'high';
+      }
+      return 'medium';
+    }
+
+    // LOW SEVERITY - Other/Unknown incidents
+    if (type.contains('other') || type.contains('lain')) {
+      // Priority cannot upgrade 'Other' to high - keep it low
+      return 'low';
+    }
+
+    // Default to medium
+    return 'medium';
   }
 
   // Haversine formula to calculate distance between two coordinates
@@ -339,71 +329,5 @@ class WarningsProvider extends ChangeNotifier {
     return _warnings.where((w) => w.distance <= radiusKm).toList();
   }
 
-  // Toggle demo mode and refresh warnings
-  void toggleDemoMode() {
-    useDemo = !useDemo;
-    fetchWarnings();
-  }
 
-  List<Warning> _generateDemoWarnings() {
-    // Demo warnings with realistic Sarawak locations around Lubok Antu
-    final now = DateTime.now();
-    return [
-      Warning(
-        id: 'demo_1',
-        type: 'Flood',
-        location: 'Sungai Besar (Main River)',
-        severity: 'high',
-        distance: 0.8,
-        description: 'Water level: DANGER. Do not approach. Risk of flash floods.',
-        timestamp: now.subtract(Duration(minutes: 15)),
-        latitude: 2.1150,
-        longitude: 112.5750,
-      ),
-      Warning(
-        id: 'demo_2',
-        type: 'Heavy Rain',
-        location: 'Lubok Antu Town Center',
-        severity: 'high',
-        distance: 0.3,
-        description: 'Heavy rainfall expected. Stay indoors if possible.',
-        timestamp: now.subtract(Duration(minutes: 5)),
-        latitude: 2.1234,
-        longitude: 112.5678,
-      ),
-      Warning(
-        id: 'demo_3',
-        type: 'Landslide',
-        location: 'Bukit Tinggi Road (KM 15)',
-        severity: 'medium',
-        distance: 4.2,
-        description: 'Minor landslide detected. Road partially blocked. Use bypass.',
-        timestamp: now.subtract(Duration(hours: 2)),
-        latitude: 2.0856,
-        longitude: 112.6234,
-      ),
-      Warning(
-        id: 'demo_4',
-        type: 'Road Closure',
-        location: 'Jalan Pasar (Market Street)',
-        severity: 'low',
-        distance: 1.1,
-        description: 'Temporary closure for road maintenance. Expected duration: 3 hours.',
-        timestamp: now.subtract(Duration(hours: 1)),
-        latitude: 2.1320,
-        longitude: 112.5550,
-      ),
-      Warning(
-        id: 'demo_5',
-        type: 'Flood',
-        location: 'Sepalit Junction',
-        severity: 'medium',
-        distance: 5.8,
-        description: 'Water level: WARNING. Monitor situation closely.',
-        timestamp: now.subtract(Duration(hours: 3)),
-        latitude: 2.0678,
-        longitude: 112.5890,
-      ),
-    ];
-  }
 }

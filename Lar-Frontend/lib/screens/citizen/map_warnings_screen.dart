@@ -5,6 +5,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:free_map/free_map.dart';
 import 'dart:async';
 import '../../providers/warnings_provider.dart';
+import '../../models/warning.dart';
 
 // MapTiler API key
 final String _mapTilerUrl =
@@ -17,22 +18,50 @@ class MapWarningsScreen extends StatefulWidget {
 
 class _MapWarningsScreenState extends State<MapWarningsScreen> {
   late final MapController _mapController;
+  late StreamSubscription _mapSub;
+  double _currentZoom = 13.0;
+  bool _mapReady = false;
   static const LatLng _lubokAntu = LatLng(2.1234, 112.5678);
 
   @override
   void initState() {
     super.initState();
     _mapController = MapController();
+    
+    // Listen to map events safely - after map renders
+    _mapSub = _mapController.mapEventStream.listen((event) {
+      try {
+        setState(() {
+          _currentZoom = event.camera.zoom;
+          _mapReady = true;
+        });
+      } catch (e) {
+        // Event doesn't have camera info, skip
+      }
+    });
+    
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         final warningsProvider = Provider.of<WarningsProvider>(context, listen: false);
-        warningsProvider.fetchWarnings();
+        warningsProvider.fetchWarnings().then((_) {
+          // After fetching warnings, center map on user's current location
+          if (mounted && warningsProvider.currentPosition != null) {
+            _mapController.move(
+              LatLng(
+                warningsProvider.currentPosition!.latitude,
+                warningsProvider.currentPosition!.longitude,
+              ),
+              13.0,
+            );
+          }
+        });
       }
     });
   }
 
   @override
   void dispose() {
+    _mapSub.cancel();
     _mapController.dispose();
     super.dispose();
   }
@@ -50,20 +79,55 @@ class _MapWarningsScreenState extends State<MapWarningsScreen> {
     }
   }
 
-  String _getWarningEmoji(String type) {
-    switch (type.toLowerCase()) {
-      case 'flood':
-        return '🌊';
-      case 'landslide':
-        return '⛏️';
-      case 'road closure':
-        return '🚫';
-      case 'heavy rain':
-        return '🌧️';
-      case 'bridge closure':
-        return '🌉';
+  // Calculate marker size based on zoom level - aggressive scaling
+  double _getMarkerSize(double zoomLevel) {
+    if (zoomLevel >= 15) {
+      return 100; // Very large when extremely zoomed in
+    } else if (zoomLevel >= 14) {
+      return 85; // Large icons when zoomed in
+    } else if (zoomLevel >= 13) {
+      return 70;
+    } else if (zoomLevel >= 12) {
+      return 55; // Medium icons at normal zoom
+    } else if (zoomLevel >= 11) {
+      return 40;
+    } else if (zoomLevel >= 10) {
+      return 28; // Small icons when zoomed out
+    } else if (zoomLevel >= 9) {
+      return 18;
+    } else if (zoomLevel >= 8) {
+      return 12;
+    } else {
+      return 6; // Tiny icons when very far out
+    }
+  }
+
+  // Calculate emoji size based on zoom level
+  double _getEmojiSize(double zoomLevel) {
+    if (zoomLevel >= 14) {
+      return 28;
+    } else if (zoomLevel >= 12) {
+      return 18;
+    } else if (zoomLevel >= 10) {
+      return 10;
+    } else if (zoomLevel >= 8) {
+      return 6;
+    } else {
+      return 4;
+    }
+  }
+
+  Widget _getWarningEmoji(String severity, {double? size}) {
+    final iconSize = size ?? 24.0;
+    switch (severity.toLowerCase()) {
+      case 'high':
+        return Icon(Icons.warning_amber_rounded, color: Colors.red, size: iconSize);
+      case 'medium':
+        return Icon(Icons.warning_amber_rounded, color: Colors.orange, size: iconSize);
+      case 'low':
+        return Icon(Icons.warning_amber_rounded, color: Colors.amber, size: iconSize);
       default:
-        return '⚠️';
+        return Icon(Icons.warning_amber_rounded, color: Colors.grey, size: iconSize);
     }
   }
 
@@ -161,18 +225,129 @@ class _MapWarningsScreenState extends State<MapWarningsScreen> {
         onTimeout: () => throw TimeoutException('Location request timed out'),
       );
 
-      // Center map on current location
+      // Center map on current location and reset rotation
       if (mounted) {
         _mapController.move(
           LatLng(position.latitude, position.longitude),
-          15.0,
+          13.0,
         );
-        _showError('You are located at ${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)}');
+        _mapController.rotate(0); // Reset rotation to face north
+        _showError('Centered on your location');
       }
     } catch (e) {
       _showError('Error locating: $e');
       print('Location error: $e');
     }
+  }
+
+  void _showWarningDetails(Warning warning, Color primaryGreen) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        final severityColor = _getSeverityColor(warning.severity);
+        return Container(
+          padding: EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      _getWarningEmoji(warning.severity, size: 32),
+                      SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(warning.type,
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87)),
+                          Text(warning.severity.toUpperCase(),
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: severityColor)),
+                        ],
+                      ),
+                    ],
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              SizedBox(height: 16),
+              Divider(),
+              SizedBox(height: 12),
+              Text('Location',
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black54)),
+              Text(warning.location,
+                  style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87)),
+              SizedBox(height: 16),
+              Text('Description',
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black54)),
+              Text(warning.description,
+                  style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.black87)),
+              SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.location_on, size: 16, color: Colors.black54),
+                      SizedBox(width: 6),
+                      Text(warning.getDistanceText(),
+                          style: TextStyle(color: Colors.black54, fontSize: 13)),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Icon(Icons.schedule, size: 16, color: Colors.black54),
+                      SizedBox(width: 6),
+                      Text(warning.getTimeAgo(),
+                          style: TextStyle(color: Colors.black54, fontSize: 13)),
+                    ],
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                height: 44,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryGreen,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: Text('Close',
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -191,52 +366,6 @@ class _MapWarningsScreenState extends State<MapWarningsScreen> {
               icon: Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () => Navigator.pop(context),
             ),
-            actions: [
-              Padding(
-                padding: EdgeInsets.only(right: 16),
-                child: Tooltip(
-                  message: warningsProvider.useDemo ? 'Switch to Real Data' : 'Switch to Demo Data',
-                  child: GestureDetector(
-                    onTap: () {
-                      warningsProvider.toggleDemoMode();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(warningsProvider.useDemo ? '📍 Demo Mode ON' : '🌐 Real Data Mode ON'),
-                          duration: Duration(seconds: 2),
-                          backgroundColor: primaryGreen,
-                        ),
-                      );
-                    },
-                    child: Container(
-                      padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: warningsProvider.useDemo ? Colors.yellow.shade700 : Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            warningsProvider.useDemo ? Icons.developer_mode : Icons.language,
-                            color: Colors.white,
-                            size: 18,
-                          ),
-                          SizedBox(width: 4),
-                          Text(
-                            warningsProvider.useDemo ? 'DEMO' : 'LIVE',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
           ),
       body: Consumer<WarningsProvider>(
         builder: (context, warningsProvider, _) {
@@ -252,7 +381,12 @@ class _MapWarningsScreenState extends State<MapWarningsScreen> {
                       child: FlutterMap(
                         mapController: _mapController,
                         options: MapOptions(
-                          initialCenter: _lubokAntu,
+                          initialCenter: warningsProvider.currentPosition != null
+                              ? LatLng(
+                                  warningsProvider.currentPosition!.latitude,
+                                  warningsProvider.currentPosition!.longitude,
+                                )
+                              : _lubokAntu,
                           initialZoom: 13.0,
                         ),
                         children: [
@@ -264,7 +398,12 @@ class _MapWarningsScreenState extends State<MapWarningsScreen> {
                           MarkerLayer(
                             markers: [
                               Marker(
-                                point: _lubokAntu,
+                                point: warningsProvider.currentPosition != null
+                                    ? LatLng(
+                                        warningsProvider.currentPosition!.latitude,
+                                        warningsProvider.currentPosition!.longitude,
+                                      )
+                                    : _lubokAntu,
                                 width: 80,
                                 height: 80,
                                 alignment: Alignment.topCenter,
@@ -293,30 +432,23 @@ class _MapWarningsScreenState extends State<MapWarningsScreen> {
                             MarkerLayer(
                               markers: warningsProvider.warnings.map((warning) {
                                 final color = _getSeverityColor(warning.severity);
+                                final zoom = _mapReady ? _currentZoom : 13.0;
+                                final markerSize = _getMarkerSize(zoom);
+                                final emojiSize = _getEmojiSize(zoom);
                                 return Marker(
                               point: LatLng(warning.latitude, warning.longitude),
-                              width: 80,
-                              height: 80,
+                              width: markerSize,
+                              height: markerSize * 0.75, // Slim down the height
                               alignment: Alignment.topCenter,
-                              child: Tooltip(
-                                message: '${warning.type} - ${warning.location}',
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: color,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(color: Colors.white, width: 3),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black26,
-                                        blurRadius: 6,
-                                        spreadRadius: 2,
-                                      )
-                                    ],
-                                  ),
+                              child: GestureDetector(
+                                onTap: () {
+                                  _showWarningDetails(warning, primaryGreen);
+                                },
+                                child: Tooltip(
+                                  message: '${warning.type} - ${warning.location}',
                                   child: Center(
-                                    child: Text(
-                                      _getWarningEmoji(warning.type),
-                                      style: TextStyle(fontSize: 28),
+                                    child: BlinkingWarningMarker(
+                                      severity: warning.severity,
                                     ),
                                   ),
                                 ),
@@ -434,7 +566,7 @@ class _MapWarningsScreenState extends State<MapWarningsScreen> {
                                     children: [
                                       Row(
                                         children: [
-                                          Text(_getWarningEmoji(warning.type), style: TextStyle(fontSize: 20)),
+                                          _getWarningEmoji(warning.severity, size: 20),
                                           SizedBox(width: 10),
                                           Text(warning.type,
                                               style: TextStyle(
@@ -632,13 +764,88 @@ class _MapWarningsScreenState extends State<MapWarningsScreen> {
             boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4, spreadRadius: 2)],
           ),
           child: Center(
-            child: Text(
-              _getWarningEmoji(warning.type),
-              style: TextStyle(fontSize: 16),
+            child: Container(
+              margin: EdgeInsets.only(top: 4),
+              padding: EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                border: Border.all(color: Colors.grey[300]!),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: _getWarningEmoji(warning.severity, size: 16),
             ),
           ),
         ),
       );
     }).toList();
+  }
+}
+
+// Blinking warning marker widget
+class BlinkingWarningMarker extends StatefulWidget {
+  final String severity;
+
+  const BlinkingWarningMarker({required this.severity});
+
+  @override
+  _BlinkingWarningMarkerState createState() => _BlinkingWarningMarkerState();
+}
+
+class _BlinkingWarningMarkerState extends State<BlinkingWarningMarker>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _opacityAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: Duration(milliseconds: 800),
+      vsync: this,
+    )..repeat(reverse: true);
+
+    _opacityAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  Color _getSeverityColor(String severity) {
+    switch (severity.toLowerCase()) {
+      case 'high':
+        return Colors.red;
+      case 'medium':
+        return Colors.orange;
+      case 'low':
+        return Colors.amber;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _opacityAnimation,
+      builder: (context, child) {
+        return Opacity(
+          opacity: _opacityAnimation.value,
+          child: Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: _getSeverityColor(widget.severity),
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white, width: 2),
+            ),
+          ),
+        );
+      },
+    );
   }
 }
