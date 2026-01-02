@@ -133,7 +133,6 @@ class WarningsProvider extends ChangeNotifier {
       final warnings = <Warning>[];
 
       debugPrint('=== FIREBASE WARNINGS FETCH START ===');
-      debugPrint('Demo mode: $useDemo');
       debugPrint('Current location: ${_currentPosition?.latitude}, ${_currentPosition?.longitude}');
 
       // Query emergency reports from Firestore
