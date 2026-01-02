@@ -82,7 +82,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
               backgroundColor: const Color(0xFF059669),
               elevation: 0,
               leading: IconButton(
-                icon: const Icon(Icons.arrow_back),
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
                 onPressed: () => Navigator.of(context).pop(),
               ),
               title: const Text(
@@ -110,7 +110,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
               backgroundColor: const Color(0xFF059669),
               elevation: 0,
               leading: IconButton(
-                icon: const Icon(Icons.arrow_back),
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
                 onPressed: () => Navigator.of(context).pop(),
               ),
               title: const Text(
@@ -160,7 +160,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
               backgroundColor: const Color(0xFF059669),
               elevation: 0,
               leading: IconButton(
-                icon: const Icon(Icons.arrow_back),
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
                 onPressed: () => Navigator.of(context).pop(),
               ),
               title: const Text(
@@ -289,7 +289,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
             backgroundColor: const Color(0xFF059669),
             elevation: 0,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () => Navigator.of(context).pop(),
             ),
             title: const Text(
@@ -517,7 +517,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
         backgroundColor: const Color(0xFF059669),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back,color: Colors.white),
           onPressed: () => setState(() => selectedProgramId = null),
         ),
         title: const Text(

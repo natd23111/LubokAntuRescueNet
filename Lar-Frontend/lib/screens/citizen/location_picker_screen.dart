@@ -47,7 +47,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
   bool isLoading = true;
   bool isLoadingAddress = false;
   double? gpsAccuracy;
-  String locationStatus = 'Acquiring location...'; // "GPS verified", "approximate", "manual"
+  String locationStatus = 'Acquiring location...'; // "GPS verified", "approximate", "Manual"
   Timer? _searchDebounceTimer;
   Map<String, AddressComponents> _placemarkCache = {}; // Cache for placemark results
   List<LatLng> _locationHistory = []; // Recent locations for quick access
@@ -177,7 +177,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
         location.longitude <= maxLon;
   }
 
-  Future<void> _setLocation(LatLng location, [String status = 'manual', double? accuracy]) async {
+  Future<void> _setLocation(LatLng location, [String status = 'Manual', double? accuracy]) async {
     try {
       print('Setting location: ${location.latitude}, ${location.longitude}');
       
@@ -266,7 +266,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
           selectedAddress =
               '${selectedLocation!.latitude.toStringAsFixed(4)}, ${selectedLocation!.longitude.toStringAsFixed(4)}';
           isLoadingAddress = false;
-          locationStatus = 'manual';
+          locationStatus = 'Manual';
         });
       }
     }
@@ -274,7 +274,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
 
   void _onMapTap(LatLng location) async {
     setState(() => _isDraggingMarker = false);
-    await _setLocation(location, 'manual');
+    await _setLocation(location, 'Manual');
     _showSnackBar('Location updated');
   }
 
@@ -408,7 +408,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
         elevation: 0,
         backgroundColor: const Color(0xFF0E9D63),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -643,7 +643,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
         return Colors.green;
       case 'approximate':
         return Colors.orange;
-      case 'manual':
+      case 'Manual':
         return Colors.blue;
       default:
         return Colors.grey;
@@ -656,7 +656,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
         return Icons.gps_fixed;
       case 'approximate':
         return Icons.gps_not_fixed;
-      case 'manual':
+      case 'Manual':
         return Icons.edit_location;
       default:
         return Icons.location_on;
