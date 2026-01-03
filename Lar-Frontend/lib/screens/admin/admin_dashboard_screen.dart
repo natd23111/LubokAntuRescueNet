@@ -8,6 +8,7 @@ import '../../providers/aid_request_provider.dart';
 import 'manage_aid_programs_screen.dart';
 import 'manage_reports_screen.dart';
 import 'manage_aid_requests_screen.dart';
+import '../../widgets/app_footer.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   @override
@@ -467,8 +468,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         );
                       },
                     ),
-
                     SizedBox(height: 24),
+                    const AppFooter(),
                   ],
                 ),
               ),

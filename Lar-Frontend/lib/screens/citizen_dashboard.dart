@@ -16,6 +16,7 @@ import 'citizen/view_reports_screen.dart';
 import 'citizen/submit_emergency_screen.dart';
 import 'citizen/submit_aid_request_screen.dart';
 import 'citizen/view_aid_request_screen.dart';
+import '../../widgets/app_footer.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -561,6 +562,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                   ),
                 ),
+                const AppFooter(),
               ],
             ),
             ),

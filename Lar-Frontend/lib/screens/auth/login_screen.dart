@@ -5,6 +5,7 @@ import '../../providers/auth_provider.dart';
 import '../../services/push_notification_service.dart';
 import '../../services/location_service.dart';
 import 'register_screen.dart';
+import '../../widgets/app_footer.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -328,8 +329,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
             ),
+            const AppFooter(),
           ],
         ),
+
       ),
     );
   }
