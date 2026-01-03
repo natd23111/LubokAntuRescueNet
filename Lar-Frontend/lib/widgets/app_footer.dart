@@ -31,7 +31,7 @@ class AppFooter extends StatelessWidget {
 
           // Address
           Text(
-            'Lubuk Antu, 95900, Sarawak',
+            'Lubok Antu, 95900, Sarawak',
             style: TextStyle(
               fontSize: 15,
               color: isDark ? Colors.grey[400] : Colors.grey[600],
