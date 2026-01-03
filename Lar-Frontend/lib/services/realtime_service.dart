@@ -22,15 +22,11 @@ class RealtimeService {
       query = query.where('category', isEqualTo: category);
     }
 
-    return query
-        .orderBy('createdAt', descending: true)
-        .snapshots()
-        .map((snapshot) {
+    return query.orderBy('createdAt', descending: true).snapshots().map((
+      snapshot,
+    ) {
       return snapshot.docs.map((doc) {
-        return {
-          'id': doc.id,
-          ...doc.data() as Map<String, dynamic>,
-        };
+        return {'id': doc.id, ...doc.data() as Map<String, dynamic>};
       }).toList();
     });
   }
@@ -42,14 +38,14 @@ class RealtimeService {
         .doc(programId)
         .snapshots()
         .map((snapshot) {
-      if (snapshot.exists) {
-        return {
-          'id': snapshot.id,
-          ...snapshot.data() as Map<String, dynamic>,
-        };
-      }
-      return null;
-    });
+          if (snapshot.exists) {
+            return {
+              'id': snapshot.id,
+              ...snapshot.data() as Map<String, dynamic>,
+            };
+          }
+          return null;
+        });
   }
 
   // ============== LIVE EMERGENCY ALERTS ==============
@@ -72,15 +68,11 @@ class RealtimeService {
       query = query.where('severity', isEqualTo: severity);
     }
 
-    return query
-        .orderBy('timestamp', descending: true)
-        .snapshots()
-        .map((snapshot) {
+    return query.orderBy('timestamp', descending: true).snapshots().map((
+      snapshot,
+    ) {
       return snapshot.docs.map((doc) {
-        return {
-          'id': doc.id,
-          ...doc.data() as Map<String, dynamic>,
-        };
+        return {'id': doc.id, ...doc.data() as Map<String, dynamic>};
       }).toList();
     });
   }
@@ -95,13 +87,10 @@ class RealtimeService {
         .orderBy('timestamp', descending: true)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        return {
-          'id': doc.id,
-          ...doc.data(),
-        };
-      }).toList();
-    });
+          return snapshot.docs.map((doc) {
+            return {'id': doc.id, ...doc.data()};
+          }).toList();
+        });
   }
 
   /// Count unread notifications for user
@@ -128,10 +117,7 @@ class RealtimeService {
 
     return query.snapshots().map((snapshot) {
       return snapshot.docs.map((doc) {
-        return {
-          'id': doc.id,
-          ...doc.data() as Map<String, dynamic>,
-        };
+        return {'id': doc.id, ...doc.data() as Map<String, dynamic>};
       }).toList();
     });
   }
@@ -158,18 +144,22 @@ class RealtimeService {
 
     final emergenciesStream = _firebaseService.firestore
         .collection('emergency_notifications')
-        .where('timestamp',
-            isGreaterThan: DateTime.now()
-                .subtract(Duration(hours: 24))
-                .toIso8601String())
+        .where(
+          'timestamp',
+          isGreaterThan: DateTime.now()
+              .subtract(Duration(hours: 24))
+              .toIso8601String(),
+        )
         .snapshots()
         .map((snapshot) => snapshot.docs.length);
 
     return emergenciesStream.asyncExpand((emergencyCount) {
-      return programsStream.map((programs) => {
-            'activePrograms': programs,
-            'emergenciesLast24h': emergencyCount,
-          });
+      return programsStream.map(
+        (programs) => {
+          'activePrograms': programs,
+          'emergenciesLast24h': emergencyCount,
+        },
+      );
     });
   }
 
@@ -182,9 +172,9 @@ class RealtimeService {
         .doc(userId)
         .snapshots()
         .map((snapshot) {
-      final isOnline = snapshot.data()?['isOnline'] ?? false;
-      return isOnline;
-    });
+          final isOnline = snapshot.data()?['isOnline'] ?? false;
+          return isOnline;
+        });
   }
 
   /// Update user presence status
@@ -209,13 +199,10 @@ class RealtimeService {
         .orderBy('timestamp', descending: true)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        return {
-          'id': doc.id,
-          ...doc.data(),
-        };
-      }).toList();
-    });
+          return snapshot.docs.map((doc) {
+            return {'id': doc.id, ...doc.data()};
+          }).toList();
+        });
   }
 
   /// Add comment
@@ -230,10 +217,10 @@ class RealtimeService {
         .doc(documentId)
         .collection('comments')
         .add({
-      'userId': userId,
-      'text': text,
-      'timestamp': FieldValue.serverTimestamp(),
-    });
+          'userId': userId,
+          'text': text,
+          'timestamp': FieldValue.serverTimestamp(),
+        });
   }
 
   // ============== BATCH UPDATES ==============
@@ -247,8 +234,9 @@ class RealtimeService {
 
     for (var update in updates) {
       final docId = update.remove('id');
-      final docRef =
-          _firebaseService.firestore.collection(collectionName).doc(docId);
+      final docRef = _firebaseService.firestore
+          .collection(collectionName)
+          .doc(docId);
       batch.update(docRef, update);
     }
 

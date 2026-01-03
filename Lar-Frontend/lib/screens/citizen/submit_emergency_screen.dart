@@ -13,10 +13,8 @@ import '../../services/firebase_service.dart';
 class SubmitEmergencyScreen extends StatefulWidget {
   final VoidCallback onBack;
 
-  const SubmitEmergencyScreen({
-    Key? key,
-    required this.onBack,
-  }) : super(key: key);
+  const SubmitEmergencyScreen({Key? key, required this.onBack})
+    : super(key: key);
 
   @override
   State<SubmitEmergencyScreen> createState() => _SubmitEmergencyScreenState();
@@ -65,7 +63,9 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
             selectedLatitude = location.latitude;
             selectedLongitude = location.longitude;
           });
-          print('[Geocoding] Converted "${locationController.text}" to coordinates: ${location.latitude}, ${location.longitude}');
+          print(
+            '[Geocoding] Converted "${locationController.text}" to coordinates: ${location.latitude}, ${location.longitude}',
+          );
           return;
         }
       }
@@ -77,7 +77,9 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        _showError('Location services disabled. Please enter location or use map picker.');
+        _showError(
+          'Location services disabled. Please enter location or use map picker.',
+        );
         return;
       }
 
@@ -86,8 +88,11 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
         permission = await Geolocator.requestPermission();
       }
 
-      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
-        _showError('Location permission denied. Please use map picker to set location.');
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        _showError(
+          'Location permission denied. Please use map picker to set location.',
+        );
         return;
       }
 
@@ -99,7 +104,9 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
         selectedLatitude = position.latitude;
         selectedLongitude = position.longitude;
       });
-      print('[Geocoding] Using current GPS location: ${position.latitude}, ${position.longitude}');
+      print(
+        '[Geocoding] Using current GPS location: ${position.latitude}, ${position.longitude}',
+      );
     } catch (e) {
       print('[Geocoding] Failed to get GPS location: $e');
       _showError('Could not determine location. Please use map picker.');
@@ -135,8 +142,10 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
       }
 
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      final reportsProvider =
-          Provider.of<ReportsProvider>(context, listen: false);
+      final reportsProvider = Provider.of<ReportsProvider>(
+        context,
+        listen: false,
+      );
 
       final currentUser = authProvider.currentUser;
       if (currentUser == null) {
@@ -148,7 +157,7 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
       final userName = authProvider.userName ?? 'Anonymous';
       final userIc = authProvider.userIc ?? '';
       final userPhone = authProvider.userPhone ?? '';
-      
+
       // Create report object with user's profile data (exclude null values)
       final reportData = {
         'title': '${selectedEmergencyType} - ${locationController.text}',
@@ -175,7 +184,7 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
 
       if (reportId != null && mounted) {
         print('DEBUG: Report created successfully: $reportId');
-        
+
         // If images were selected, upload them to Firebase Storage and update the report
         if (selectedImages.isNotEmpty) {
           print('DEBUG: Uploading ${selectedImages.length} images...');
@@ -185,7 +194,9 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
 
             for (int i = 0; i < selectedImages.length; i++) {
               final xfile = selectedImages[i];
-              final bytes = selectedImageBytes.length > i ? selectedImageBytes[i] : await xfile.readAsBytes();
+              final bytes = selectedImageBytes.length > i
+                  ? selectedImageBytes[i]
+                  : await xfile.readAsBytes();
               // derive extension from name if possible
               String ext = 'jpg';
               try {
@@ -193,7 +204,8 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                 if (parts.length > 1) ext = parts.last;
               } catch (_) {}
 
-              final storagePath = 'emergency_reports/$reportId/images/img_${i}_${DateTime.now().millisecondsSinceEpoch}.$ext';
+              final storagePath =
+                  'emergency_reports/$reportId/images/img_${i}_${DateTime.now().millisecondsSinceEpoch}.$ext';
               print('DEBUG: Uploading image $i to: $storagePath');
               final url = await firebase.uploadFile(storagePath, bytes);
               print('DEBUG: Image $i uploaded successfully: $url');
@@ -202,18 +214,22 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
 
             // Update Firestore document with image URLs (and first image for backward compatibility)
             if (uploadedUrls.isNotEmpty) {
-              print('DEBUG: Updating report with ${uploadedUrls.length} image URLs');
-              await FirebaseService().updateDocument('emergency_reports', reportId, {
-                'image_urls': uploadedUrls,
-                'image_url': uploadedUrls.first,
-                'updated_at': DateTime.now().toIso8601String(),
-              });
+              print(
+                'DEBUG: Updating report with ${uploadedUrls.length} image URLs',
+              );
+              await FirebaseService()
+                  .updateDocument('emergency_reports', reportId, {
+                    'image_urls': uploadedUrls,
+                    'image_url': uploadedUrls.first,
+                    'updated_at': DateTime.now().toIso8601String(),
+                  });
               print('DEBUG: Report updated with image URLs');
             }
 
             // Refresh provider to fetch updated docs
             await reportsProvider.fetchReports();
-            if (Provider.of<AuthProvider>(context, listen: false).currentUser != null) {
+            if (Provider.of<AuthProvider>(context, listen: false).currentUser !=
+                null) {
               await reportsProvider.fetchMyReports();
             }
           } catch (e) {
@@ -280,9 +296,7 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
 
   Future<void> _openLocationPicker() async {
     final result = await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const LocationPickerScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const LocationPickerScreen()),
     );
 
     if (result != null && mounted) {
@@ -314,16 +328,20 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
       }
 
       if (permission == LocationPermission.deniedForever) {
-        _showError('Location permissions are permanently denied. Open app settings to enable.');
+        _showError(
+          'Location permissions are permanently denied. Open app settings to enable.',
+        );
         return;
       }
 
-      final Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      ).timeout(
-        const Duration(seconds: 15),
-        onTimeout: () => throw TimeoutException('Location request timed out'),
-      );
+      final Position position =
+          await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.high,
+          ).timeout(
+            const Duration(seconds: 15),
+            onTimeout: () =>
+                throw TimeoutException('Location request timed out'),
+          );
 
       // Open map picker with current location as initial position
       final result = await Navigator.of(context).push(
@@ -430,8 +448,18 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
   String _getCurrentDate() {
     final now = DateTime.now();
     final months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     return '${months[now.month - 1]} ${now.day}, ${now.year}';
   }
@@ -522,10 +550,7 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          const Text(
-                            ' *',
-                            style: TextStyle(color: Colors.red),
-                          ),
+                          const Text(' *', style: TextStyle(color: Colors.red)),
                         ],
                       ),
                       const SizedBox(height: 8),
@@ -540,19 +565,20 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                           isExpanded: true,
                           underline: const SizedBox(),
                           hint: const Text('Select emergency type'),
-                          items: [
-                            'Flood',
-                            'Fire',
-                            'Accident',
-                            'Medical Emergency',
-                            'Landslide',
-                            'Other',
-                          ].map((type) {
-                            return DropdownMenuItem(
-                              value: type,
-                              child: Text(type),
-                            );
-                          }).toList(),
+                          items:
+                              [
+                                'Flood',
+                                'Fire',
+                                'Accident',
+                                'Medical Emergency',
+                                'Landslide',
+                                'Other',
+                              ].map((type) {
+                                return DropdownMenuItem(
+                                  value: type,
+                                  child: Text(type),
+                                );
+                              }).toList(),
                           onChanged: (value) {
                             setState(() {
                               selectedEmergencyType = value;
@@ -577,10 +603,7 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          const Text(
-                            ' *',
-                            style: TextStyle(color: Colors.red),
-                          ),
+                          const Text(' *', style: TextStyle(color: Colors.red)),
                         ],
                       ),
                       const SizedBox(height: 8),
@@ -606,7 +629,10 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                         width: double.infinity,
                         child: ElevatedButton.icon(
                           onPressed: _getCurrentLocation,
-                          icon: const Icon(Icons.location_on, color: Colors.red),
+                          icon: const Icon(
+                            Icons.location_on,
+                            color: Colors.red,
+                          ),
                           label: const Text('Use Current Location on Map'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF059669),
@@ -635,10 +661,7 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          const Text(
-                            ' *',
-                            style: TextStyle(color: Colors.red),
-                          ),
+                          const Text(' *', style: TextStyle(color: Colors.red)),
                         ],
                       ),
                       const SizedBox(height: 8),
@@ -661,10 +684,7 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                       const SizedBox(height: 8),
                       Text(
                         'Auto-filled with current date',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 12,
-                        ),
+                        style: TextStyle(color: Colors.grey[600], fontSize: 12),
                       ),
                     ],
                   ),
@@ -683,10 +703,7 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          const Text(
-                            ' *',
-                            style: TextStyle(color: Colors.red),
-                          ),
+                          const Text(' *', style: TextStyle(color: Colors.red)),
                         ],
                       ),
                       const SizedBox(height: 8),
@@ -694,7 +711,8 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                         controller: descriptionController,
                         maxLines: 4,
                         decoration: InputDecoration(
-                          hintText: 'Provide detailed description of the emergency',
+                          hintText:
+                              'Provide detailed description of the emergency',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                             borderSide: BorderSide(color: Colors.grey[300]!),
@@ -725,10 +743,7 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                       ),
                       Text(
                         'Maximum 3 images, up to 5MB each',
-                        style: TextStyle(
-                          color: Colors.grey[500],
-                          fontSize: 12,
-                        ),
+                        style: TextStyle(color: Colors.grey[500], fontSize: 12),
                       ),
                       const SizedBox(height: 12),
                       // Image Thumbnails
@@ -738,18 +753,21 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                           child: GridView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3,
-                              crossAxisSpacing: 8,
-                              mainAxisSpacing: 8,
-                            ),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 3,
+                                  crossAxisSpacing: 8,
+                                  mainAxisSpacing: 8,
+                                ),
                             itemCount: selectedImages.length,
                             itemBuilder: (context, index) {
                               return Stack(
                                 children: [
                                   Container(
                                     decoration: BoxDecoration(
-                                      border: Border.all(color: Colors.grey[300]!),
+                                      border: Border.all(
+                                        color: Colors.grey[300]!,
+                                      ),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Image.memory(
@@ -801,9 +819,7 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                             const SizedBox(height: 8),
                             Text(
                               'Click to upload or drag and drop',
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                              ),
+                              style: TextStyle(color: Colors.grey[600]),
                             ),
                             Text(
                               'PNG, JPG up to 5MB',
@@ -842,9 +858,7 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              border: Border(
-                top: BorderSide(color: Colors.grey[200]!),
-              ),
+              border: Border(top: BorderSide(color: Colors.grey[200]!)),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -866,8 +880,9 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                             width: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
                             ),
                           )
                         : const Text(
@@ -891,9 +906,10 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                       ),
                       side: BorderSide(color: Colors.grey[300]!),
                     ),
-                    child: Text('Clear / Reset',
-                  style: TextStyle(color: Colors.grey[700]),
-                ),
+                    child: Text(
+                      'Clear / Reset',
+                      style: TextStyle(color: Colors.grey[700]),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -903,10 +919,10 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                     onPressed: widget.onBack,
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    side: BorderSide(color: Colors.grey[300]!),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      side: BorderSide(color: Colors.grey[300]!),
                     ),
                     child: Text(
                       'Back',

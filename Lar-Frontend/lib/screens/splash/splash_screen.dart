@@ -26,10 +26,7 @@ class _SplashScreenState extends State<SplashScreen>
       duration: const Duration(milliseconds: 1700),
     );
 
-    _fadeAnimation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeIn,
-    );
+    _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
 
     _controller.forward();
     _handleNavigation();
@@ -42,7 +39,7 @@ class _SplashScreenState extends State<SplashScreen>
 
     // Check if user is already authenticated
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    
+
     if (authProvider.isAuthenticated && authProvider.currentUser != null) {
       // User is already logged in - go to home
       print('✅ User already logged in: ${authProvider.userId}');
@@ -50,10 +47,7 @@ class _SplashScreenState extends State<SplashScreen>
         PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) => HomeRouter(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(
-              opacity: animation,
-              child: child,
-            );
+            return FadeTransition(opacity: animation, child: child);
           },
           transitionDuration: const Duration(milliseconds: 900),
         ),
@@ -63,12 +57,10 @@ class _SplashScreenState extends State<SplashScreen>
       print('❌ No user logged in - showing login screen');
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => LoginScreen(),
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              LoginScreen(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(
-              opacity: animation,
-              child: child,
-            );
+            return FadeTransition(opacity: animation, child: child);
           },
           transitionDuration: const Duration(milliseconds: 900),
         ),
@@ -88,10 +80,7 @@ class _SplashScreenState extends State<SplashScreen>
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Color(0xFF059669),
-              Color(0xFF047857),
-            ],
+            colors: [Color(0xFF059669), Color(0xFF047857)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -159,10 +148,7 @@ class _SplashScreenState extends State<SplashScreen>
                   duration: const Duration(milliseconds: 1000),
                   curve: Curves.easeIn,
                   builder: (_, value, child) {
-                    return Opacity(
-                      opacity: value,
-                      child: child,
-                    );
+                    return Opacity(opacity: value, child: child);
                   },
                   child: const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 28),

@@ -9,11 +9,7 @@ class FamilyMember {
   String name;
   String status;
 
-  FamilyMember({
-    required this.id,
-    required this.name,
-    required this.status,
-  });
+  FamilyMember({required this.id, required this.name, required this.status});
 }
 
 class SubmitAidRequestScreen extends StatefulWidget {
@@ -39,7 +35,7 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
   String? programId;
   String? programAmount;
   List<FamilyMember> familyMembers = [
-    FamilyMember(id: 1, name: '', status: 'student')
+    FamilyMember(id: 1, name: '', status: 'student'),
   ];
 
   @override
@@ -48,7 +44,9 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
     // Pre-populate with program details if provided
     // Map program categories to dropdown values
     if (widget.preselectedCategory != null) {
-      selectedAidType = _mapCategoryToDropdownValue(widget.preselectedCategory!);
+      selectedAidType = _mapCategoryToDropdownValue(
+        widget.preselectedCategory!,
+      );
     } else {
       selectedAidType = '';
     }
@@ -121,9 +119,12 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
         .toList();
 
     // Submit to Firebase
-    final aidRequestProvider = Provider.of<AidRequestProvider>(context, listen: false);
+    final aidRequestProvider = Provider.of<AidRequestProvider>(
+      context,
+      listen: false,
+    );
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    
+
     final success = await aidRequestProvider.submitAidRequest(
       aidType: selectedAidType,
       monthlyIncome: double.tryParse(incomeController.text) ?? 0,
@@ -139,7 +140,7 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
     if (success && mounted) {
       setState(() => showSuccess = true);
       final requestId = aidRequestProvider.getLastRequestId();
-      
+
       Future.delayed(Duration(seconds: 3), () {
         if (mounted) {
           Navigator.of(context).pop();
@@ -147,7 +148,9 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
       });
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(aidRequestProvider.error ?? 'Failed to submit request')),
+        SnackBar(
+          content: Text(aidRequestProvider.error ?? 'Failed to submit request'),
+        ),
       );
     }
   }
@@ -231,8 +234,18 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
   String getCurrentDate() {
     final now = DateTime.now();
     final months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     return '${months[now.month - 1]} ${now.day}, ${now.year}';
   }
@@ -266,7 +279,10 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
                 if (showSuccess)
                   Container(
                     margin: const EdgeInsets.all(16),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 12,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFFF0FDF4),
                       border: Border.all(color: const Color(0xFFBBF7D0)),
@@ -308,280 +324,275 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
                   ),
 
                 // Form Content
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Aid Type
-                  _buildFormLabel('Aid Type / Category'),
-                  const SizedBox(height: 8),
-                  DropdownButtonFormField<String>(
-                    value: selectedAidType.isEmpty ? null : selectedAidType,
-                    decoration: InputDecoration(
-                      hintText: 'Select aid type',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: Colors.grey[300]!),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(
-                          color: Color(0xFF059669),
-                          width: 2,
-                        ),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                    ),
-                    items: [
-                      'Financial Aid',
-                      'Disaster Relief',
-                      'Medical Emergency Fund',
-                      'Education Aid',
-                      'Housing Assistance',
-                      'Other',
-                    ].map((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedAidType = newValue ?? '';
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Household Details Section
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: Divider(color: Colors.grey[200], thickness: 1),
-                  ),
-                  Text(
-                    'Household Details',
-                    style: TextStyle(
-                      color: Colors.grey[900],
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Monthly Household Income
-                  _buildFormLabel('Monthly Household Income (RM)'),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: incomeController,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      hintText: 'Enter monthly income',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: Colors.grey[300]!),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(
-                          color: Color(0xFF059669),
-                          width: 2,
-                        ),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Number of Family Members
-                  _buildFormLabel('Number of Family Members'),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: familyCountController,
-                    keyboardType: TextInputType.number,
-                    onChanged: updateFamilyMemberCount,
-                    decoration: InputDecoration(
-                      hintText: 'Enter number',
-                      prefixIcon: const Icon(Icons.family_restroom),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: Colors.grey[300]!),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(
-                          color: Color(0xFF059669),
-                          width: 2,
-                        ),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Family Members Details
-                  _buildFormLabel('Family Members Details'),
-                  const SizedBox(height: 12),
-                  Column(
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      ...familyMembers.asMap().entries.map((entry) {
-                        int index = entry.key;
-                        FamilyMember member = entry.value;
-                        return _buildFamilyMemberCard(
-                          index: index,
-                          member: member,
-                          canDelete: familyMembers.length > 1,
-                        );
-                      }).toList(),
+                      // Aid Type
+                      _buildFormLabel('Aid Type / Category'),
+                      const SizedBox(height: 8),
+                      DropdownButtonFormField<String>(
+                        value: selectedAidType.isEmpty ? null : selectedAidType,
+                        decoration: InputDecoration(
+                          hintText: 'Select aid type',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: Colors.grey[300]!),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF059669),
+                              width: 2,
+                            ),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                        ),
+                        items:
+                            [
+                              'Financial Aid',
+                              'Disaster Relief',
+                              'Medical Emergency Fund',
+                              'Education Aid',
+                              'Housing Assistance',
+                              'Other',
+                            ].map((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedAidType = newValue ?? '';
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Household Details Section
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: Divider(color: Colors.grey[200], thickness: 1),
+                      ),
+                      Text(
+                        'Household Details',
+                        style: TextStyle(
+                          color: Colors.grey[900],
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Monthly Household Income
+                      _buildFormLabel('Monthly Household Income (RM)'),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: incomeController,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          hintText: 'Enter monthly income',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: Colors.grey[300]!),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF059669),
+                              width: 2,
+                            ),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Number of Family Members
+                      _buildFormLabel('Number of Family Members'),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: familyCountController,
+                        keyboardType: TextInputType.number,
+                        onChanged: updateFamilyMemberCount,
+                        decoration: InputDecoration(
+                          hintText: 'Enter number',
+                          prefixIcon: const Icon(Icons.family_restroom),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: Colors.grey[300]!),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF059669),
+                              width: 2,
+                            ),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Family Members Details
+                      _buildFormLabel('Family Members Details'),
                       const SizedBox(height: 12),
-                      _buildAddMemberButton(),
+                      Column(
+                        children: [
+                          ...familyMembers.asMap().entries.map((entry) {
+                            int index = entry.key;
+                            FamilyMember member = entry.value;
+                            return _buildFamilyMemberCard(
+                              index: index,
+                              member: member,
+                              canDelete: familyMembers.length > 1,
+                            );
+                          }).toList(),
+                          const SizedBox(height: 12),
+                          _buildAddMemberButton(),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Description
+                      _buildFormLabel('Description / Reason'),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: descriptionController,
+                        maxLines: 4,
+                        decoration: InputDecoration(
+                          hintText: 'Explain why you need this aid',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: Colors.grey[300]!),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF059669),
+                              width: 2,
+                            ),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Submission Date
+                      _buildFormLabel('Submission Date'),
+                      const SizedBox(height: 8),
+                      TextField(
+                        readOnly: true,
+                        decoration: InputDecoration(
+                          hintText: 'Auto-filled with current date',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: Colors.grey[300]!),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          fillColor: Colors.grey[50],
+                          filled: true,
+                        ),
+                        controller: TextEditingController(
+                          text: getCurrentDate(),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Auto-filled with current date',
+                        style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                      ),
+                      const SizedBox(height: 32),
                     ],
                   ),
-                  const SizedBox(height: 24),
-
-                  // Description
-                  _buildFormLabel('Description / Reason'),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: descriptionController,
-                    maxLines: 4,
-                    decoration: InputDecoration(
-                      hintText: 'Explain why you need this aid',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: Colors.grey[300]!),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(
-                          color: Color(0xFF059669),
-                          width: 2,
-                        ),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Submission Date
-                  _buildFormLabel('Submission Date'),
-                  const SizedBox(height: 8),
-                  TextField(
-                    readOnly: true,
-                    decoration: InputDecoration(
-                      hintText: 'Auto-filled with current date',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: Colors.grey[300]!),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                      fillColor: Colors.grey[50],
-                      filled: true,
-                    ),
-                    controller: TextEditingController(
-                      text: getCurrentDate(),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Auto-filled with current date',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 12,
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(color: Colors.grey[200]!),
           ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: handleSubmit,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF059669),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+          bottomNavigationBar: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              border: Border(top: BorderSide(color: Colors.grey[200]!)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: handleSubmit,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF059669),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text(
+                      'Submit Request',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
-                child: const Text(
-                  'Submit Request',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: clearForm,
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      side: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    child: Text(
+                      'Clear / Reset',
+                      style: TextStyle(color: Colors.grey[700]),
+                    ),
                   ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                onPressed: clearForm,
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      side: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    child: Text(
+                      'Back',
+                      style: TextStyle(color: Colors.grey[600]),
+                    ),
                   ),
-                  side: BorderSide(color: Colors.grey[300]!),
                 ),
-                child: Text(
-                  'Clear / Reset',
-                  style: TextStyle(color: Colors.grey[700]),
-                ),
-              ),
+              ],
             ),
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                onPressed: () => Navigator.of(context).pop(),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                side: BorderSide(color: Colors.grey[300]!),
-                ),
-                child: Text(
-                  'Back',
-                  style: TextStyle(
-                  color: Colors.grey[600]),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
         );
       },
     );
@@ -601,10 +612,7 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
           ),
           const TextSpan(
             text: ' *',
-            style: TextStyle(
-              color: Colors.red,
-              fontWeight: FontWeight.w600,
-            ),
+            style: TextStyle(color: Colors.red, fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -652,8 +660,7 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
 
           // Name Input
           TextField(
-            onChanged: (value) =>
-                updateFamilyMember(member.id, name: value),
+            onChanged: (value) => updateFamilyMember(member.id, name: value),
             decoration: InputDecoration(
               hintText: 'Name',
               border: OutlineInputBorder(
@@ -695,19 +702,23 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
                 vertical: 10,
               ),
             ),
-            items: [
-              'Student',
-              'Employed / Full-time',
-              'Part-time Worker',
-              'Unemployed',
-              'Retired',
-              'Child (Under 12)',
-            ].map((String value) {
-              return DropdownMenuItem<String>(
-                value: value.toLowerCase().replaceAll(' / ', '/').replaceAll(' ', '-'),
-                child: Text(value),
-              );
-            }).toList(),
+            items:
+                [
+                  'Student',
+                  'Employed / Full-time',
+                  'Part-time Worker',
+                  'Unemployed',
+                  'Retired',
+                  'Child (Under 12)',
+                ].map((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value
+                        .toLowerCase()
+                        .replaceAll(' / ', '/')
+                        .replaceAll(' ', '-'),
+                    child: Text(value),
+                  );
+                }).toList(),
             onChanged: (String? newValue) {
               if (newValue != null) {
                 updateFamilyMember(member.id, status: newValue);
@@ -736,11 +747,7 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.add,
-              color: Colors.grey[600],
-              size: 18,
-            ),
+            Icon(Icons.add, color: Colors.grey[600], size: 18),
             const SizedBox(width: 8),
             Text(
               'Add Family Member',

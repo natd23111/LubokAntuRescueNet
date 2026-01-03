@@ -79,7 +79,10 @@ class _TelegramLinkingDialogState extends State<TelegramLinkingDialog> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('📋 Step 1: Copy code', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+            Text(
+              '📋 Step 1: Copy code',
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+            ),
             SizedBox(height: 12),
             Container(
               padding: EdgeInsets.all(12),
@@ -91,10 +94,15 @@ class _TelegramLinkingDialogState extends State<TelegramLinkingDialog> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text('Verification Code:', style: TextStyle(fontSize: 11, color: Colors.grey.shade600)),
+                  Text(
+                    'Verification Code:',
+                    style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                  ),
                   SizedBox(height: 8),
                   SelectableText(
-                    _verificationCode.isEmpty ? 'Generating...' : _verificationCode,
+                    _verificationCode.isEmpty
+                        ? 'Generating...'
+                        : _verificationCode,
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -106,7 +114,10 @@ class _TelegramLinkingDialogState extends State<TelegramLinkingDialog> {
               ),
             ),
             SizedBox(height: 16),
-            Text('🤖 Step 2: Telegram', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+            Text(
+              '🤖 Step 2: Telegram',
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+            ),
             SizedBox(height: 8),
             Container(
               padding: EdgeInsets.all(12),
@@ -121,14 +132,19 @@ class _TelegramLinkingDialogState extends State<TelegramLinkingDialog> {
               ),
             ),
             SizedBox(height: 16),
-            Text('✅ Step 3: Link', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+            Text(
+              '✅ Step 3: Link',
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+            ),
             SizedBox(height: 8),
             TextField(
               controller: _codeController,
               decoration: InputDecoration(
                 labelText: 'Chat ID',
                 hintText: 'Paste chat ID here',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 prefixIcon: Icon(Icons.key),
               ),
             ),
@@ -142,7 +158,10 @@ class _TelegramLinkingDialogState extends State<TelegramLinkingDialog> {
                     border: Border.all(color: Colors.red.shade300),
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  child: Text(_errorMessage, style: TextStyle(color: Colors.red.shade700, fontSize: 12)),
+                  child: Text(
+                    _errorMessage,
+                    style: TextStyle(color: Colors.red.shade700, fontSize: 12),
+                  ),
                 ),
               ),
           ],
