@@ -12,11 +12,11 @@ class HybridDataService {
   /// Strategy 1: MySQL as Primary, Firebase for Real-Time
   /// Data flows: MySQL → Firebase (one-way)
   /// Use case: For features that need real-time updates
-  
+
   /// Strategy 2: Firebase as Primary, MySQL for Persistence
   /// Data flows: Firebase → MySQL (one-way)
   /// Use case: For temporary/session data
-  
+
   /// Strategy 3: Bidirectional Sync
   /// Data flows: MySQL ↔ Firebase (both ways)
   /// Use case: For critical data that needs redundancy
@@ -24,7 +24,10 @@ class HybridDataService {
   // ============== USER DATA ==============
 
   /// Sync user from Firebase to MySQL backend (one-way)
-  Future<void> syncFirebaseUserToMySQL(String uid, Map<String, dynamic> userData) async {
+  Future<void> syncFirebaseUserToMySQL(
+    String uid,
+    Map<String, dynamic> userData,
+  ) async {
     try {
       final response = await _apiService.post('/api/users/sync-firebase', {
         'firebase_uid': uid,
@@ -49,7 +52,7 @@ class HybridDataService {
   Future<void> cacheUserFromMySQL(String userId) async {
     try {
       final response = await _apiService.get('/api/users/$userId');
-      
+
       if (response.statusCode == 200) {
         final userData = response.data;
         await _firebaseService.setDocument('user_cache', userId, {
@@ -69,10 +72,10 @@ class HybridDataService {
     try {
       // Fetch from MySQL
       final response = await _apiService.get('/api/aid-programs/$aidId');
-      
+
       if (response.statusCode == 200) {
         final aidData = response.data;
-        
+
         // Push to Firebase
         await _firebaseService.syncAidProgramToFirebase(aidId, aidData);
       }
@@ -85,10 +88,10 @@ class HybridDataService {
   Future<void> syncAllAidProgramsToFirebase() async {
     try {
       final response = await _apiService.get('/api/aid-programs');
-      
+
       if (response.statusCode == 200) {
         final programs = response.data as List;
-        
+
         for (var program in programs) {
           await _firebaseService.syncAidProgramToFirebase(
             program['id'].toString(),
@@ -104,14 +107,11 @@ class HybridDataService {
   /// Listen to aid programs from Firestore with MySQL as backup
   /// If Firestore data is stale, fetch from MySQL
   Stream<List<Map<String, dynamic>>> getAidProgramsHybrid({String? status}) {
-    return _firebaseService
-        .getAidProgramsRealTime(status: status)
-        .map((snapshot) {
+    return _firebaseService.getAidProgramsRealTime(status: status).map((
+      snapshot,
+    ) {
       return snapshot.docs.map((doc) {
-        return {
-          'id': doc.id,
-          ...doc.data() as Map<String, dynamic>,
-        };
+        return {'id': doc.id, ...doc.data() as Map<String, dynamic>};
       }).toList();
     });
   }
@@ -122,11 +122,14 @@ class HybridDataService {
   Future<void> createEmergencyAlert(Map<String, dynamic> alertData) async {
     try {
       // 1. Save to MySQL immediately (primary source)
-      final mysqlResponse = await _apiService.post('/api/emergencies', alertData);
-      
+      final mysqlResponse = await _apiService.post(
+        '/api/emergencies',
+        alertData,
+      );
+
       if (mysqlResponse.statusCode == 201) {
         final emergencyId = mysqlResponse.data['id'];
-        
+
         // 2. Mirror to Firebase for real-time notifications
         await _firebaseService.createEmergencyNotification({
           'id': emergencyId,
@@ -178,8 +181,12 @@ class HybridDataService {
     required Map<String, dynamic> firebaseData,
   }) async {
     // Timestamp comparison
-    final mysqlUpdated = DateTime.parse(mysqlData['updated_at'] ?? mysqlData['createdAt'] ?? '2000-01-01');
-    final firebaseUpdated = DateTime.parse(firebaseData['updatedAt'] ?? firebaseData['createdAt'] ?? '2000-01-01');
+    final mysqlUpdated = DateTime.parse(
+      mysqlData['updated_at'] ?? mysqlData['createdAt'] ?? '2000-01-01',
+    );
+    final firebaseUpdated = DateTime.parse(
+      firebaseData['updatedAt'] ?? firebaseData['createdAt'] ?? '2000-01-01',
+    );
 
     if (mysqlUpdated.isAfter(firebaseUpdated)) {
       // MySQL is newer, sync to Firebase
@@ -224,12 +231,15 @@ class HybridDataService {
   /// Remove duplicate data from Firebase (cleanup utility)
   Future<void> deduplicateFirestoreData(String collectionName) async {
     try {
-      final snapshot = await _firebaseService.firestore.collection(collectionName).get();
-      
+      final snapshot = await _firebaseService.firestore
+          .collection(collectionName)
+          .get();
+
       final seen = <String>{};
       for (var doc in snapshot.docs) {
-        final uniqueKey = doc['uniqueIdentifier']; // Adjust based on your schema
-        
+        final uniqueKey =
+            doc['uniqueIdentifier']; // Adjust based on your schema
+
         if (seen.contains(uniqueKey)) {
           // Duplicate found, delete it
           await _firebaseService.deleteDocument(collectionName, doc.id);

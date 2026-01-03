@@ -15,8 +15,11 @@ class FirebaseAuthProvider extends ChangeNotifier {
 
   // Getters
   User? get currentUser => _currentUser;
+
   bool get isLoading => _isLoading;
+
   String? get errorMessage => _errorMessage;
+
   bool get isAuthenticated => _currentUser != null;
 
   FirebaseAuthProvider() {
@@ -47,13 +50,10 @@ class FirebaseAuthProvider extends ChangeNotifier {
       );
 
       // Sync with MySQL backend
-      await _hybridService.syncFirebaseUserToMySQL(
-        userCredential.user!.uid,
-        {
-          'email': email,
-          'displayName': displayName,
-        },
-      );
+      await _hybridService.syncFirebaseUserToMySQL(userCredential.user!.uid, {
+        'email': email,
+        'displayName': displayName,
+      });
 
       _isLoading = false;
       notifyListeners();
@@ -166,14 +166,11 @@ class FirebaseAuthProvider extends ChangeNotifier {
         }
 
         // Update Firebase document
-        await _firebaseService.updateUserDocument(
-          _currentUser!.uid,
-          {
-            if (displayName != null) 'displayName': displayName,
-            if (photoUrl != null) 'photoURL': photoUrl,
-            'updatedAt': DateTime.now().toIso8601String(),
-          },
-        );
+        await _firebaseService.updateUserDocument(_currentUser!.uid, {
+          if (displayName != null) 'displayName': displayName,
+          if (photoUrl != null) 'photoURL': photoUrl,
+          'updatedAt': DateTime.now().toIso8601String(),
+        });
 
         _currentUser = FirebaseAuth.instance.currentUser;
         notifyListeners();
@@ -195,22 +192,16 @@ class FirebaseAuthProvider extends ChangeNotifier {
   }) async {
     try {
       if (_currentUser != null) {
-        await _firebaseService.updateUserDocument(
-          _currentUser!.uid,
-          {
-            'mysqlUserId': mysqlUserId,
-            'linkedAt': DateTime.now().toIso8601String(),
-          },
-        );
+        await _firebaseService.updateUserDocument(_currentUser!.uid, {
+          'mysqlUserId': mysqlUserId,
+          'linkedAt': DateTime.now().toIso8601String(),
+        });
 
-        await _hybridService.syncFirebaseUserToMySQL(
-          _currentUser!.uid,
-          {
-            'email': email,
-            'displayName': _currentUser!.displayName,
-            'mysqlUserId': mysqlUserId,
-          },
-        );
+        await _hybridService.syncFirebaseUserToMySQL(_currentUser!.uid, {
+          'email': email,
+          'displayName': _currentUser!.displayName,
+          'mysqlUserId': mysqlUserId,
+        });
 
         notifyListeners();
         return true;

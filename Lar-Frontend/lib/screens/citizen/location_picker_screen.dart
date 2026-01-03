@@ -47,9 +47,11 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
   bool isLoading = true;
   bool isLoadingAddress = false;
   double? gpsAccuracy;
-  String locationStatus = 'Acquiring location...'; // "GPS verified", "approximate", "Manual"
+  String locationStatus =
+      'Acquiring location...'; // "GPS verified", "approximate", "Manual"
   Timer? _searchDebounceTimer;
-  Map<String, AddressComponents> _placemarkCache = {}; // Cache for placemark results
+  Map<String, AddressComponents> _placemarkCache =
+      {}; // Cache for placemark results
   List<LatLng> _locationHistory = []; // Recent locations for quick access
   bool _isDraggingMarker = false;
   double _zoomLevel = 17.0;
@@ -74,8 +76,10 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     try {
       // If initial location provided, use it
       if (widget.initialLatitude != null && widget.initialLongitude != null) {
-        final location =
-            LatLng(widget.initialLatitude!, widget.initialLongitude!);
+        final location = LatLng(
+          widget.initialLatitude!,
+          widget.initialLongitude!,
+        );
         await _setLocation(location);
       } else {
         // Otherwise, get current location
@@ -92,17 +96,19 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
   Future<void> _getCurrentLocation() async {
     try {
       print('Attempting to get current location...');
-      
+
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         print('Location services are disabled');
-        _showError('Location services are disabled. Please enable them in settings.');
+        _showError(
+          'Location services are disabled. Please enable them in settings.',
+        );
         return; // Don't set any location, just return
       }
 
       LocationPermission permission = await Geolocator.checkPermission();
       print('Location permission status: $permission');
-      
+
       if (permission == LocationPermission.denied) {
         print('Requesting location permission...');
         permission = await Geolocator.requestPermission();
@@ -112,12 +118,14 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
       if (permission == LocationPermission.denied ||
           permission == LocationPermission.deniedForever) {
         print('Location permission denied or permanently denied');
-        _showError('Location permission denied. Please grant permission in app settings.');
+        _showError(
+          'Location permission denied. Please grant permission in app settings.',
+        );
         return; // Don't set any location, just return
       }
 
       print('Getting current position with best accuracy...');
-      
+
       // Try to get GPS first (high accuracy), then fallback to network
       Position position;
       try {
@@ -132,10 +140,12 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
         );
       }
 
-      print('Current position obtained: ${position.latitude}, ${position.longitude}, accuracy: ${position.accuracy}m');
-      
+      print(
+        'Current position obtained: ${position.latitude}, ${position.longitude}, accuracy: ${position.accuracy}m',
+      );
+
       final location = LatLng(position.latitude, position.longitude);
-      
+
       // Validate location is within Sarawak bounds (rough bounds)
       if (!_isValidLocation(location)) {
         print('Location appears to be outside valid area');
@@ -153,7 +163,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
       if (position.accuracy > 50) {
         status = 'approximate'; // Low accuracy GPS
       }
-      
+
       await _setLocation(location, status, position.accuracy);
     } catch (e) {
       print('Error getting current location: $e');
@@ -177,10 +187,14 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
         location.longitude <= maxLon;
   }
 
-  Future<void> _setLocation(LatLng location, [String status = 'Manual', double? accuracy]) async {
+  Future<void> _setLocation(
+    LatLng location, [
+    String status = 'Manual',
+    double? accuracy,
+  ]) async {
     try {
       print('Setting location: ${location.latitude}, ${location.longitude}');
-      
+
       // Move map immediately to location (don't wait for geocoding)
       if (mounted) {
         setState(() {
@@ -200,12 +214,13 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
       }
 
       // Fetch address in background while map is moving
-      String address = '${location.latitude.toStringAsFixed(4)}, ${location.longitude.toStringAsFixed(4)}';
+      String address =
+          '${location.latitude.toStringAsFixed(4)}, ${location.longitude.toStringAsFixed(4)}';
       AddressComponents? components;
-      
+
       try {
         String cacheKey = '${location.latitude},${location.longitude}';
-        
+
         // Check cache first
         if (_placemarkCache.containsKey(cacheKey)) {
           components = _placemarkCache[cacheKey];
@@ -228,14 +243,17 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
 
             List<String> addressParts = [];
             if (street.isNotEmpty) addressParts.add(street);
-            if (thoroughfare.isNotEmpty && thoroughfare != street) addressParts.add(thoroughfare);
+            if (thoroughfare.isNotEmpty && thoroughfare != street)
+              addressParts.add(thoroughfare);
             if (postalCode.isNotEmpty) addressParts.add(postalCode);
             if (locality.isNotEmpty) addressParts.add(locality);
-            if (administrativeArea.isNotEmpty) addressParts.add(administrativeArea);
-            
+            if (administrativeArea.isNotEmpty)
+              addressParts.add(administrativeArea);
+
             address = addressParts.join(', ');
             if (address.isEmpty) {
-              address = '${location.latitude.toStringAsFixed(4)}, ${location.longitude.toStringAsFixed(4)}';
+              address =
+                  '${location.latitude.toStringAsFixed(4)}, ${location.longitude.toStringAsFixed(4)}';
             }
 
             // Cache the result
@@ -316,10 +334,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: const Duration(seconds: 2),
-      ),
+      SnackBar(content: Text(message), duration: const Duration(seconds: 2)),
     );
   }
 
@@ -347,7 +362,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
 
       LocationPermission permission = await Geolocator.checkPermission();
       print('Initial permission: $permission');
-      
+
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         print('Requested permission: $permission');
@@ -419,44 +434,44 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
         children: [
           // Map
           FlutterMap(
-                  mapController: _mapController,
-                  options: MapOptions(
-                    initialCenter: selectedLocation ?? const LatLng(2.1234, 112.5678),
-                    initialZoom: 13.0,
-                    onTap: (tapPosition, latLng) => _onMapTap(latLng),
-                  ),
-                  children: [
-                    TileLayer(
-                      urlTemplate: _mapTilerUrl,
-                      userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                    ),
-                    if (selectedLocation != null)
-                      MarkerLayer(
-                        markers: [
-                          Marker(
-                            point: selectedLocation!,
-                            width: 80,
-                            height: 80,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.location_pin,
-                                  color: Colors.red[700],
-                                  size: 40,
-                                ),
-                                const Text(
-                                  'Selected',
-                                  style: TextStyle(fontSize: 10),
-                                ),
-                              ],
-                            ),
+            mapController: _mapController,
+            options: MapOptions(
+              initialCenter: selectedLocation ?? const LatLng(2.1234, 112.5678),
+              initialZoom: 13.0,
+              onTap: (tapPosition, latLng) => _onMapTap(latLng),
+            ),
+            children: [
+              TileLayer(
+                urlTemplate: _mapTilerUrl,
+                userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+              ),
+              if (selectedLocation != null)
+                MarkerLayer(
+                  markers: [
+                    Marker(
+                      point: selectedLocation!,
+                      width: 80,
+                      height: 80,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.location_pin,
+                            color: Colors.red[700],
+                            size: 40,
+                          ),
+                          const Text(
+                            'Selected',
+                            style: TextStyle(fontSize: 10),
                           ),
                         ],
-                        rotate: true,
                       ),
+                    ),
                   ],
+                  rotate: true,
                 ),
+            ],
+          ),
           // Zoom controls (left side)
           Positioned(
             left: 16,
@@ -488,19 +503,24 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
               onPressed: _locateCurrentPosition,
               backgroundColor: const Color(0xFF0E9D63),
               tooltip: 'Get Current Location',
-              child: const Icon(Icons.my_location, color: Colors.white, size: 20),
+              child: const Icon(
+                Icons.my_location,
+                color: Colors.white,
+                size: 20,
+              ),
             ),
           ),
           // Location info overlay at bottom
           Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Container(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(16)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(16),
+                ),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.1),
@@ -519,7 +539,10 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: _getStatusColor().withOpacity(0.2),
                             borderRadius: BorderRadius.circular(20),
@@ -591,7 +614,9 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                               height: 16,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.grey[600]!),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.grey[600]!,
+                                ),
                               ),
                             ),
                           ),
@@ -666,4 +691,3 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     }
   }
 }
-

@@ -10,7 +10,7 @@ class FirebaseTestScreen extends StatefulWidget {
 
 class _FirebaseTestScreenState extends State<FirebaseTestScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  
+
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _nameController = TextEditingController();
@@ -67,10 +67,7 @@ class _FirebaseTestScreenState extends State<FirebaseTestScreen> {
             // Test Sign Up
             Text(
               'Test Sign Up',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 12),
             TextField(
@@ -113,10 +110,7 @@ class _FirebaseTestScreenState extends State<FirebaseTestScreen> {
             // Test Sign In
             Text(
               'Test Sign In',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 12),
             ElevatedButton.icon(
@@ -134,10 +128,7 @@ class _FirebaseTestScreenState extends State<FirebaseTestScreen> {
             // Current User Info
             Text(
               'Current User',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 12),
             Consumer<auth_provider.AuthProvider>(
@@ -156,10 +147,22 @@ class _FirebaseTestScreenState extends State<FirebaseTestScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildInfoRow('Name:', authProvider.userName ?? 'N/A'),
-                            _buildInfoRow('Email:', authProvider.userEmail ?? 'N/A'),
-                            _buildInfoRow('Role:', authProvider.userRole ?? 'N/A'),
-                            _buildInfoRow('Status:', authProvider.accountStatus ?? 'N/A'),
+                            _buildInfoRow(
+                              'Name:',
+                              authProvider.userName ?? 'N/A',
+                            ),
+                            _buildInfoRow(
+                              'Email:',
+                              authProvider.userEmail ?? 'N/A',
+                            ),
+                            _buildInfoRow(
+                              'Role:',
+                              authProvider.userRole ?? 'N/A',
+                            ),
+                            _buildInfoRow(
+                              'Status:',
+                              authProvider.accountStatus ?? 'N/A',
+                            ),
                           ],
                         ),
                       ),
@@ -194,10 +197,7 @@ class _FirebaseTestScreenState extends State<FirebaseTestScreen> {
             // Test Database Write
             Text(
               'Test Firestore Write',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 12),
             ElevatedButton.icon(
@@ -215,10 +215,7 @@ class _FirebaseTestScreenState extends State<FirebaseTestScreen> {
             // Test Database Read
             Text(
               'Test Firestore Read',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 12),
             ElevatedButton.icon(
@@ -242,10 +239,7 @@ class _FirebaseTestScreenState extends State<FirebaseTestScreen> {
       padding: EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Text(
-            label,
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
+          Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
           SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -267,7 +261,10 @@ class _FirebaseTestScreenState extends State<FirebaseTestScreen> {
       return;
     }
 
-    final authProvider = Provider.of<auth_provider.AuthProvider>(context, listen: false);
+    final authProvider = Provider.of<auth_provider.AuthProvider>(
+      context,
+      listen: false,
+    );
     final success = await authProvider.register({
       'email': _emailController.text,
       'password': _passwordController.text,
@@ -281,7 +278,10 @@ class _FirebaseTestScreenState extends State<FirebaseTestScreen> {
       _passwordController.clear();
       _nameController.clear();
     } else {
-      _showMessage('❌ Sign up failed: ${authProvider.errorMessage}', Colors.red);
+      _showMessage(
+        '❌ Sign up failed: ${authProvider.errorMessage}',
+        Colors.red,
+      );
     }
   }
 
@@ -291,7 +291,10 @@ class _FirebaseTestScreenState extends State<FirebaseTestScreen> {
       return;
     }
 
-    final authProvider = Provider.of<auth_provider.AuthProvider>(context, listen: false);
+    final authProvider = Provider.of<auth_provider.AuthProvider>(
+      context,
+      listen: false,
+    );
     final success = await authProvider.login(
       _emailController.text,
       _passwordController.text,
@@ -300,12 +303,18 @@ class _FirebaseTestScreenState extends State<FirebaseTestScreen> {
     if (success) {
       _showMessage('✅ Sign in successful!', Colors.green);
     } else {
-      _showMessage('❌ Sign in failed: ${authProvider.errorMessage}', Colors.red);
+      _showMessage(
+        '❌ Sign in failed: ${authProvider.errorMessage}',
+        Colors.red,
+      );
     }
   }
 
   Future<void> _testSignOut(BuildContext context) async {
-    final authProvider = Provider.of<auth_provider.AuthProvider>(context, listen: false);
+    final authProvider = Provider.of<auth_provider.AuthProvider>(
+      context,
+      listen: false,
+    );
     await authProvider.logout();
     _showMessage('✅ Signed out', Colors.green);
   }

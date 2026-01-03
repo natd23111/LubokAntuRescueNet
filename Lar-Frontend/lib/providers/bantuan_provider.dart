@@ -39,7 +39,10 @@ class BantuanProvider with ChangeNotifier {
 
   Future<bool> updateProgram(int id, Map<String, dynamic> data) async {
     try {
-      final response = await _api.put('${ApiConstants.updateBantuan}/$id', data);
+      final response = await _api.put(
+        '${ApiConstants.updateBantuan}/$id',
+        data,
+      );
       return response.data['success'] ?? false;
     } catch (e) {
       print('Error updating program: $e');
