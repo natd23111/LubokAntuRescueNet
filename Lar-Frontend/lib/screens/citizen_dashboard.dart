@@ -192,23 +192,35 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 // Welcome
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Welcome back!', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                      SizedBox(height: 6),
                       Consumer<AuthProvider>(
                         builder: (context, authProvider, child) {
+                          final name = authProvider.userName ?? 'User';
                           return Text(
-                            authProvider.userName ?? 'User',
-                            style: TextStyle(color: Colors.black54),
+                            'Welcome back, $name!',
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
                           );
                         },
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        "Check alerts and reports in your area.",
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey.shade600,
+                        ),
                       ),
                     ],
                   ),
                 ),
+
 
                 SizedBox(height: 12),
 

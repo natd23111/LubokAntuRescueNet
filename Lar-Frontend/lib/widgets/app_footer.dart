@@ -23,7 +23,7 @@ class AppFooter extends StatelessWidget {
           // Logos
           Image.asset(
             'assets/footer_logos.png',
-            height: 60,
+            height: 80,
             fit: BoxFit.contain,
           ),
 
@@ -33,7 +33,7 @@ class AppFooter extends StatelessWidget {
           Text(
             'Lubuk Antu, 95900, Sarawak',
             style: TextStyle(
-              fontSize: 11,
+              fontSize: 15,
               color: isDark ? Colors.grey[400] : Colors.grey[600],
             ),
           ),
