@@ -89,13 +89,21 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
 
   Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
+    final telegramService = TelegramService();
+    
+    // Load Telegram notification preference from Firestore
+    final telegramStatus = await telegramService.getTelegramStatus();
+    
     setState(() {
-      _telegramEnabled = prefs.getBool('telegram_enabled') ?? true;
+      _telegramEnabled = telegramStatus['enabled'] as bool? ?? true;
       _floodAlerts = prefs.getBool('flood_alerts') ?? true;
       _fireAlerts = prefs.getBool('fire_alerts') ?? true;
       _landslideAlerts = prefs.getBool('landslide_alerts') ?? true;
       _weatherWarnings = prefs.getBool('weather_warnings') ?? true;
     });
+    
+    print('✅ Loaded preferences from Firestore and SharedPreferences');
+    print('   Telegram enabled: $_telegramEnabled');
     
     // Fetch notifications when screen loads
     if (mounted) {
@@ -117,6 +125,33 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
       landslideAlerts: _landslideAlerts,
       weatherWarnings: _weatherWarnings,
     );
+  }
+
+  /// Save Telegram notification preference to Firestore
+  Future<void> _saveTelegramPreference(bool enabled) async {
+    try {
+      final telegramService = TelegramService();
+      await telegramService.toggleTelegramNotifications(enabled);
+      print('✅ Saved Telegram preference to Firestore: $enabled');
+      
+      // Show feedback
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(enabled ? '✅ Telegram notifications enabled' : '✅ Telegram notifications disabled'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      print('❌ Error saving Telegram preference: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: ${e.toString()}'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   @override
@@ -421,9 +456,9 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                       SizedBox(width: 12),
                       _buildToggleSwitch(
                         _telegramEnabled,
-                        (value) async {
+                        (value) {
                           setState(() => _telegramEnabled = value);
-                          await telegramService.toggleTelegramNotifications(value);
+                          _saveTelegramPreference(value);
                         },
                         primaryGreen,
                       ),
