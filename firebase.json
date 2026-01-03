@@ -1,8 +1,8 @@
 {
   "functions": {
-    "source": "../firebase-functions",
+    "source": "firebase-functions",
     "predeploy": [],
-    "runtime": "nodejs18"
+    "runtime": "nodejs20"
   },
   "flutter": {
     "platforms": {
@@ -10,11 +10,11 @@
         "default": {
           "projectId": "lubok-antu-rescuenet",
           "appId": "1:156255050730:android:e90e9c14d616173eea3093",
-          "fileOutput": "android/app/google-services.json"
+          "fileOutput": "Lar-Frontend/android/app/google-services.json"
         }
       },
       "dart": {
-        "lib/firebase_options.dart": {
+        "Lar-Frontend/lib/firebase_options.dart": {
           "projectId": "lubok-antu-rescuenet",
           "configurations": {
             "android": "1:156255050730:android:e90e9c14d616173eea3093",

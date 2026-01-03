@@ -54,7 +54,7 @@ TELEGRAM_BOT_TOKEN=your_bot_token_here
 Or use Firebase config:
 
 ```bash
-firebase functions:config:set telegram.bot_token="your_bot_token_here"
+firebase functions:config:set telegram.bot_token="8478221019:AAHklxIyiGToiw0PX_o8Sm29g__IngZsyCE"
 ```
 
 ### 2d. Deploy functions

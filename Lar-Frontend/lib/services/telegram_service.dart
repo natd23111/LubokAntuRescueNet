@@ -32,16 +32,20 @@ class TelegramService {
   }
 
   /// Link Telegram account after user sends code to bot
-  /// chatId: Telegram chat ID (sent by user through app)
+  /// chatId: Telegram chat ID (can be individual or group)
+  ///         Individual: positive number (e.g., 760723492)
+  ///         Group: negative number (e.g., -1001234567890)
   /// verificationCode: Code that user sent to bot
+  /// chatType: 'individual' or 'group' (defaults to 'individual')
   Future<void> linkTelegramAccount({
     required String chatId,
     required String verificationCode,
+    String chatType = 'individual',
   }) async {
     final userId = _userId;
     if (userId == null) throw Exception('User not logged in');
 
-    print('🔗 Attempting to link Telegram for user: $userId');
+    print('🔗 Attempting to link Telegram ($chatType) for user: $userId');
 
     // Get user document
     final userDoc = await _firestore.collection('users').doc(userId).get();
@@ -70,9 +74,10 @@ class TelegramService {
     }
 
     // Link the account
-    print('💾 Linking Telegram account: $chatId');
+    print('💾 Linking Telegram ($chatType) account: $chatId');
     await _firestore.collection('users').doc(userId).update({
       'telegramChatId': chatId,
+      'telegramChatType': chatType, // 'individual' or 'group'
       'telegramLinked': true,
       'telegramNotificationsEnabled': true,
       'telegramLinkedAt': FieldValue.serverTimestamp(),
