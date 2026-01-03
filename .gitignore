@@ -5143,3 +5143,4 @@ Lar-Frontend/node_modules/yocto-queue/readme.md
 serviceAccountKey.json
 FIRESTORE_OFFLINE_ERROR.md
 Lar-Frontend/lib/config/hugging_face_config.dart
+firebase-functions/index.js
