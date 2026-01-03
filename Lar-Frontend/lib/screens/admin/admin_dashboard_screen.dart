@@ -25,8 +25,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     super.initState();
     // Load reports and aid requests data when dashboard initializes
     Future.microtask(() {
-      final reportsProvider = Provider.of<ReportsProvider>(context, listen: false);
-      final aidRequestProvider = Provider.of<AidRequestProvider>(context, listen: false);
+      final reportsProvider = Provider.of<ReportsProvider>(
+        context,
+        listen: false,
+      );
+      final aidRequestProvider = Provider.of<AidRequestProvider>(
+        context,
+        listen: false,
+      );
       // For admin dashboard, only fetch ALL reports (not user-filtered reports)
       reportsProvider.fetchReports();
       aidRequestProvider.fetchUserAidRequests();
@@ -43,8 +49,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   void _refreshDashboardData() {
     Future.microtask(() {
-      final reportsProvider = Provider.of<ReportsProvider>(context, listen: false);
-      final aidRequestProvider = Provider.of<AidRequestProvider>(context, listen: false);
+      final reportsProvider = Provider.of<ReportsProvider>(
+        context,
+        listen: false,
+      );
+      final aidRequestProvider = Provider.of<AidRequestProvider>(
+        context,
+        listen: false,
+      );
       reportsProvider.fetchReports();
       aidRequestProvider.fetchUserAidRequests();
     });
@@ -164,7 +176,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     SizedBox(height: 4),
                     Text(
                       "Here's what's happening today",
-                      style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey.shade600,
+                      ),
                     ),
                     SizedBox(height: 24),
 
@@ -203,15 +218,19 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     Consumer<ReportsProvider>(
                       builder: (context, reportsProvider, _) {
                         final unresolvedCount = reportsProvider.allReports
-                            .where((r) => r.status.toLowerCase() == 'unresolved')
+                            .where(
+                              (r) => r.status.toLowerCase() == 'unresolved',
+                            )
                             .length;
                         final inProgressCount = reportsProvider.allReports
-                            .where((r) => r.status.toLowerCase() == 'in-progress')
+                            .where(
+                              (r) => r.status.toLowerCase() == 'in-progress',
+                            )
                             .length;
                         final resolvedCount = reportsProvider.allReports
                             .where((r) => r.status.toLowerCase() == 'resolved')
                             .length;
-                        
+
                         return Container(
                           padding: EdgeInsets.all(16),
                           decoration: BoxDecoration(
@@ -231,7 +250,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                 ),
                               ),
                               SizedBox(height: 16),
-                              _buildPieChart(unresolvedCount, inProgressCount, resolvedCount),
+                              _buildPieChart(
+                                unresolvedCount,
+                                inProgressCount,
+                                resolvedCount,
+                              ),
                             ],
                           ),
                         );
@@ -289,9 +312,27 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       crossAxisSpacing: 12,
                       childAspectRatio: 0.95,
                       children: [
-                        _buildQuickAction(context, '📋', 'Manage\nReports', Color(0xFF3B82F6), 'reports'),
-                        _buildQuickAction(context, '🤝', 'Aid\nRequests', Color(0xFFA855F7), 'requests'),
-                        _buildQuickAction(context, '📢', 'Aid\nPrograms', Color(0xFF10B981), 'programs'),
+                        _buildQuickAction(
+                          context,
+                          '📋',
+                          'Manage\nReports',
+                          Color(0xFF3B82F6),
+                          'reports',
+                        ),
+                        _buildQuickAction(
+                          context,
+                          '🤝',
+                          'Aid\nRequests',
+                          Color(0xFFA855F7),
+                          'requests',
+                        ),
+                        _buildQuickAction(
+                          context,
+                          '📢',
+                          'Aid\nPrograms',
+                          Color(0xFF10B981),
+                          'programs',
+                        ),
                       ],
                     ),
 
@@ -309,13 +350,15 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     SizedBox(height: 12),
                     Consumer2<ReportsProvider, AidRequestProvider>(
                       builder: (context, reportsProvider, aidRequestProvider, _) {
-                        final recentReport = reportsProvider.allReports.isNotEmpty 
-                            ? reportsProvider.allReports.first 
+                        final recentReport =
+                            reportsProvider.allReports.isNotEmpty
+                            ? reportsProvider.allReports.first
                             : null;
-                        final recentRequest = aidRequestProvider.aidRequests.isNotEmpty 
-                            ? aidRequestProvider.aidRequests.first 
+                        final recentRequest =
+                            aidRequestProvider.aidRequests.isNotEmpty
+                            ? aidRequestProvider.aidRequests.first
                             : null;
-                        
+
                         return Column(
                           children: [
                             if (recentReport != null)
@@ -331,7 +374,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                               _buildActivityCard(
                                 '📋 Aid request submitted',
                                 '${recentRequest.aidType} by ${recentRequest.applicantName ?? "Applicant"}',
-                                _getTimeAgo(DateTime.now()), // Use current time for requests
+                                _getTimeAgo(DateTime.now()),
+                                // Use current time for requests
                                 recentRequest.status.toUpperCase(),
                                 _getRequestStatusColor(recentRequest.status),
                               ),
@@ -339,7 +383,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                             if (recentReport == null && recentRequest == null)
                               Container(
                                 padding: EdgeInsets.all(16),
-                                child: Text('No recent activity', style: TextStyle(color: Colors.grey[600])),
+                                child: Text(
+                                  'No recent activity',
+                                  style: TextStyle(color: Colors.grey[600]),
+                                ),
                               ),
                           ],
                         );
@@ -352,9 +399,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     Consumer<ReportsProvider>(
                       builder: (context, reportsProvider, _) {
                         final unresolvedCount = reportsProvider.allReports
-                            .where((r) => r.status.toLowerCase() == 'unresolved')
+                            .where(
+                              (r) => r.status.toLowerCase() == 'unresolved',
+                            )
                             .length;
-                        
+
                         return Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(8),
@@ -366,7 +415,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                 decoration: BoxDecoration(
                                   color: Color(0xFFFEF2F2),
                                   borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: Colors.grey.shade300, width: 1),
+                                  border: Border.all(
+                                    color: Colors.grey.shade300,
+                                    width: 1,
+                                  ),
                                 ),
                               ),
                               // Red left border
@@ -401,7 +453,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                         SizedBox(width: 12),
                                         Expanded(
                                           child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
                                               Text(
                                                 'High Priority Reports',
@@ -429,26 +482,41 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                       width: double.infinity,
                                       child: ElevatedButton(
                                         onPressed: () {
-                                          final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                                          final authProvider =
+                                              Provider.of<AuthProvider>(
+                                                context,
+                                                listen: false,
+                                              );
                                           Navigator.of(context).push(
                                             MaterialPageRoute(
-                                              builder: (context) => ChangeNotifierProvider(
-                                                create: (_) => ReportsProvider(authProvider: authProvider),
-                                                child: ManageReportsScreen(
-                                                  onBack: () {
-                                                    Navigator.of(context).pop();
-                                                    _refreshDashboardData();
-                                                  },
-                                                ),
-                                              ),
+                                              builder: (context) =>
+                                                  ChangeNotifierProvider(
+                                                    create: (_) =>
+                                                        ReportsProvider(
+                                                          authProvider:
+                                                              authProvider,
+                                                        ),
+                                                    child: ManageReportsScreen(
+                                                      onBack: () {
+                                                        Navigator.of(
+                                                          context,
+                                                        ).pop();
+                                                        _refreshDashboardData();
+                                                      },
+                                                    ),
+                                                  ),
                                             ),
                                           );
                                         },
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: Color(0xFFDC2626),
-                                          padding: EdgeInsets.symmetric(vertical: 10),
+                                          padding: EdgeInsets.symmetric(
+                                            vertical: 10,
+                                          ),
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(6),
+                                            borderRadius: BorderRadius.circular(
+                                              6,
+                                            ),
                                           ),
                                         ),
                                         child: Text(
@@ -588,10 +656,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             drawVerticalLine: false,
             horizontalInterval: 5,
             getDrawingHorizontalLine: (value) {
-              return FlLine(
-                color: Colors.grey.shade200,
-                strokeWidth: 1,
-              );
+              return FlLine(color: Colors.grey.shade200, strokeWidth: 1);
             },
           ),
           titlesData: FlTitlesData(
@@ -668,10 +733,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         Container(
           width: 40,
           height: 40,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: color,
-          ),
+          decoration: BoxDecoration(shape: BoxShape.circle, color: color),
           child: Center(
             child: Text(
               count.toString(),
@@ -693,27 +755,31 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   Widget _buildWeeklyChart(List<Report> reports) {
     final dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    
+
     // Count reports for each day of the week (last 7 days)
     List<int> values = [];
     List<String> dayLabels = [];
     final now = DateTime.now();
-    
+
     // DEBUG: Print all report dates
     print('=== WEEKLY CHART DEBUG ===');
     print('Total reports: ${reports.length}');
-    print('Today: ${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}');
+    print(
+      'Today: ${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}',
+    );
     for (var r in reports.take(10)) {
-      print('Report: ${r.title}, date: ${r.dateReported.year}-${r.dateReported.month.toString().padLeft(2, '0')}-${r.dateReported.day.toString().padLeft(2, '0')}');
+      print(
+        'Report: ${r.title}, date: ${r.dateReported.year}-${r.dateReported.month.toString().padLeft(2, '0')}-${r.dateReported.day.toString().padLeft(2, '0')}',
+      );
     }
-    
+
     for (int i = 0; i < 7; i++) {
       final dayDate = now.subtract(Duration(days: 5 - i));
-      
+
       // Create label with day name and date
       final dayName = dayNames[dayDate.weekday % 7];
       dayLabels.add('$dayName\n${dayDate.day}');
-      
+
       final count = reports.where((r) {
         try {
           // dateReported is already a DateTime from Firebase
@@ -725,11 +791,15 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           return false;
         }
       }).length;
-      print('Day ${i} (${dayDate.year}-${dayDate.month.toString().padLeft(2, '0')}-${dayDate.day.toString().padLeft(2, '0')}): $count reports');
+      print(
+        'Day ${i} (${dayDate.year}-${dayDate.month.toString().padLeft(2, '0')}-${dayDate.day.toString().padLeft(2, '0')}): $count reports',
+      );
       values.add(count);
     }
 
-    final maxValue = values.isEmpty ? 1.0 : values.reduce((a, b) => a > b ? a : b).toDouble();
+    final maxValue = values.isEmpty
+        ? 1.0
+        : values.reduce((a, b) => a > b ? a : b).toDouble();
     final interval = maxValue > 0 ? (maxValue / 4).ceil().toDouble() : 1.0;
 
     // Create line chart spots
@@ -814,10 +884,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             drawVerticalLine: false,
             horizontalInterval: interval,
             getDrawingHorizontalLine: (value) {
-              return FlLine(
-                color: Colors.grey.shade200,
-                strokeWidth: 1,
-              );
+              return FlLine(color: Colors.grey.shade200, strokeWidth: 1);
             },
           ),
           borderData: FlBorderData(
@@ -849,7 +916,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
-  Widget _buildQuickAction(BuildContext context, String icon, String label, Color color, String action) {
+  Widget _buildQuickAction(
+    BuildContext context,
+    String icon,
+    String label,
+    Color color,
+    String action,
+  ) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -867,7 +940,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 ),
               );
             } else if (action == 'reports') {
-              final authProvider = Provider.of<AuthProvider>(context, listen: false);
+              final authProvider = Provider.of<AuthProvider>(
+                context,
+                listen: false,
+              );
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => ChangeNotifierProvider(
@@ -882,11 +958,15 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 ),
               );
             } else if (action == 'requests') {
-              final authProvider = Provider.of<AuthProvider>(context, listen: false);
+              final authProvider = Provider.of<AuthProvider>(
+                context,
+                listen: false,
+              );
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => ChangeNotifierProvider(
-                    create: (_) => AidRequestProvider(authProvider: authProvider),
+                    create: (_) =>
+                        AidRequestProvider(authProvider: authProvider),
                     child: ManageAidRequestsScreen(
                       onBack: () => Navigator.of(context).pop(),
                     ),
@@ -1047,7 +1127,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   String _getTimeAgo(DateTime dateTime) {
     final difference = DateTime.now().difference(dateTime);
-    
+
     if (difference.inMinutes < 1) {
       return 'just now';
     } else if (difference.inMinutes < 60) {
@@ -1063,7 +1143,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   Widget _buildPieChart(int unresolved, int inProgress, int resolved) {
     final total = unresolved + inProgress + resolved;
-    
+
     if (total == 0) {
       return Center(child: Text('No status data available'));
     }
@@ -1071,7 +1151,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     return StatefulBuilder(
       builder: (context, setState) {
         int? touchedIndex;
-        
+
         return Column(
           children: [
             SizedBox(
@@ -1120,7 +1200,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     touchCallback: (FlTouchEvent event, pieTouchResponse) {
                       setState(() {
                         if (pieTouchResponse?.touchedSection != null) {
-                          touchedIndex = pieTouchResponse?.touchedSection?.touchedSectionIndex;
+                          touchedIndex = pieTouchResponse
+                              ?.touchedSection
+                              ?.touchedSectionIndex;
                         } else {
                           touchedIndex = null;
                         }
@@ -1143,8 +1225,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   touchedIndex == 0
                       ? 'Unresolved: $unresolved'
                       : touchedIndex == 1
-                          ? 'In Progress: $inProgress'
-                          : 'Resolved: $resolved',
+                      ? 'In Progress: $inProgress'
+                      : 'Resolved: $resolved',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,

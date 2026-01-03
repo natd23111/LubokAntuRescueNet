@@ -44,7 +44,9 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
   Future<void> selectDate(BuildContext context, bool isStartDate) async {
     final picked = await showDatePicker(
       context: context,
-      initialDate: isStartDate ? (_startDate ?? DateTime.now()) : (_endDate ?? DateTime.now()),
+      initialDate: isStartDate
+          ? (_startDate ?? DateTime.now())
+          : (_endDate ?? DateTime.now()),
       firstDate: DateTime(2024),
       lastDate: DateTime(2027),
     );
@@ -68,9 +70,9 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
     if (!_formKey.currentState!.validate()) return;
 
     if (_selectedCategory == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a category')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please select a category')));
       return;
     }
 
@@ -89,9 +91,9 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
     }
 
     if (_selectedStatus == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select status')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please select status')));
       return;
     }
 
@@ -103,8 +105,9 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
         final provider = context.read<AidProgramProvider>();
         final year = DateTime.now().year;
         final nextNumber = provider.programs.length + 1;
-        final programId = 'AID$year${nextNumber.toString().padLeft(3, '0')}'; // AID2026001, AID2026002, etc.
-        
+        final programId =
+            'AID$year${nextNumber.toString().padLeft(3, '0')}'; // AID2026001, AID2026002, etc.
+
         final newProgram = AidProgram(
           id: programId,
           title: _titleController.text,
@@ -127,7 +130,7 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
           _descriptionController.clear();
           _aidAmountController.clear();
           _eligibilityController.clear();
-          
+
           setState(() {
             _selectedCategory = null;
             _selectedProgramType = null;
@@ -146,7 +149,7 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
                 duration: Duration(seconds: 2),
               ),
             );
-            
+
             // Navigate back after 2 seconds
             Future.delayed(const Duration(seconds: 2), () {
               if (mounted) {
@@ -178,7 +181,7 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
         backgroundColor: const Color(0xFF0E9D63),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white,),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: widget.onBack,
         ),
         title: const Text(
@@ -199,16 +202,14 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: const Color(0xFF0E9D63).withOpacity(0.1),
-                border: Border.all(color: const Color(0xFF0E9D63).withOpacity(0.3)),
+                border: Border.all(
+                  color: const Color(0xFF0E9D63).withOpacity(0.3),
+                ),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.check_circle,
-                    color: Colors.green[600],
-                    size: 24,
-                  ),
+                  Icon(Icons.check_circle, color: Colors.green[600], size: 24),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -281,7 +282,8 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
                         'housing': 'Housing Assistance',
                         'other': 'Other',
                       },
-                      onChanged: (value) => setState(() => _selectedCategory = value),
+                      onChanged: (value) =>
+                          setState(() => _selectedCategory = value),
                     ),
 
                     // Description
@@ -289,7 +291,8 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
                       label: 'Description',
                       required: true,
                       controller: _descriptionController,
-                      hintText: 'Describe the aid program, eligibility, and benefits',
+                      hintText:
+                          'Describe the aid program, eligibility, and benefits',
                       maxLines: 4,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -349,7 +352,8 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
                         'quarterly': 'Quarterly Payment',
                         'application-based': 'Application Based',
                       },
-                      onChanged: (value) => setState(() => _selectedProgramType = value),
+                      onChanged: (value) =>
+                          setState(() => _selectedProgramType = value),
                     ),
 
                     // Aid Amount
@@ -381,7 +385,8 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
                         'inactive': 'Inactive',
                         'draft': 'Draft',
                       },
-                      onChanged: (value) => setState(() => _selectedStatus = value),
+                      onChanged: (value) =>
+                          setState(() => _selectedStatus = value),
                     ),
                   ],
                 ),
@@ -437,9 +442,9 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
                     ),
                   ),
                   child: Text(
-                  'Clear / Reset',
-                  style: TextStyle(color: Colors.grey[700]),
-                ),
+                    'Clear / Reset',
+                    style: TextStyle(color: Colors.grey[700]),
+                  ),
                 ),
                 const SizedBox(height: 12),
                 OutlinedButton(
@@ -449,13 +454,11 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
-                  side: BorderSide(color: Colors.grey[300]!),
+                    side: BorderSide(color: Colors.grey[300]!),
                   ),
                   child: Text(
                     'Back',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(color: Colors.grey[600]),
                   ),
                 ),
               ],
@@ -493,7 +496,10 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
               if (required)
                 const Text(
                   ' *',
-                  style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
             ],
           ),
@@ -505,8 +511,11 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
             minLines: maxLines == 1 ? 1 : maxLines,
             decoration: InputDecoration(
               prefixText: keyboardType == TextInputType.number ? 'RM ' : null,
-              prefixStyle: keyboardType == TextInputType.number 
-                  ? const TextStyle(color: Colors.black87, fontWeight: FontWeight.w600)
+              prefixStyle: keyboardType == TextInputType.number
+                  ? const TextStyle(
+                      color: Colors.black87,
+                      fontWeight: FontWeight.w600,
+                    )
                   : null,
               hintText: hintText,
               hintStyle: TextStyle(color: Colors.grey[400]),
@@ -520,9 +529,15 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Color(0xFF0E9D63), width: 2),
+                borderSide: const BorderSide(
+                  color: Color(0xFF0E9D63),
+                  width: 2,
+                ),
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 12,
+              ),
             ),
             validator: validator,
           ),
@@ -557,7 +572,10 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
               if (required)
                 const Text(
                   ' *',
-                  style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
             ],
           ),
@@ -575,19 +593,27 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Color(0xFF0E9D63), width: 2),
+                borderSide: const BorderSide(
+                  color: Color(0xFF0E9D63),
+                  width: 2,
+                ),
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 12,
+              ),
             ),
             hint: Text(
               'Select ${label.toLowerCase()}',
               style: TextStyle(color: Colors.grey[400]),
             ),
             items: items
-                .map((item) => DropdownMenuItem(
-                      value: item,
-                      child: Text(displayNames[item] ?? item),
-                    ))
+                .map(
+                  (item) => DropdownMenuItem(
+                    value: item,
+                    child: Text(displayNames[item] ?? item),
+                  ),
+                )
                 .toList(),
             onChanged: onChanged,
           ),
@@ -618,7 +644,10 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
             if (required)
               const Text(
                 ' *',
-                style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
           ],
         ),
@@ -641,11 +670,7 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
                     color: date == null ? Colors.grey[400] : Colors.black,
                   ),
                 ),
-                Icon(
-                  Icons.calendar_today,
-                  size: 18,
-                  color: Colors.grey[600],
-                ),
+                Icon(Icons.calendar_today, size: 18, color: Colors.grey[600]),
               ],
             ),
           ),

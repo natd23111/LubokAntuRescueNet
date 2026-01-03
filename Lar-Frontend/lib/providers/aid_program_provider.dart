@@ -10,17 +10,28 @@ class AidProgramProvider extends ChangeNotifier {
   String? _error;
 
   List<AidProgram> get programs => _programs;
+
   List<AidProgram> get newPrograms {
     final thirtyDaysAgo = DateTime.now().subtract(Duration(days: 30));
     return _programs
-        .where((program) => program.startDate.isAfter(thirtyDaysAgo) && program.status.toLowerCase() == 'active')
+        .where(
+          (program) =>
+              program.startDate.isAfter(thirtyDaysAgo) &&
+              program.status.toLowerCase() == 'active',
+        )
         .toList();
   }
+
   bool get isLoading => _isLoading;
+
   String? get error => _error;
 
   // Fetch all aid programs with optional filtering
-  Future<void> fetchPrograms({String? status, String? category, String? search}) async {
+  Future<void> fetchPrograms({
+    String? status,
+    String? category,
+    String? search,
+  }) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -52,7 +63,8 @@ class AidProgramProvider extends ChangeNotifier {
         final lowerSearch = search.toLowerCase();
         programsList = programsList.where((program) {
           return program.title.toLowerCase().contains(lowerSearch) ||
-              (program.description?.toLowerCase().contains(lowerSearch) ?? false);
+              (program.description?.toLowerCase().contains(lowerSearch) ??
+                  false);
         }).toList();
       }
 
@@ -80,7 +92,7 @@ class AidProgramProvider extends ChangeNotifier {
 
     try {
       print('DEBUG: Creating program: ${program.title}');
-      
+
       final programData = {
         'title': program.title,
         'description': program.description ?? '',
@@ -102,9 +114,9 @@ class AidProgramProvider extends ChangeNotifier {
           .collection('aid_programs')
           .doc(program.id.toString())
           .set(programData);
-      
+
       print('DEBUG: Program created with ID: ${program.id}');
-      
+
       _programs.add(program);
       _error = null;
       _isLoading = false;
@@ -141,7 +153,10 @@ class AidProgramProvider extends ChangeNotifier {
         'updated_at': DateTime.now().toIso8601String(),
       };
 
-      await _firestore.collection('aid_programs').doc(program.id.toString()).update(programData);
+      await _firestore
+          .collection('aid_programs')
+          .doc(program.id.toString())
+          .update(programData);
 
       // Update local list
       final index = _programs.indexWhere((p) => p.id == program.id);
@@ -193,7 +208,10 @@ class AidProgramProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final doc = await _firestore.collection('aid_programs').doc(programId).get();
+      final doc = await _firestore
+          .collection('aid_programs')
+          .doc(programId)
+          .get();
       if (!doc.exists) {
         _error = 'Program not found';
         _isLoading = false;

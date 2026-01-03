@@ -12,7 +12,9 @@ class AidRequestProvider extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   List<AidRequestModel> get aidRequests => _aidRequests;
+
   bool get isLoading => _isLoading;
+
   String? get error => _error;
 
   AidRequestProvider({dynamic authProvider}) {
@@ -48,7 +50,9 @@ class AidRequestProvider extends ChangeNotifier {
           .where('user_id', isEqualTo: _userId)
           .get();
 
-      print('DEBUG: Fetched ${snapshot.docs.length} aid requests for user $_userId');
+      print(
+        'DEBUG: Fetched ${snapshot.docs.length} aid requests for user $_userId',
+      );
 
       _aidRequests = snapshot.docs
           .map((doc) => AidRequestModel.fromFirestore(doc))
@@ -74,11 +78,11 @@ class AidRequestProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final snapshot = await _firestore
-          .collection('aid_requests')
-          .get();
+      final snapshot = await _firestore.collection('aid_requests').get();
 
-      print('DEBUG: Fetched ${snapshot.docs.length} total aid requests for admin');
+      print(
+        'DEBUG: Fetched ${snapshot.docs.length} total aid requests for admin',
+      );
 
       _aidRequests = snapshot.docs
           .map((doc) => AidRequestModel.fromFirestore(doc))
@@ -122,7 +126,10 @@ class AidRequestProvider extends ChangeNotifier {
       return false;
     }
 
-    if (aidType.isEmpty || monthlyIncome <= 0 || familyMembers.isEmpty || description.isEmpty) {
+    if (aidType.isEmpty ||
+        monthlyIncome <= 0 ||
+        familyMembers.isEmpty ||
+        description.isEmpty) {
       _error = 'Please fill in all required fields';
       notifyListeners();
       return false;
@@ -137,7 +144,8 @@ class AidRequestProvider extends ChangeNotifier {
       final now = DateTime.now();
 
       final aidRequest = AidRequestModel(
-        id: requestId, // Use the sequential ID
+        id: requestId,
+        // Use the sequential ID
         userId: _userId!,
         requestId: requestId,
         aidType: aidType,
@@ -159,7 +167,7 @@ class AidRequestProvider extends ChangeNotifier {
           .collection('aid_requests')
           .doc(requestId)
           .set(aidRequest.toFirestore());
-      
+
       _lastRequestId = requestId;
 
       print('DEBUG: Aid request submitted with ID: $requestId');
@@ -200,16 +208,14 @@ class AidRequestProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _firestore
-          .collection('aid_requests')
-          .doc(requestId)
-          .update({
-            'status': newStatus,
-            if (remarks != null && remarks.isNotEmpty) 'remarks': remarks,
-            if (approvedAmount != null && approvedAmount.isNotEmpty) 'approved_amount': double.tryParse(approvedAmount) ?? 0,
-            if (notes != null && notes.isNotEmpty) 'internal_notes': notes,
-            'updated_at': DateTime.now(),
-          });
+      await _firestore.collection('aid_requests').doc(requestId).update({
+        'status': newStatus,
+        if (remarks != null && remarks.isNotEmpty) 'remarks': remarks,
+        if (approvedAmount != null && approvedAmount.isNotEmpty)
+          'approved_amount': double.tryParse(approvedAmount) ?? 0,
+        if (notes != null && notes.isNotEmpty) 'internal_notes': notes,
+        'updated_at': DateTime.now(),
+      });
 
       print('DEBUG: Request $requestId updated to status: $newStatus');
 
@@ -235,10 +241,7 @@ class AidRequestProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _firestore
-          .collection('aid_requests')
-          .doc(requestId)
-          .delete();
+      await _firestore.collection('aid_requests').doc(requestId).delete();
 
       print('DEBUG: Request $requestId deleted successfully');
 

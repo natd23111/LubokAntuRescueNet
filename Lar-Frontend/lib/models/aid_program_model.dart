@@ -35,7 +35,9 @@ class AidProgramModel {
       description: data['description'] ?? '',
       startDate: data['startDate'] is Timestamp
           ? (data['startDate'] as Timestamp).toDate()
-          : DateTime.parse(data['startDate'] ?? DateTime.now().toIso8601String()),
+          : DateTime.parse(
+              data['startDate'] ?? DateTime.now().toIso8601String(),
+            ),
       endDate: data['endDate'] is Timestamp
           ? (data['endDate'] as Timestamp).toDate()
           : DateTime.parse(data['endDate'] ?? DateTime.now().toIso8601String()),
@@ -65,16 +67,36 @@ class AidProgramModel {
   // Format dates for display
   String get formattedStartDate {
     final months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     return '${months[startDate.month - 1]} ${startDate.day}, ${startDate.year}';
   }
 
   String get formattedEndDate {
     final months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     return '${months[endDate.month - 1]} ${endDate.day}, ${endDate.year}';
   }
