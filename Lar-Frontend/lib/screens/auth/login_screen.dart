@@ -319,11 +319,18 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: TextStyle(color: Colors.black54)),
                     TextButton(
                       onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => RegisterScreen())),
+                        context,
+                        MaterialPageRoute(builder: (_) => RegisterScreen()),
+                      ),
                       style: TextButton.styleFrom(foregroundColor: primaryGreen),
-                      child: const Text('Register here'),
+                      child: Text(
+                        'Register here',
+                        style: TextStyle(
+                          decoration: TextDecoration.underline,
+                          color: primaryGreen,
+                          decorationColor: primaryGreen,
+                        ),
+                      ),
                     ),
                   ],
                 ),
