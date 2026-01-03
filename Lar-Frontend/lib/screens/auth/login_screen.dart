@@ -60,7 +60,8 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-              'Sign in failed: ${authProvider.errorMessage ?? 'Unknown error'}'),
+            'Sign in failed: ${authProvider.errorMessage ?? 'Unknown error'}',
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -71,7 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _requestPermissions() async {
     try {
       print('📱 Requesting permissions after login...');
-      
+
       // Initialize push notifications
       await PushNotificationService.initializePushNotifications();
       print('✅ Push notifications initialized');
@@ -148,10 +149,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 6),
                     Text(
                       'Emergency and Community Aid Reporting System',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 14,
-                      ),
+                      style: TextStyle(color: Colors.white70, fontSize: 14),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -161,152 +159,164 @@ class _LoginScreenState extends State<LoginScreen> {
 
             // Form card
             Padding(
-              padding:
-              const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
               child: Card(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                  elevation: 4,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Text(
-                            'Sign In',
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 4,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          'Sign In',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
                           ),
-                          const SizedBox(height: 12),
+                        ),
+                        const SizedBox(height: 12),
 
-                          // Role toggle
-                          Row(
-                            children: [
-                              Expanded(
-                                child: OutlinedButton(
-                                  style: OutlinedButton.styleFrom(
-                                    backgroundColor: _isCitizen
-                                        ? primaryGreen.withOpacity(0.08)
-                                        : Colors.transparent,
-                                    side: BorderSide(
-                                        color: _isCitizen
-                                            ? primaryGreen
-                                            : Colors.grey.shade300),
+                        // Role toggle
+                        Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedButton(
+                                style: OutlinedButton.styleFrom(
+                                  backgroundColor: _isCitizen
+                                      ? primaryGreen.withOpacity(0.08)
+                                      : Colors.transparent,
+                                  side: BorderSide(
+                                    color: _isCitizen
+                                        ? primaryGreen
+                                        : Colors.grey.shade300,
                                   ),
-                                  onPressed: () =>
-                                      setState(() => _isCitizen = true),
-                                  child: Text('Citizen',
-                                      style: TextStyle(
-                                          color: _isCitizen
-                                              ? primaryGreen
-                                              : Colors.black54)),
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: OutlinedButton(
-                                  style: OutlinedButton.styleFrom(
-                                    backgroundColor: !_isCitizen
-                                        ? primaryGreen.withOpacity(0.08)
-                                        : Colors.transparent,
-                                    side: BorderSide(
-                                        color: !_isCitizen
-                                            ? primaryGreen
-                                            : Colors.grey.shade300),
-                                  ),
-                                  onPressed: () =>
-                                      setState(() => _isCitizen = false),
-                                  child: Text('Admin',
-                                      style: TextStyle(
-                                          color: !_isCitizen
-                                              ? primaryGreen
-                                              : Colors.black54)),
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: 14),
-
-                          // Email field with icon
-                          TextFormField(
-                            controller: _emailController,
-                            keyboardType: TextInputType.emailAddress,
-                            decoration: InputDecoration(
-                              labelText: 'Email',
-                              hintText: 'Enter your email',
-                              prefixIcon: Icon(Icons.email_outlined),
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8)),
-                            ),
-                            validator: (v) => (v == null || v.trim().isEmpty)
-                                ? 'Please enter your Email'
-                                : null,
-                          ),
-                          const SizedBox(height: 12),
-
-                          // Password field with icon & show/hide
-                          TextFormField(
-                            controller: _passwordController,
-                            obscureText: !_showPassword,
-                            decoration: InputDecoration(
-                              labelText: 'Password',
-                              hintText: 'Enter your password',
-                              prefixIcon: Icon(Icons.lock_outline),
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  _showPassword
-                                      ? Icons.visibility
-                                      : Icons.visibility_off,
                                 ),
                                 onPressed: () =>
-                                    setState(() => _showPassword = !_showPassword),
-                              ),
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8)),
-                            ),
-                            validator: (v) => (v == null || v.isEmpty)
-                                ? 'Please enter your password'
-                                : null,
-                          ),
-                          const SizedBox(height: 18),
-
-                          // Sign In button
-                          SizedBox(
-                            height: 44,
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: primaryGreen,
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                                    setState(() => _isCitizen = true),
+                                child: Text(
+                                  'Citizen',
+                                  style: TextStyle(
+                                    color: _isCitizen
+                                        ? primaryGreen
+                                        : Colors.black54,
+                                  ),
                                 ),
                               ),
-                              onPressed: authProvider.isLoading
-                                  ? null
-                                  : () => _submit(authProvider),
-                              child: authProvider.isLoading
-                                  ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2,
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: OutlinedButton(
+                                style: OutlinedButton.styleFrom(
+                                  backgroundColor: !_isCitizen
+                                      ? primaryGreen.withOpacity(0.08)
+                                      : Colors.transparent,
+                                  side: BorderSide(
+                                    color: !_isCitizen
+                                        ? primaryGreen
+                                        : Colors.grey.shade300,
+                                  ),
                                 ),
-                              )
-                                  : const Text('Sign In'),
+                                onPressed: () =>
+                                    setState(() => _isCitizen = false),
+                                child: Text(
+                                  'Admin',
+                                  style: TextStyle(
+                                    color: !_isCitizen
+                                        ? primaryGreen
+                                        : Colors.black54,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 14),
+
+                        // Email field with icon
+                        TextFormField(
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: InputDecoration(
+                            labelText: 'Email',
+                            hintText: 'Enter your email',
+                            prefixIcon: Icon(Icons.email_outlined),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                          const SizedBox(height: 10),
+                          validator: (v) => (v == null || v.trim().isEmpty)
+                              ? 'Please enter your Email'
+                              : null,
+                        ),
+                        const SizedBox(height: 12),
 
-                        ],
-                      ),
+                        // Password field with icon & show/hide
+                        TextFormField(
+                          controller: _passwordController,
+                          obscureText: !_showPassword,
+                          decoration: InputDecoration(
+                            labelText: 'Password',
+                            hintText: 'Enter your password',
+                            prefixIcon: Icon(Icons.lock_outline),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _showPassword
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                              ),
+                              onPressed: () => setState(
+                                () => _showPassword = !_showPassword,
+                              ),
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          validator: (v) => (v == null || v.isEmpty)
+                              ? 'Please enter your password'
+                              : null,
+                        ),
+                        const SizedBox(height: 18),
+
+                        // Sign In button
+                        SizedBox(
+                          height: 44,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: primaryGreen,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            onPressed: authProvider.isLoading
+                                ? null
+                                : () => _submit(authProvider),
+                            child: authProvider.isLoading
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Text('Sign In'),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                      ],
                     ),
                   ),
                 ),
               ),
+            ),
 
             const SizedBox(height: 8),
             Center(
@@ -315,14 +325,18 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text("Don't have an account? ",
-                        style: TextStyle(color: Colors.black54)),
+                    const Text(
+                      "Don't have an account? ",
+                      style: TextStyle(color: Colors.black54),
+                    ),
                     TextButton(
                       onPressed: () => Navigator.push(
                         context,
                         MaterialPageRoute(builder: (_) => RegisterScreen()),
                       ),
-                      style: TextButton.styleFrom(foregroundColor: primaryGreen),
+                      style: TextButton.styleFrom(
+                        foregroundColor: primaryGreen,
+                      ),
                       child: Text(
                         'Register here',
                         style: TextStyle(
@@ -339,7 +353,6 @@ class _LoginScreenState extends State<LoginScreen> {
             const AppFooter(),
           ],
         ),
-
       ),
     );
   }

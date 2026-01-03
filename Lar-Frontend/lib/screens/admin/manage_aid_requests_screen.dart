@@ -9,7 +9,8 @@ class ManageAidRequestsScreen extends StatefulWidget {
   const ManageAidRequestsScreen({required this.onBack});
 
   @override
-  _ManageAidRequestsScreenState createState() => _ManageAidRequestsScreenState();
+  _ManageAidRequestsScreenState createState() =>
+      _ManageAidRequestsScreenState();
 }
 
 class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
@@ -128,9 +129,9 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
 
     // Validate status selection
     if (selectedStatus == null || selectedStatus!.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please select a status')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Please select a status')));
       return;
     }
 
@@ -162,7 +163,9 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(aidRequestProvider.error ?? 'Failed to update request')),
+        SnackBar(
+          content: Text(aidRequestProvider.error ?? 'Failed to update request'),
+        ),
       );
     }
   }
@@ -213,8 +216,18 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(4)),
-      child: Text(label, style: TextStyle(color: textColor, fontSize: 11, fontWeight: FontWeight.w500)),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: textColor,
+          fontSize: 11,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
     );
   }
 
@@ -247,13 +260,18 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
   }
 
   Widget _buildEditView() {
-    final request = aidRequestProvider.aidRequests.firstWhere((r) => r.requestId == selectedRequestId);
+    final request = aidRequestProvider.aidRequests.firstWhere(
+      (r) => r.requestId == selectedRequestId,
+    );
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Color(0xFF0E9D63),
-        title: Text('Update Aid Request', style: TextStyle(color: Colors.white)),
+        title: Text(
+          'Update Aid Request',
+          style: TextStyle(color: Colors.white),
+        ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => setState(() => editMode = false),
@@ -275,67 +293,130 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.check_circle, color: Colors.green.shade600, size: 20),
+                    Icon(
+                      Icons.check_circle,
+                      color: Colors.green.shade600,
+                      size: 20,
+                    ),
                     SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Request Updated Successfully!',
-                              style: TextStyle(color: Colors.green.shade800, fontWeight: FontWeight.w600)),
-                          Text('The applicant will be notified.',
-                              style: TextStyle(color: Colors.green.shade700, fontSize: 12)),
+                          Text(
+                            'Request Updated Successfully!',
+                            style: TextStyle(
+                              color: Colors.green.shade800,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            'The applicant will be notified.',
+                            style: TextStyle(
+                              color: Colors.green.shade700,
+                              fontSize: 12,
+                            ),
+                          ),
                         ],
                       ),
                     ),
                   ],
                 ),
               ),
-            Text('Request ID', style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
-            Text(request.requestId, style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w500)),
+            Text(
+              'Request ID',
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+            ),
+            Text(
+              request.requestId,
+              style: TextStyle(
+                color: Colors.black87,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
             SizedBox(height: 16),
-            Text('Application Status *', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600)),
+            Text(
+              'Application Status *',
+              style: TextStyle(
+                color: Colors.black87,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             SizedBox(height: 8),
             DropdownButtonFormField<String>(
               value: selectedStatus ?? request.status.toLowerCase(),
               items: ['pending', 'approved', 'rejected']
-                  .map((status) => DropdownMenuItem(
-                        value: status,
-                        child: Text(status[0].toUpperCase() + status.substring(1)),
-                      ))
+                  .map(
+                    (status) => DropdownMenuItem(
+                      value: status,
+                      child: Text(
+                        status[0].toUpperCase() + status.substring(1),
+                      ),
+                    ),
+                  )
                   .toList(),
               onChanged: (value) => setState(() => selectedStatus = value),
               decoration: InputDecoration(
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 12,
+                ),
               ),
             ),
             SizedBox(height: 16),
-            Text('Decision Remarks', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600)),
+            Text(
+              'Decision Remarks',
+              style: TextStyle(
+                color: Colors.black87,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             SizedBox(height: 8),
             TextField(
               controller: remarksController,
               maxLines: 4,
               decoration: InputDecoration(
                 hintText: 'Add reason for acceptance or rejection...',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 12,
+                ),
               ),
             ),
             SizedBox(height: 16),
-            Text('Approved Amount (RM)', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600)),
+            Text(
+              'Approved Amount (RM)',
+              style: TextStyle(
+                color: Colors.black87,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             SizedBox(height: 8),
             TextField(
               controller: approvedAmountController,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 hintText: 'Enter approved amount',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 12,
+                ),
               ),
             ),
             SizedBox(height: 4),
-            Text('Leave blank if rejected', style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+            Text(
+              'Leave blank if rejected',
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+            ),
             SizedBox(height: 20),
             Container(
               padding: EdgeInsets.all(12),
@@ -345,28 +426,57 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Request Details', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600)),
+                  Text(
+                    'Request Details',
+                    style: TextStyle(
+                      color: Colors.black87,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   SizedBox(height: 12),
                   _buildDetailRow('Aid Type', request.aidType),
-                  _buildDetailRow('Monthly Income', 'RM ${request.monthlyIncome.toStringAsFixed(2)}'),
-                  _buildDetailRow('Family Members', request.familyMembers.length.toString()),
+                  _buildDetailRow(
+                    'Monthly Income',
+                    'RM ${request.monthlyIncome.toStringAsFixed(2)}',
+                  ),
+                  _buildDetailRow(
+                    'Family Members',
+                    request.familyMembers.length.toString(),
+                  ),
                   SizedBox(height: 12),
-                  Text('Reason', style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+                  Text(
+                    'Reason',
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                  ),
                   SizedBox(height: 4),
-                  Text(request.description, style: TextStyle(color: Colors.black87)),
+                  Text(
+                    request.description,
+                    style: TextStyle(color: Colors.black87),
+                  ),
                 ],
               ),
             ),
             SizedBox(height: 16),
-            Text('Internal Notes', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600)),
+            Text(
+              'Internal Notes',
+              style: TextStyle(
+                color: Colors.black87,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             SizedBox(height: 8),
             TextField(
               controller: notesController,
               maxLines: 3,
               decoration: InputDecoration(
                 hintText: 'Add internal notes (not visible to applicant)',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 12,
+                ),
               ),
             ),
             SizedBox(height: 20),
@@ -389,7 +499,13 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: Text('Update Request', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                child: Text(
+                  'Update Request',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
             ),
             SizedBox(height: 8),
@@ -404,7 +520,10 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
                   ),
                   side: BorderSide(color: Colors.grey[300]!),
                 ),
-                child: Text('Cancel', style: TextStyle(color: Colors.grey[600])),
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(color: Colors.grey[600]),
+                ),
               ),
             ),
           ],
@@ -414,7 +533,9 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
   }
 
   Widget _buildDetailView() {
-    final request = aidRequestProvider.aidRequests.firstWhere((r) => r.requestId == selectedRequestId);
+    final request = aidRequestProvider.aidRequests.firstWhere(
+      (r) => r.requestId == selectedRequestId,
+    );
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -444,8 +565,20 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Request ID', style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
-                    Text(request.requestId, style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600)),
+                    Text(
+                      'Request ID',
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 12,
+                      ),
+                    ),
+                    Text(
+                      request.requestId,
+                      style: TextStyle(
+                        color: Colors.black87,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ],
                 ),
                 _buildStatusBadge(request.status),
@@ -464,10 +597,22 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
             if (request.applicantAddress != null)
               _buildDetailRow('Address', request.applicantAddress!),
             _buildDetailRow('Date Submitted', request.formattedDate),
-            _buildDetailRow('Monthly Income', 'RM ${request.monthlyIncome.toStringAsFixed(2)}'),
-            _buildDetailRow('Family Members', request.familyMembers.length.toString()),
+            _buildDetailRow(
+              'Monthly Income',
+              'RM ${request.monthlyIncome.toStringAsFixed(2)}',
+            ),
+            _buildDetailRow(
+              'Family Members',
+              request.familyMembers.length.toString(),
+            ),
             SizedBox(height: 16),
-            Text('Family Composition', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600)),
+            Text(
+              'Family Composition',
+              style: TextStyle(
+                color: Colors.black87,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             SizedBox(height: 8),
             ...request.familyMembers.map((member) {
               return Container(
@@ -480,8 +625,20 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(member.name, style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w500)),
-                    Text(member.status, style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+                    Text(
+                      member.name,
+                      style: TextStyle(
+                        color: Colors.black87,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Text(
+                      member.status,
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 12,
+                      ),
+                    ),
                   ],
                 ),
               );
@@ -507,7 +664,13 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: Text('Update Status', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                child: Text(
+                  'Update Status',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
             ),
             SizedBox(height: 8),
@@ -522,7 +685,10 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
                   ),
                   side: BorderSide(color: Colors.grey[300]!),
                 ),
-                child: Text('Back to List', style: TextStyle(color: Colors.grey[600])),
+                child: Text(
+                  'Back to List',
+                  style: TextStyle(color: Colors.grey[600]),
+                ),
               ),
             ),
           ],
@@ -538,8 +704,13 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Color(0xFF0E9D63),
-        title: Text('Aid Requests',
-          style: TextStyle(color: Colors.white,fontSize: 18, fontWeight: FontWeight.bold)
+        title: Text(
+          'Aid Requests',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),
@@ -550,7 +721,9 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
         children: [
           // Tabs
           Container(
-            decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.grey.shade300))),
+            decoration: BoxDecoration(
+              border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
+            ),
             child: Row(
               children: [
                 Expanded(
@@ -560,15 +733,24 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
                       padding: EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
                         border: activeTab == 'pending'
-                            ? Border(bottom: BorderSide(color: Color(0xFF0E9D63), width: 2))
+                            ? Border(
+                                bottom: BorderSide(
+                                  color: Color(0xFF0E9D63),
+                                  width: 2,
+                                ),
+                              )
                             : null,
                       ),
                       child: Center(
                         child: Text(
                           'Pending (${aidRequestProvider.aidRequests.where((r) => r.status.toLowerCase() == 'pending').length})',
                           style: TextStyle(
-                            color: activeTab == 'pending' ? Color(0xFF0E9D63) : Colors.grey.shade600,
-                            fontWeight: activeTab == 'pending' ? FontWeight.w600 : FontWeight.normal,
+                            color: activeTab == 'pending'
+                                ? Color(0xFF0E9D63)
+                                : Colors.grey.shade600,
+                            fontWeight: activeTab == 'pending'
+                                ? FontWeight.w600
+                                : FontWeight.normal,
                           ),
                         ),
                       ),
@@ -582,15 +764,24 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
                       padding: EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
                         border: activeTab == 'approved'
-                            ? Border(bottom: BorderSide(color: Color(0xFF0E9D63), width: 2))
+                            ? Border(
+                                bottom: BorderSide(
+                                  color: Color(0xFF0E9D63),
+                                  width: 2,
+                                ),
+                              )
                             : null,
                       ),
                       child: Center(
                         child: Text(
                           'Approved (${aidRequestProvider.aidRequests.where((r) => r.status.toLowerCase() == 'approved').length})',
                           style: TextStyle(
-                            color: activeTab == 'approved' ? Color(0xFF0E9D63) : Colors.grey.shade600,
-                            fontWeight: activeTab == 'approved' ? FontWeight.w600 : FontWeight.normal,
+                            color: activeTab == 'approved'
+                                ? Color(0xFF0E9D63)
+                                : Colors.grey.shade600,
+                            fontWeight: activeTab == 'approved'
+                                ? FontWeight.w600
+                                : FontWeight.normal,
                           ),
                         ),
                       ),
@@ -604,15 +795,24 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
                       padding: EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
                         border: activeTab == 'rejected'
-                            ? Border(bottom: BorderSide(color: Color(0xFF0E9D63), width: 2))
+                            ? Border(
+                                bottom: BorderSide(
+                                  color: Color(0xFF0E9D63),
+                                  width: 2,
+                                ),
+                              )
                             : null,
                       ),
                       child: Center(
                         child: Text(
                           'Rejected (${aidRequestProvider.aidRequests.where((r) => r.status.toLowerCase() == 'rejected').length})',
                           style: TextStyle(
-                            color: activeTab == 'rejected' ? Color(0xFF0E9D63) : Colors.grey.shade600,
-                            fontWeight: activeTab == 'rejected' ? FontWeight.w600 : FontWeight.normal,
+                            color: activeTab == 'rejected'
+                                ? Color(0xFF0E9D63)
+                                : Colors.grey.shade600,
+                            fontWeight: activeTab == 'rejected'
+                                ? FontWeight.w600
+                                : FontWeight.normal,
                           ),
                         ),
                       ),
@@ -625,7 +825,9 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
           // Search
           Container(
             padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.grey.shade300))),
+            decoration: BoxDecoration(
+              border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
+            ),
             child: TextField(
               onChanged: (value) => setState(() => searchQuery = value),
               decoration: InputDecoration(
@@ -635,7 +837,10 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide(color: Colors.grey.shade300),
                 ),
-                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
               ),
             ),
           ),
@@ -648,61 +853,96 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
                       children: [
                         CircularProgressIndicator(color: Color(0xFF0E9D63)),
                         SizedBox(height: 16),
-                        Text('Loading requests...', style: TextStyle(color: Colors.grey.shade600)),
+                        Text(
+                          'Loading requests...',
+                          style: TextStyle(color: Colors.grey.shade600),
+                        ),
                       ],
                     ),
                   )
                 : filteredRequests.isEmpty
-                    ? Center(
-                        child: Text('No requests found', style: TextStyle(color: Colors.grey.shade600)),
-                      )
-                    : ListView.builder(
-                        padding: EdgeInsets.all(12),
-                        itemCount: filteredRequests.length,
-                        itemBuilder: (context, index) {
-                          final request = filteredRequests[index];
-                          return GestureDetector(
-                            onTap: () => setState(() => selectedRequestId = request.requestId),
-                            child: Container(
-                              margin: EdgeInsets.only(bottom: 10),
-                              padding: EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                border: Border.all(color: Colors.grey.shade300),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                ? Center(
+                    child: Text(
+                      'No requests found',
+                      style: TextStyle(color: Colors.grey.shade600),
+                    ),
+                  )
+                : ListView.builder(
+                    padding: EdgeInsets.all(12),
+                    itemCount: filteredRequests.length,
+                    itemBuilder: (context, index) {
+                      final request = filteredRequests[index];
+                      return GestureDetector(
+                        onTap: () => setState(
+                          () => selectedRequestId = request.requestId,
+                        ),
+                        child: Container(
+                          margin: EdgeInsets.only(bottom: 10),
+                          padding: EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(color: Colors.grey.shade300),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(request.requestId,
-                                          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600)),
-                                      _buildStatusBadge(request.status),
-                                    ],
+                                  Text(
+                                    request.requestId,
+                                    style: TextStyle(
+                                      color: Colors.black87,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
-                                  SizedBox(height: 6),
-                                  Text(request.aidType, style: TextStyle(color: Colors.black87)),
-                                  SizedBox(height: 6),
-                                  Text('Income: RM ${request.monthlyIncome}', style: TextStyle(color: Colors.grey.shade700)),
-                                  SizedBox(height: 8),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text('${request.familyMembers.length} members',
-                                          style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
-                                      Icon(Icons.chevron_right, color: Colors.grey.shade400),
-                                    ],
-                                  ),
-                                  SizedBox(height: 6),
-                                  Text(request.formattedDate, style: TextStyle(color: Colors.grey.shade600, fontSize: 11)),
+                                  _buildStatusBadge(request.status),
                                 ],
                               ),
-                            ),
-                          );
-                        },
-                      ),
+                              SizedBox(height: 6),
+                              Text(
+                                request.aidType,
+                                style: TextStyle(color: Colors.black87),
+                              ),
+                              SizedBox(height: 6),
+                              Text(
+                                'Income: RM ${request.monthlyIncome}',
+                                style: TextStyle(color: Colors.grey.shade700),
+                              ),
+                              SizedBox(height: 8),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    '${request.familyMembers.length} members',
+                                    style: TextStyle(
+                                      color: Colors.grey.shade600,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.chevron_right,
+                                    color: Colors.grey.shade400,
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 6),
+                              Text(
+                                request.formattedDate,
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
           ),
           // Back Button
           Padding(
@@ -718,10 +958,7 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
                   ),
                   side: BorderSide(color: Colors.grey[300]!),
                 ),
-                child: Text(
-                  'Back',
-                  style: TextStyle(color: Colors.grey[600]),
-                ),
+                child: Text('Back', style: TextStyle(color: Colors.grey[600])),
               ),
             ),
           ),
@@ -736,7 +973,10 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+          Text(
+            label,
+            style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+          ),
           SizedBox(height: 4),
           Text(value, style: TextStyle(color: Colors.black87)),
         ],

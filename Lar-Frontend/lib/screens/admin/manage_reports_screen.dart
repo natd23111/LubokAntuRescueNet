@@ -3,14 +3,10 @@ import 'package:provider/provider.dart';
 import '../../providers/reports_provider.dart';
 import '../../scripts/seed_firebase.dart';
 
-
 class ManageReportsScreen extends StatefulWidget {
   final VoidCallback onBack;
 
-  const ManageReportsScreen({
-    Key? key,
-    required this.onBack,
-  }) : super(key: key);
+  const ManageReportsScreen({Key? key, required this.onBack}) : super(key: key);
 
   @override
   State<ManageReportsScreen> createState() => _ManageReportsScreenState();
@@ -40,10 +36,12 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
       await FirebaseSeeder.seedDatabase();
       if (mounted) {
         // Refresh the reports list
-        final reportsProvider =
-            Provider.of<ReportsProvider>(context, listen: false);
+        final reportsProvider = Provider.of<ReportsProvider>(
+          context,
+          listen: false,
+        );
         await reportsProvider.fetchReports();
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).clearSnackBars();
           ScaffoldMessenger.of(context).showSnackBar(
@@ -74,7 +72,9 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Clear Database'),
-        content: const Text('Are you sure you want to delete all emergency reports and user profiles? This cannot be undone.'),
+        content: const Text(
+          'Are you sure you want to delete all emergency reports and user profiles? This cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -87,10 +87,12 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
                 await FirebaseSeeder.clearDatabase();
                 if (mounted) {
                   // Refresh the reports list
-                  final reportsProvider =
-                      Provider.of<ReportsProvider>(context, listen: false);
+                  final reportsProvider = Provider.of<ReportsProvider>(
+                    context,
+                    listen: false,
+                  );
                   await reportsProvider.fetchReports();
-                  
+
                   if (mounted) {
                     ScaffoldMessenger.of(context).clearSnackBars();
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -138,10 +140,7 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
                   panEnabled: true,
                   minScale: 1.0,
                   maxScale: 4.0,
-                  child: Image.network(
-                    imageUrl,
-                    fit: BoxFit.contain,
-                  ),
+                  child: Image.network(imageUrl, fit: BoxFit.contain),
                 ),
               ),
             ),
@@ -157,11 +156,7 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
                     shape: BoxShape.circle,
                   ),
                   padding: const EdgeInsets.all(8),
-                  child: const Icon(
-                    Icons.close,
-                    color: Colors.white,
-                    size: 24,
-                  ),
+                  child: const Icon(Icons.close, color: Colors.white, size: 24),
                 ),
               ),
             ),
@@ -204,14 +199,16 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
 
   Future<void> _deleteReport(String reportId) async {
     try {
-      final reportsProvider =
-          Provider.of<ReportsProvider>(context, listen: false);
-      
+      final reportsProvider = Provider.of<ReportsProvider>(
+        context,
+        listen: false,
+      );
+
       // Clear any existing snackbars first
       if (mounted) {
         ScaffoldMessenger.of(context).clearSnackBars();
       }
-      
+
       // Show loading indicator
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -229,9 +226,9 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
       if (mounted) {
         // Clear loading snackbar
         ScaffoldMessenger.of(context).clearSnackBars();
-        
+
         setState(() => selectedReportId = null);
-        
+
         // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -245,7 +242,7 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
       if (mounted) {
         // Clear loading snackbar
         ScaffoldMessenger.of(context).clearSnackBars();
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error deleting report: $e'),
@@ -303,7 +300,7 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
 
   void _handleUpdate() async {
     if (selectedReportId == null) return;
-    
+
     final provider = Provider.of<ReportsProvider>(context, listen: false);
     final success = await provider.updateReport(
       reportId: selectedReportId!,
@@ -315,7 +312,7 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
     if (success && mounted) {
       // Refresh the reports list to ensure updated data is displayed
       await provider.fetchReports();
-      
+
       setState(() {
         showSuccess = true;
         editMode = false;
@@ -343,7 +340,7 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
         backgroundColor: const Color(0xFF059669),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back,color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => setState(() => editMode = false),
         ),
         title: const Text(
@@ -371,7 +368,11 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.check_circle, color: Colors.green.shade600, size: 20),
+                    Icon(
+                      Icons.check_circle,
+                      color: Colors.green.shade600,
+                      size: 20,
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
@@ -436,10 +437,14 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: DropdownButton<String>(
-                    value: statusController.text.isEmpty ? 'unresolved' : statusController.text,
+                    value: statusController.text.isEmpty
+                        ? 'unresolved'
+                        : statusController.text,
                     isExpanded: true,
                     underline: const SizedBox(),
-                    items: ['Unresolved', 'In Progress', 'Resolved'].map((status) {
+                    items: ['Unresolved', 'In Progress', 'Resolved'].map((
+                      status,
+                    ) {
                       return DropdownMenuItem(
                         value: status.toLowerCase().replaceAll(' ', '-'),
                         child: Padding(
@@ -477,18 +482,24 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: DropdownButton<String>(
-                    value: priorityController.text.isEmpty ? 'high' : priorityController.text,
+                    value: priorityController.text.isEmpty
+                        ? 'high'
+                        : priorityController.text,
                     isExpanded: true,
                     underline: const SizedBox(),
-                    items: ['High Priority', 'Medium Priority', 'Low Priority'].map((priority) {
-                      return DropdownMenuItem(
-                        value: priority.split(' ')[0].toLowerCase(),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: Text(priority),
-                        ),
-                      );
-                    }).toList(),
+                    items: ['High Priority', 'Medium Priority', 'Low Priority']
+                        .map((priority) {
+                          return DropdownMenuItem(
+                            value: priority.split(' ')[0].toLowerCase(),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                              ),
+                              child: Text(priority),
+                            ),
+                          );
+                        })
+                        .toList(),
                     onChanged: (value) {
                       if (value != null) {
                         setState(() => priorityController.text = value);
@@ -506,13 +517,16 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
               children: [
                 Text(
                   'Last Updated',
-                  style: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    color: Colors.grey[700],
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 TextField(
                   enabled: false,
                   decoration: InputDecoration(
-                    hintText: report.dateUpdated != null 
+                    hintText: report.dateUpdated != null
                         ? _formatDateTime(report.dateUpdated!)
                         : _formatDateTime(report.dateReported),
                     filled: true,
@@ -542,20 +556,27 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
               children: [
                 Text(
                   'Admin Notes / Remarks',
-                  style: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    color: Colors.grey[700],
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 TextField(
                   controller: notesController,
                   maxLines: 4,
                   decoration: InputDecoration(
-                    hintText: 'Add notes about actions taken or observations...',
+                    hintText:
+                        'Add notes about actions taken or observations...',
                     border: OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.grey[300]!),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Color(0xFF059669), width: 2),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF059669),
+                        width: 2,
+                      ),
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
@@ -577,9 +598,7 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
             Container(
               padding: const EdgeInsets.only(top: 16),
               decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: Colors.grey[200]!),
-                ),
+                border: Border(top: BorderSide(color: Colors.grey[200]!)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -588,7 +607,10 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
                   const SizedBox(height: 12),
                   _buildDetailRow('Location', report.location),
                   const SizedBox(height: 12),
-                  _buildDetailRow('Reported By', '${report.reporterName} (IC: ${report.reporterIC})'),
+                  _buildDetailRow(
+                    'Reported By',
+                    '${report.reporterName} (IC: ${report.reporterIC})',
+                  ),
                   const SizedBox(height: 12),
                   _buildDetailRow('Date Submitted', report.formattedDate),
                   const SizedBox(height: 12),
@@ -621,7 +643,10 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
                 ),
                 child: const Text(
                   'Update Report',
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
@@ -637,7 +662,10 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
                   ),
                   side: BorderSide(color: Colors.grey[300]!),
                 ),
-                child: Text('Cancel', style: TextStyle(color: Colors.grey[600])),
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(color: Colors.grey[600]),
+                ),
               ),
             ),
           ],
@@ -714,7 +742,10 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
                 ),
                 const SizedBox(height: 4),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: _getStatusBgColor(report.status),
                     borderRadius: BorderRadius.circular(20),
@@ -745,9 +776,18 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
                   style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
                 const SizedBox(height: 4),
-                Text(report.reporterName, style: const TextStyle(color: Colors.black87)),
-                Text('IC: ${report.reporterIC}', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
-                Text('Contact: ${report.reporterContact}', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                Text(
+                  report.reporterName,
+                  style: const TextStyle(color: Colors.black87),
+                ),
+                Text(
+                  'IC: ${report.reporterIC}',
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                ),
+                Text(
+                  'Contact: ${report.reporterContact}',
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                ),
               ],
             ),
             const SizedBox(height: 16),
@@ -781,7 +821,8 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
                   const SizedBox(height: 8),
                   if (report.imageUrls!.length == 1)
                     GestureDetector(
-                      onTap: () => _showFullScreenImage(report.imageUrls!.first),
+                      onTap: () =>
+                          _showFullScreenImage(report.imageUrls!.first),
                       child: Container(
                         width: double.infinity,
                         height: 200,
@@ -789,22 +830,27 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
                           color: Colors.grey[200],
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Image.network(report.imageUrls!.first, fit: BoxFit.cover),
+                        child: Image.network(
+                          report.imageUrls!.first,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     )
                   else
                     GridView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        crossAxisSpacing: 8,
-                        mainAxisSpacing: 8,
-                      ),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 8,
+                          ),
                       itemCount: report.imageUrls!.length,
                       itemBuilder: (context, index) {
                         return GestureDetector(
-                          onTap: () => _showFullScreenImage(report.imageUrls![index]),
+                          onTap: () =>
+                              _showFullScreenImage(report.imageUrls![index]),
                           child: Container(
                             decoration: BoxDecoration(
                               color: Colors.grey[200],
@@ -856,14 +902,19 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
                 children: [
                   Text(
                     'Admin Notes',
-                    style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                      color: Colors.black87,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     report.adminNotes ?? 'No notes added yet',
                     style: TextStyle(
                       color: Colors.grey[600],
-                      fontStyle: report.adminNotes == null ? FontStyle.italic : FontStyle.normal,
+                      fontStyle: report.adminNotes == null
+                          ? FontStyle.italic
+                          : FontStyle.normal,
                     ),
                   ),
                 ],
@@ -899,7 +950,10 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
                 ),
                 child: const Text(
                   'Update Report',
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
@@ -915,7 +969,10 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
                   ),
                   side: BorderSide(color: Colors.grey[300]!),
                 ),
-                child: Text('Back to List', style: TextStyle(color: Colors.grey[600])),
+                child: Text(
+                  'Back to List',
+                  style: TextStyle(color: Colors.grey[600]),
+                ),
               ),
             ),
           ],
@@ -933,8 +990,9 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
         Report? selectedReport;
         if (selectedReportId != null) {
           try {
-            selectedReport = provider.reports
-                .firstWhere((r) => r.id == selectedReportId);
+            selectedReport = provider.reports.firstWhere(
+              (r) => r.id == selectedReportId,
+            );
           } catch (e) {
             selectedReport = null;
           }
@@ -964,7 +1022,8 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
               icon: const Icon(Icons.arrow_back, color: Colors.white),
               onPressed: widget.onBack,
             ),
-            title: const Text('Manage Reports',
+            title: const Text(
+              'Manage Reports',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -1002,9 +1061,21 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
                 ),
                 child: Row(
                   children: [
-                    _buildTab(context, 'unresolved', 'Unresolved (${_getTabCount(provider, 'unresolved')})'),
-                    _buildTab(context, 'in-progress', 'In Progress (${_getTabCount(provider, 'in-progress')})'),
-                    _buildTab(context, 'resolved', 'Resolved (${_getTabCount(provider, 'resolved')})'),
+                    _buildTab(
+                      context,
+                      'unresolved',
+                      'Unresolved (${_getTabCount(provider, 'unresolved')})',
+                    ),
+                    _buildTab(
+                      context,
+                      'in-progress',
+                      'In Progress (${_getTabCount(provider, 'in-progress')})',
+                    ),
+                    _buildTab(
+                      context,
+                      'resolved',
+                      'Resolved (${_getTabCount(provider, 'resolved')})',
+                    ),
                   ],
                 ),
               ),
@@ -1024,7 +1095,10 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: Color(0xFF059669), width: 2),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF059669),
+                        width: 2,
+                      ),
                     ),
                   ),
                 ),
@@ -1035,32 +1109,42 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
                 child: provider.isLoading
                     ? const Center(
                         child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF059669)),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Color(0xFF059669),
+                          ),
                         ),
                       )
                     : provider.reports.isEmpty
-                        ? Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.inbox, size: 64, color: Colors.grey[300]),
-                                const SizedBox(height: 16),
-                                Text(
-                                  'No reports found',
-                                  style: TextStyle(color: Colors.grey[600], fontSize: 16),
-                                ),
-                              ],
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.inbox,
+                              size: 64,
+                              color: Colors.grey[300],
                             ),
-                          )
-                        : ListView.separated(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            itemCount: provider.reports.length,
-                            separatorBuilder: (context, index) => const SizedBox(height: 12),
-                            itemBuilder: (context, index) {
-                              final report = provider.reports[index];
-                              return _buildReportCard(report);
-                            },
-                          ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No reports found',
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : ListView.separated(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: provider.reports.length,
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 12),
+                        itemBuilder: (context, index) {
+                          final report = provider.reports[index];
+                          return _buildReportCard(report);
+                        },
+                      ),
               ),
 
               // Back Button
@@ -1103,7 +1187,9 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
               decoration: BoxDecoration(
                 border: Border(
                   bottom: BorderSide(
-                    color: isActive ? const Color(0xFF059669) : Colors.transparent,
+                    color: isActive
+                        ? const Color(0xFF059669)
+                        : Colors.transparent,
                     width: 2,
                   ),
                 ),
@@ -1150,10 +1236,7 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
               ],
             ),
             const SizedBox(height: 8),
-            Text(
-              report.type,
-              style: const TextStyle(color: Colors.black87),
-            ),
+            Text(report.type, style: const TextStyle(color: Colors.black87)),
             const SizedBox(height: 4),
             Text(
               report.location,
@@ -1185,15 +1268,9 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: TextStyle(color: Colors.grey[600], fontSize: 12),
-        ),
+        Text(label, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
         const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(color: Colors.black87),
-        ),
+        Text(value, style: const TextStyle(color: Colors.black87)),
       ],
     );
   }
@@ -1229,8 +1306,20 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
   }
 
   String _formatDateTime(DateTime dateTime) {
-    final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    final months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     return '${dateTime.day} ${months[dateTime.month - 1]}, ${dateTime.year} - ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
 }

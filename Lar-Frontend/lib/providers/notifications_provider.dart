@@ -22,14 +22,19 @@ class NotificationsProvider extends ChangeNotifier {
   List<AppNotification> _notifications = [];
   bool _isLoading = false;
   String? _error;
-  DateTime? _loginTime; // Track when user logged in to avoid showing old notifications
+  DateTime?
+  _loginTime; // Track when user logged in to avoid showing old notifications
   Map<String, String> _reportStatusCache = {}; // Track last known status
-  Set<String> _displayedNotifications = {}; // Track which notifications were shown
-  Set<String> _notifiedPrograms = {}; // Track programs we've already notified about
+  Set<String> _displayedNotifications =
+      {}; // Track which notifications were shown
+  Set<String> _notifiedPrograms =
+      {}; // Track programs we've already notified about
   Map<String, String> _programStatusCache = {}; // Track program status changes
-  Map<String, bool> _weatherAlertCache = {}; // Track weather alerts to avoid duplicates
-  Set<String> _notifiedOtherReports = {}; // Track reports from other citizens we've notified about
-  
+  Map<String, bool> _weatherAlertCache =
+      {}; // Track weather alerts to avoid duplicates
+  Set<String> _notifiedOtherReports =
+      {}; // Track reports from other citizens we've notified about
+
   // User alert preferences
   bool _floodAlertsEnabled = true;
   bool _fireAlertsEnabled = true;
@@ -40,12 +45,15 @@ class NotificationsProvider extends ChangeNotifier {
   Function(String)? onNotificationTapped;
 
   List<AppNotification> get notifications => _notifications;
+
   bool get isLoading => _isLoading;
+
   String? get error => _error;
 
   int get unreadCount => _notifications.where((n) => !n.isRead).length;
-  List<AppNotification> get recentNotifications => 
-    _notifications.take(5).toList();
+
+  List<AppNotification> get recentNotifications =>
+      _notifications.take(5).toList();
 
   NotificationsProvider() {
     _loadAlertPreferences();
@@ -126,7 +134,7 @@ class NotificationsProvider extends ChangeNotifier {
     if (userId == null) return;
 
     print('🔔 Starting notification listener for user: $userId');
-    
+
     _firestore
         .collection('users')
         .doc(userId)
@@ -134,36 +142,47 @@ class NotificationsProvider extends ChangeNotifier {
         .orderBy('timestamp', descending: true)
         .limit(5) // Only load the 5 most recent notifications
         .snapshots()
-        .listen((snapshot) {
-      List<AppNotification> newNotifications = snapshot.docs
-          .map((doc) => AppNotification.fromFirestore(doc.data(), doc.id))
-          .toList();
-      
-      print('📋 Received ${newNotifications.length} notifications from Firestore');
-      
-      // Check for new notifications and display them
-      for (var notif in newNotifications) {
-        // Only show notifications created AFTER user logged in
-        // This prevents spam of old notifications on login
-        final isNewNotification = _loginTime != null && notif.timestamp.isAfter(_loginTime!);
-        final isRecentNotification = notif.timestamp.isAfter(DateTime.now().subtract(Duration(seconds: 10)));
-        
-        if (!_displayedNotifications.contains(notif.id) && (isNewNotification || isRecentNotification)) {
-          print('✅ Displaying notification: ${notif.title}');
-          // This is a new notification - display it
-          _displayNotification(notif);
-          _displayedNotifications.add(notif.id);
-        } else {
-          print('⏭️ Skipping notification: ${notif.title} (not new/recent)');
-        }
-      }
-      
-      _notifications = newNotifications;
-      notifyListeners();
-    }, onError: (e) {
-      _error = e.toString();
-      notifyListeners();
-    });
+        .listen(
+          (snapshot) {
+            List<AppNotification> newNotifications = snapshot.docs
+                .map((doc) => AppNotification.fromFirestore(doc.data(), doc.id))
+                .toList();
+
+            print(
+              '📋 Received ${newNotifications.length} notifications from Firestore',
+            );
+
+            // Check for new notifications and display them
+            for (var notif in newNotifications) {
+              // Only show notifications created AFTER user logged in
+              // This prevents spam of old notifications on login
+              final isNewNotification =
+                  _loginTime != null && notif.timestamp.isAfter(_loginTime!);
+              final isRecentNotification = notif.timestamp.isAfter(
+                DateTime.now().subtract(Duration(seconds: 10)),
+              );
+
+              if (!_displayedNotifications.contains(notif.id) &&
+                  (isNewNotification || isRecentNotification)) {
+                print('✅ Displaying notification: ${notif.title}');
+                // This is a new notification - display it
+                _displayNotification(notif);
+                _displayedNotifications.add(notif.id);
+              } else {
+                print(
+                  '⏭️ Skipping notification: ${notif.title} (not new/recent)',
+                );
+              }
+            }
+
+            _notifications = newNotifications;
+            notifyListeners();
+          },
+          onError: (e) {
+            _error = e.toString();
+            notifyListeners();
+          },
+        );
   }
 
   /// Display local notification
@@ -176,11 +195,13 @@ class NotificationsProvider extends ChangeNotifier {
         // small buffer to account for clock skew
         final buffer = Duration(seconds: 2);
         if (notification.timestamp.isBefore(_loginTime!.subtract(buffer))) {
-          print('⏭️ Skipping display of old notification ${notification.id} created at ${notification.timestamp} before login ($_loginTime)');
+          print(
+            '⏭️ Skipping display of old notification ${notification.id} created at ${notification.timestamp} before login ($_loginTime)',
+          );
           return;
         }
       }
-      
+
       // Use PushNotificationService wrapper to ensure local notifications
       // are initialized and displayed consistently across the app.
       // Build a JSON payload containing the notification id, type and any relevant data
@@ -191,15 +212,20 @@ class NotificationsProvider extends ChangeNotifier {
       };
 
       PushNotificationService.showLocalNotification(
-        title: notification.title,
-        body: notification.body,
-        payload: jsonEncode(payloadMap),
-      ).then((_) {
-        print('✅ Notification displayed successfully via PushNotificationService');
-      }).catchError((error) {
-        print('❌ Error displaying notification via PushNotificationService: $error');
-      });
-      
+            title: notification.title,
+            body: notification.body,
+            payload: jsonEncode(payloadMap),
+          )
+          .then((_) {
+            print(
+              '✅ Notification displayed successfully via PushNotificationService',
+            );
+          })
+          .catchError((error) {
+            print(
+              '❌ Error displaying notification via PushNotificationService: $error',
+            );
+          });
     } catch (e) {
       print('❌ Exception in _displayNotification: $e');
       print('Stack: $e');
@@ -217,26 +243,26 @@ class NotificationsProvider extends ChangeNotifier {
         .where('user_id', isEqualTo: userId)
         .snapshots()
         .listen((snapshot) {
-      for (var doc in snapshot.docs) {
-        final reportId = doc.id;
-        final newStatus = doc['status'] ?? 'unresolved';
-        final oldStatus = _reportStatusCache[reportId];
+          for (var doc in snapshot.docs) {
+            final reportId = doc.id;
+            final newStatus = doc['status'] ?? 'unresolved';
+            final oldStatus = _reportStatusCache[reportId];
 
-        // Status changed - create notification
-        if (oldStatus != null && oldStatus != newStatus) {
-          _createReportStatusNotification(
-            reportId: reportId,
-            reportType: 'emergency',
-            newStatus: newStatus,
-            oldStatus: oldStatus,
-            userId: userId,
-          );
-        }
+            // Status changed - create notification
+            if (oldStatus != null && oldStatus != newStatus) {
+              _createReportStatusNotification(
+                reportId: reportId,
+                reportType: 'emergency',
+                newStatus: newStatus,
+                oldStatus: oldStatus,
+                userId: userId,
+              );
+            }
 
-        // Update cache
-        _reportStatusCache[reportId] = newStatus;
-      }
-    });
+            // Update cache
+            _reportStatusCache[reportId] = newStatus;
+          }
+        });
 
     // Listen to aid requests
     _firestore
@@ -244,26 +270,26 @@ class NotificationsProvider extends ChangeNotifier {
         .where('user_id', isEqualTo: userId)
         .snapshots()
         .listen((snapshot) {
-      for (var doc in snapshot.docs) {
-        final requestId = doc.id;
-        final newStatus = doc['status'] ?? 'Submitted';
-        final oldStatus = _reportStatusCache[requestId];
+          for (var doc in snapshot.docs) {
+            final requestId = doc.id;
+            final newStatus = doc['status'] ?? 'Submitted';
+            final oldStatus = _reportStatusCache[requestId];
 
-        // Status changed - create notification
-        if (oldStatus != null && oldStatus != newStatus) {
-          _createReportStatusNotification(
-            reportId: requestId,
-            reportType: 'aid',
-            newStatus: newStatus,
-            oldStatus: oldStatus,
-            userId: userId,
-          );
-        }
+            // Status changed - create notification
+            if (oldStatus != null && oldStatus != newStatus) {
+              _createReportStatusNotification(
+                reportId: requestId,
+                reportType: 'aid',
+                newStatus: newStatus,
+                oldStatus: oldStatus,
+                userId: userId,
+              );
+            }
 
-        // Update cache
-        _reportStatusCache[requestId] = newStatus;
-      }
-    });
+            // Update cache
+            _reportStatusCache[requestId] = newStatus;
+          }
+        });
   }
 
   /// Listen to new reports from other citizens and create notifications
@@ -274,26 +300,27 @@ class NotificationsProvider extends ChangeNotifier {
     print('🔔 Starting listener for reports from other citizens');
 
     // Listen to ALL emergency reports (not just current user's)
-    _firestore
-        .collection('emergency_reports')
-        .snapshots()
-        .listen((snapshot) {
-      print('📋 Received emergency_reports snapshot with ${snapshot.docs.length} documents');
-      
+    _firestore.collection('emergency_reports').snapshots().listen((snapshot) {
+      print(
+        '📋 Received emergency_reports snapshot with ${snapshot.docs.length} documents',
+      );
+
       for (var doc in snapshot.docs) {
         try {
           final reportId = doc.id;
           final reportUserId = doc['user_id'];
           final data = doc.data() as Map<String, dynamic>;
-          
-          print('🔍 Processing report $reportId from user $reportUserId (currentUser: $userId)');
-          
+
+          print(
+            '🔍 Processing report $reportId from user $reportUserId (currentUser: $userId)',
+          );
+
           // Skip if it's the current user's report
           if (reportUserId == userId) {
             print('⏭️ Skipping own report: $reportId');
             continue;
           }
-          
+
           // Check if we've already notified about this report
           if (_notifiedOtherReports.contains(reportId)) {
             print('⏭️ Already notified about report: $reportId');
@@ -304,11 +331,15 @@ class NotificationsProvider extends ChangeNotifier {
           final docTimestamp = _getDocumentTimestamp(data);
           if (_loginTime != null) {
             if (docTimestamp == null) {
-              print('⚠️ Report $reportId has no timestamp; skipping to avoid old notifications');
+              print(
+                '⚠️ Report $reportId has no timestamp; skipping to avoid old notifications',
+              );
               continue;
             }
             if (!docTimestamp.isAfter(_loginTime!)) {
-              print('⏭️ Report $reportId created at $docTimestamp before login ($_loginTime); skipping');
+              print(
+                '⏭️ Report $reportId created at $docTimestamp before login ($_loginTime); skipping',
+              );
               continue;
             }
           }
@@ -317,7 +348,9 @@ class NotificationsProvider extends ChangeNotifier {
           final reportType = data['type'] ?? 'flood';
           bool shouldNotify = _shouldNotifyForReportType(reportType);
 
-          print('📢 Should notify for $reportId (type: $reportType, shouldNotify: $shouldNotify)');
+          print(
+            '📢 Should notify for $reportId (type: $reportType, shouldNotify: $shouldNotify)',
+          );
 
           if (shouldNotify) {
             print('✅ Creating notification for report: $reportId');
@@ -339,7 +372,7 @@ class NotificationsProvider extends ChangeNotifier {
   /// Determine if should notify based on report type and user preferences
   bool _shouldNotifyForReportType(String reportType) {
     final type = reportType.toLowerCase();
-    
+
     if (type.contains('flood')) {
       return _floodAlertsEnabled;
     } else if (type.contains('fire')) {
@@ -347,13 +380,14 @@ class NotificationsProvider extends ChangeNotifier {
     } else if (type.contains('landslide')) {
       return _landslideAlertsEnabled;
     }
-    
+
     return true; // Default: notify for unknown types
   }
 
   /// Extract a DateTime from common timestamp fields in a document
   DateTime? _getDocumentTimestamp(Map<String, dynamic> data) {
-    final dynamic t = data['timestamp'] ?? data['created_at'] ?? data['createdAt'];
+    final dynamic t =
+        data['timestamp'] ?? data['created_at'] ?? data['createdAt'];
     if (t == null) return null;
     try {
       if (t is Timestamp) return t.toDate();
@@ -376,7 +410,7 @@ class NotificationsProvider extends ChangeNotifier {
       final reportData = data['type'] ?? reportType;
       final location = data['location'] ?? 'Near you';
       final description = data['description'] ?? '';
-      
+
       // Determine title based on type
       String title = '📍 New Report';
       if (reportData.toLowerCase().contains('flood')) {
@@ -399,10 +433,11 @@ class NotificationsProvider extends ChangeNotifier {
           'reportType': reportType,
           'location': location,
           'description': description,
-          'detailedInfo': '$reportData reported\nLocation: $location\n\n$description',
+          'detailedInfo':
+              '$reportData reported\nLocation: $location\n\n$description',
         },
-        icon: reportData.toLowerCase().contains('flood') 
-            ? '🌧️' 
+        icon: reportData.toLowerCase().contains('flood')
+            ? '🌧️'
             : reportData.toLowerCase().contains('fire')
             ? '🔥'
             : '⛰️',
@@ -426,7 +461,6 @@ class NotificationsProvider extends ChangeNotifier {
     }
   }
 
-
   /// Listen to new aid programs and notify users
   void _listenToNewPrograms() {
     final userId = _auth.currentUser?.uid;
@@ -440,58 +474,71 @@ class NotificationsProvider extends ChangeNotifier {
     _firestore
         .collection('aid_programs')
         .snapshots()
-        .listen((snapshot) {
-      print('📦 Programs snapshot received with ${snapshot.docs.length} programs');
-      
-      for (var doc in snapshot.docs) {
-        try {
-          final data = doc.data() as Map<String, dynamic>? ?? {};
-          
-          final programId = doc.id;
-          final programName = data['name'] ?? data['title'] ?? 'New Aid Program';
-          final description = data['description'] ?? '';
-          final status = data['status'] ?? 'draft';
-          
-          // Handle created_at as either Timestamp or String
-          DateTime? createdAt;
-          final createdAtField = data['created_at'];
-          if (createdAtField is Timestamp) {
-            createdAt = createdAtField.toDate();
-          } else if (createdAtField is String) {
-            try {
-              createdAt = DateTime.parse(createdAtField);
-            } catch (e) {
-              print('⚠️ Could not parse created_at string: $createdAtField');
-            }
-          }
-
-          final oldStatus = _programStatusCache[programId];
-          print('📋 Program: $programName, Status: $status (was: $oldStatus), ID: $programId');
-
-          // Check if status changed TO active
-          if (status.toLowerCase() == 'active' && (oldStatus == null || oldStatus.toLowerCase() != 'active')) {
-            print('✅ Program activated: $programName (was $oldStatus, now $status)');
-            _notifiedPrograms.add(programId);
-
-            // Notify about program activation regardless of login time (programs are rare)
-            _createNewProgramNotification(
-              programId: programId,
-              programName: programName,
-              description: description,
-              userId: userId,
+        .listen(
+          (snapshot) {
+            print(
+              '📦 Programs snapshot received with ${snapshot.docs.length} programs',
             );
-          }
-          
-          // Update cache
-          _programStatusCache[programId] = status;
-          
-        } catch (e) {
-          print('⚠️ Error processing program ${doc.id}: $e');
-        }
-      }
-    }, onError: (error) {
-      print('❌ Error listening to programs: $error');
-    });
+
+            for (var doc in snapshot.docs) {
+              try {
+                final data = doc.data() as Map<String, dynamic>? ?? {};
+
+                final programId = doc.id;
+                final programName =
+                    data['name'] ?? data['title'] ?? 'New Aid Program';
+                final description = data['description'] ?? '';
+                final status = data['status'] ?? 'draft';
+
+                // Handle created_at as either Timestamp or String
+                DateTime? createdAt;
+                final createdAtField = data['created_at'];
+                if (createdAtField is Timestamp) {
+                  createdAt = createdAtField.toDate();
+                } else if (createdAtField is String) {
+                  try {
+                    createdAt = DateTime.parse(createdAtField);
+                  } catch (e) {
+                    print(
+                      '⚠️ Could not parse created_at string: $createdAtField',
+                    );
+                  }
+                }
+
+                final oldStatus = _programStatusCache[programId];
+                print(
+                  '📋 Program: $programName, Status: $status (was: $oldStatus), ID: $programId',
+                );
+
+                // Check if status changed TO active
+                if (status.toLowerCase() == 'active' &&
+                    (oldStatus == null ||
+                        oldStatus.toLowerCase() != 'active')) {
+                  print(
+                    '✅ Program activated: $programName (was $oldStatus, now $status)',
+                  );
+                  _notifiedPrograms.add(programId);
+
+                  // Notify about program activation regardless of login time (programs are rare)
+                  _createNewProgramNotification(
+                    programId: programId,
+                    programName: programName,
+                    description: description,
+                    userId: userId,
+                  );
+                }
+
+                // Update cache
+                _programStatusCache[programId] = status;
+              } catch (e) {
+                print('⚠️ Error processing program ${doc.id}: $e');
+              }
+            }
+          },
+          onError: (error) {
+            print('❌ Error listening to programs: $error');
+          },
+        );
   }
 
   /// Create a notification for new aid program
@@ -503,12 +550,13 @@ class NotificationsProvider extends ChangeNotifier {
   }) async {
     try {
       print('🔔 Creating notification for program: $programName');
-      
-      final notificationId = 'PROG_${programId}_${DateTime.now().millisecondsSinceEpoch}';
+
+      final notificationId =
+          'PROG_${programId}_${DateTime.now().millisecondsSinceEpoch}';
 
       // Create a more detailed body with description preview
-      final descriptionPreview = description.length > 100 
-          ? description.substring(0, 100) + '...' 
+      final descriptionPreview = description.length > 100
+          ? description.substring(0, 100) + '...'
           : description;
 
       final notification = AppNotification(
@@ -560,11 +608,14 @@ class NotificationsProvider extends ChangeNotifier {
     try {
       // Determine if this report type should be notified based on user preferences
       bool shouldNotify = false;
-      if (reportId.toLowerCase().contains('flood') || reportType.toLowerCase().contains('flood')) {
+      if (reportId.toLowerCase().contains('flood') ||
+          reportType.toLowerCase().contains('flood')) {
         shouldNotify = _floodAlertsEnabled;
-      } else if (reportId.toLowerCase().contains('fire') || reportType.toLowerCase().contains('fire')) {
+      } else if (reportId.toLowerCase().contains('fire') ||
+          reportType.toLowerCase().contains('fire')) {
         shouldNotify = _fireAlertsEnabled;
-      } else if (reportId.toLowerCase().contains('landslide') || reportType.toLowerCase().contains('landslide')) {
+      } else if (reportId.toLowerCase().contains('landslide') ||
+          reportType.toLowerCase().contains('landslide')) {
         shouldNotify = _landslideAlertsEnabled;
       } else {
         // For regular emergency reports, always notify (not tied to specific alert type)
@@ -573,7 +624,9 @@ class NotificationsProvider extends ChangeNotifier {
 
       // Skip notification if user has disabled this alert type
       if (!shouldNotify) {
-        print('⏭️ Skipping notification for $reportType report - user has disabled this alert type');
+        print(
+          '⏭️ Skipping notification for $reportType report - user has disabled this alert type',
+        );
         return;
       }
 
@@ -594,8 +647,9 @@ class NotificationsProvider extends ChangeNotifier {
           ? '📋 Report Update'
           : '🤝 Aid Request Update';
 
-      final statusMessage = statusMessages[newStatus] ?? 'Status changed to $newStatus';
-      
+      final statusMessage =
+          statusMessages[newStatus] ?? 'Status changed to $newStatus';
+
       // Create more detailed body with report ID and status
       final body = 'Your $reportType report $reportId $statusMessage';
 
@@ -745,7 +799,7 @@ class NotificationsProvider extends ChangeNotifier {
       _programStatusCache.clear();
       _weatherAlertCache.clear();
       _notifiedOtherReports.clear();
-      
+
       print('✅ All notifications cleared successfully');
       notifyListeners();
     } catch (e) {
@@ -780,7 +834,7 @@ class NotificationsProvider extends ChangeNotifier {
 
       // Mark as displayed before saving to prevent duplicate display from listener
       _displayedNotifications.add(notification.id);
-      
+
       // Display immediately
       _displayNotification(notification);
 
@@ -791,7 +845,7 @@ class NotificationsProvider extends ChangeNotifier {
           .collection('notifications')
           .doc(notification.id)
           .set(notification.toFirestore());
-      
+
       // Don't manually insert - let the Firestore listener handle list updates
     } catch (e) {
       print('Error sending notification: $e');
@@ -821,7 +875,7 @@ class NotificationsProvider extends ChangeNotifier {
         final alertDetails = _weatherProvider.getAlertDetails();
         if (alertDetails != null) {
           final alertType = alertDetails['type'] as String;
-          
+
           // Check if user has enabled this alert type
           bool shouldNotify = false;
           if (alertType == 'flood' && _floodAlertsEnabled) {
@@ -829,7 +883,7 @@ class NotificationsProvider extends ChangeNotifier {
           } else if (alertType == 'thunderstorm' && _weatherWarningsEnabled) {
             shouldNotify = true;
           }
-          
+
           // Only notify once per alert type per session if enabled
           if (shouldNotify && _weatherAlertCache[alertType] != true) {
             await _createWeatherAlert(alertDetails);
@@ -862,7 +916,8 @@ class NotificationsProvider extends ChangeNotifier {
           'weatherCode': alertDetails['weatherCode'],
           'description': alertDetails['description'],
           'location': alertDetails['location'],
-          'detailedInfo': '${alertDetails['description']}\n\nTemperature: ${alertDetails['temperature']}°C\nWind Speed: ${alertDetails['windSpeed']} km/h',
+          'detailedInfo':
+              '${alertDetails['description']}\n\nTemperature: ${alertDetails['temperature']}°C\nWind Speed: ${alertDetails['windSpeed']} km/h',
         },
         icon: alertDetails['icon'],
         actionUrl: '/alerts/weather',
@@ -883,4 +938,5 @@ class NotificationsProvider extends ChangeNotifier {
     } catch (e) {
       print('❌ Error creating weather alert: $e');
     }
-  }}
+  }
+}

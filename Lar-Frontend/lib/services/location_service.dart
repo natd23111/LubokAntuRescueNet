@@ -5,17 +5,17 @@ class LocationService {
   static Future<bool> requestLocationPermission() async {
     try {
       final status = await Geolocator.checkPermission();
-      
+
       if (status == LocationPermission.denied) {
         final result = await Geolocator.requestPermission();
         print('📍 Location permission requested: $result');
         return result == LocationPermission.whileInUse ||
-               result == LocationPermission.always;
+            result == LocationPermission.always;
       } else if (status == LocationPermission.deniedForever) {
         print('❌ Location permission permanently denied');
         return false;
       }
-      
+
       print('✅ Location permission already granted');
       return true;
     } catch (e) {
