@@ -162,7 +162,7 @@ class _EditAidProgramFormState extends State<EditAidProgramForm> {
         backgroundColor: const Color(0xFF0E9D63),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Colors.white,),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(

@@ -244,8 +244,9 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
           appBar: AppBar(
             backgroundColor: const Color(0xFF0E9D63),
             elevation: 0,
+            iconTheme: const IconThemeData(color: Colors.white),
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () => Navigator.of(context).pop(),
             ),
             title: const Text(
@@ -386,7 +387,7 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
                     ),
                     child: Text(
                       'Back',
-                      style: TextStyle(color: Colors.grey[600]),
+                      style: TextStyle(color: Colors.grey[700]),
                     ),
                   ),
                 ),

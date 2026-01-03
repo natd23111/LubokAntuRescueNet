@@ -178,7 +178,7 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
         backgroundColor: const Color(0xFF0E9D63),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Colors.white,),
           onPressed: widget.onBack,
         ),
         title: const Text(
@@ -442,8 +442,15 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
                 ),
                 ),
                 const SizedBox(height: 12),
-                TextButton(
+                OutlinedButton(
                   onPressed: widget.onBack,
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  side: BorderSide(color: Colors.grey[300]!),
+                  ),
                   child: Text(
                     'Back',
                     style: TextStyle(

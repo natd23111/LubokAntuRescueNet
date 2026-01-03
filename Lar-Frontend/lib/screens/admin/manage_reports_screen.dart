@@ -343,7 +343,7 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
         backgroundColor: const Color(0xFF059669),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back,color: Colors.white),
           onPressed: () => setState(() => editMode = false),
         ),
         title: const Text(
@@ -655,7 +655,7 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
         elevation: 0,
         leading: GestureDetector(
           onTap: () => setState(() => selectedReportId = null),
-          child: const Icon(Icons.arrow_back),
+          child: const Icon(Icons.arrow_back, color: Colors.white),
         ),
         title: const Text(
           'Report Details',
@@ -959,12 +959,12 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
           appBar: AppBar(
             backgroundColor: const Color(0xFF059669),
             elevation: 0,
+            iconTheme: const IconThemeData(color: Colors.white),
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
               onPressed: widget.onBack,
             ),
-            title: const Text(
-              'Manage Reports',
+            title: const Text('Manage Reports',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,

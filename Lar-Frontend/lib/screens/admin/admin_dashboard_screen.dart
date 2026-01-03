@@ -451,7 +451,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                           ),
                                         ),
                                         child: Text(
-                                          'View Reports →',
+                                          'View Reports',
                                           style: TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.w500,
