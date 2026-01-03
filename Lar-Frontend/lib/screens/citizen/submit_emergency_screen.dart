@@ -891,8 +891,7 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                       ),
                       side: BorderSide(color: Colors.grey[300]!),
                     ),
-                    child: Text(
-                  'Clear / Reset',
+                    child: Text('Clear / Reset',
                   style: TextStyle(color: Colors.grey[700]),
                 ),
                   ),

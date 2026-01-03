@@ -77,23 +77,40 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    Widget quickAction(IconData icon, String label, VoidCallback onTap, Color bgColor) {
+    Widget quickAction(IconData icon, String label, VoidCallback onTap, Color bgColor,) {
       return InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          padding: EdgeInsets.symmetric(vertical: 18),
+          height: 140,
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CircleAvatar(backgroundColor: bgColor, child: Icon(icon, color: Colors.white)),
-              SizedBox(height: 10),
-              Text(label, textAlign: TextAlign.center, style: TextStyle(fontSize: 14)),
-            ],
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircleAvatar(
+                  radius: 26,
+                  backgroundColor: bgColor,
+                  child: Icon(icon, color: Colors.white, size: 28),
+                ),
+                SizedBox(height: 12),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  child: Text(
+                    label,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       );

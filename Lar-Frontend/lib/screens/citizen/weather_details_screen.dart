@@ -169,7 +169,7 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Current Weather', style: TextStyle(color: Colors.white70, fontSize: 14)),
+                              Text('Current Weather', style: TextStyle(color: Colors.white, fontSize: 14)),
                               SizedBox(height: 8),
                               Text(
                                 '${weather.temperature.toStringAsFixed(1)}°C',
@@ -294,8 +294,9 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen> {
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: () => weatherProvider.refreshWeather(),
-                    icon: Icon(Icons.refresh),
-                    label: Text('Refresh Weather'),
+                    icon: Icon(Icons.refresh, color: Colors.white),
+                    label: Text('Refresh Weather',
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: primaryGreen,
                       padding: EdgeInsets.symmetric(vertical: 12),
