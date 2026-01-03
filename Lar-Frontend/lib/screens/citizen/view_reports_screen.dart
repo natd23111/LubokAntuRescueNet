@@ -23,8 +23,11 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
     // Fetch my reports for the logged-in user
     Future.microtask(() {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      final reportsProvider = Provider.of<ReportsProvider>(context, listen: false);
-      
+      final reportsProvider = Provider.of<ReportsProvider>(
+        context,
+        listen: false,
+      );
+
       if (authProvider.userId != null) {
         // Set user ID in reports provider
         reportsProvider.setUserId(authProvider.userId!);
@@ -128,10 +131,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                   panEnabled: true,
                   minScale: 1.0,
                   maxScale: 4.0,
-                  child: Image.network(
-                    imageUrl,
-                    fit: BoxFit.contain,
-                  ),
+                  child: Image.network(imageUrl, fit: BoxFit.contain),
                 ),
               ),
             ),
@@ -147,11 +147,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                     shape: BoxShape.circle,
                   ),
                   padding: const EdgeInsets.all(8),
-                  child: const Icon(
-                    Icons.close,
-                    color: Colors.white,
-                    size: 24,
-                  ),
+                  child: const Icon(Icons.close, color: Colors.white, size: 24),
                 ),
               ),
             ),
@@ -168,8 +164,9 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
         Report? selectedReport;
         if (selectedReportId != null) {
           try {
-            selectedReport = provider.allReports
-                .firstWhere((r) => r.id == selectedReportId);
+            selectedReport = provider.allReports.firstWhere(
+              (r) => r.id == selectedReportId,
+            );
           } catch (e) {
             selectedReport = null;
           }
@@ -208,16 +205,13 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
               // Tabs
               Container(
                 decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(color: Colors.grey[200]!),
-                  ),
+                  border: Border(bottom: BorderSide(color: Colors.grey[200]!)),
                 ),
                 child: Row(
                   children: [
                     Expanded(
                       child: GestureDetector(
-                        onTap: () =>
-                            setState(() => activeTab = 'my-reports'),
+                        onTap: () => setState(() => activeTab = 'my-reports'),
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
@@ -248,8 +242,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                     ),
                     Expanded(
                       child: GestureDetector(
-                        onTap: () =>
-                            setState(() => activeTab = 'all-reports'),
+                        onTap: () => setState(() => activeTab = 'all-reports'),
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
@@ -287,16 +280,13 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                 padding: const EdgeInsets.all(16),
                 child: TextField(
                   controller: searchController,
-                  onChanged: (value) =>
-                      setState(() => searchQuery = value),
+                  onChanged: (value) => setState(() => searchQuery = value),
                   decoration: InputDecoration(
                     hintText: 'Search by type or location',
-                    prefixIcon: const Icon(Icons.search,
-                        color: Colors.grey),
+                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide:
-                          BorderSide(color: Colors.grey[300]!),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -323,9 +313,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Colors.red[50],
-                    border: Border(
-                      top: BorderSide(color: Colors.red[200]!),
-                    ),
+                    border: Border(top: BorderSide(color: Colors.red[200]!)),
                   ),
                   child: Text(
                     'Error: ${provider.error}',
@@ -350,10 +338,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                   ),
                   side: BorderSide(color: Colors.grey[300]!),
                 ),
-                child: Text(
-                  'Back',
-                  style: TextStyle(color: Colors.grey[600]),
-                ),
+                child: Text('Back', style: TextStyle(color: Colors.grey[600])),
               ),
             ),
           ),
@@ -364,10 +349,14 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
 
   Widget _buildMyReportsTab(ReportsProvider provider) {
     final myReports = provider.myReports
-        .where((r) =>
-            r.reporterName.toLowerCase().contains(searchQuery.toLowerCase()) ||
-            r.type.toLowerCase().contains(searchQuery.toLowerCase()) ||
-            r.location.toLowerCase().contains(searchQuery.toLowerCase()))
+        .where(
+          (r) =>
+              r.reporterName.toLowerCase().contains(
+                searchQuery.toLowerCase(),
+              ) ||
+              r.type.toLowerCase().contains(searchQuery.toLowerCase()) ||
+              r.location.toLowerCase().contains(searchQuery.toLowerCase()),
+        )
         .toList();
 
     if (provider.isLoading) {
@@ -407,11 +396,13 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
 
   Widget _buildAllReportsTab(ReportsProvider provider) {
     final allReports = provider.allReports
-        .where((r) =>
-            (selectedType == 'All' ||
-                r.type.toLowerCase() == selectedType.toLowerCase()) &&
-            (r.type.toLowerCase().contains(searchQuery.toLowerCase()) ||
-                r.location.toLowerCase().contains(searchQuery.toLowerCase())))
+        .where(
+          (r) =>
+              (selectedType == 'All' ||
+                  r.type.toLowerCase() == selectedType.toLowerCase()) &&
+              (r.type.toLowerCase().contains(searchQuery.toLowerCase()) ||
+                  r.location.toLowerCase().contains(searchQuery.toLowerCase())),
+        )
         .toList();
 
     final types = [
@@ -420,7 +411,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
       'Fire',
       'Accident',
       'Medical Emergency',
-      'Landslide'
+      'Landslide',
     ];
 
     if (provider.isLoading) {
@@ -457,8 +448,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                       return Padding(
                         padding: const EdgeInsets.only(right: 8.0),
                         child: GestureDetector(
-                          onTap: () =>
-                              setState(() => selectedType = type),
+                          onTap: () => setState(() => selectedType = type),
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 16,
@@ -505,8 +495,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                   const SizedBox(height: 16),
                   Text(
                     'No reports found',
-                    style:
-                        TextStyle(color: Colors.grey[600], fontSize: 16),
+                    style: TextStyle(color: Colors.grey[600], fontSize: 16),
                   ),
                 ],
               ),
@@ -577,13 +566,9 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
               children: [
                 Text(
                   _formatDate(report.dateReported),
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
-                Icon(Icons.chevron_right,
-                    color: Colors.grey[400], size: 20),
+                Icon(Icons.chevron_right, color: Colors.grey[400], size: 20),
               ],
             ),
           ],
@@ -637,13 +622,9 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
               children: [
                 Text(
                   'By ${report.reporterName} • ${_formatDate(report.dateReported)}',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
-                Icon(Icons.chevron_right,
-                    color: Colors.grey[400], size: 20),
+                Icon(Icons.chevron_right, color: Colors.grey[400], size: 20),
               ],
             ),
           ],
@@ -684,10 +665,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                   children: [
                     Text(
                       'Report ID',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 12,
-                      ),
+                      style: TextStyle(color: Colors.grey[600], fontSize: 12),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -719,18 +697,12 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
               children: [
                 Text(
                   'Description',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   report.description,
-                  style: const TextStyle(
-                    color: Colors.black87,
-                    fontSize: 14,
-                  ),
+                  style: const TextStyle(color: Colors.black87, fontSize: 14),
                 ),
               ],
             ),
@@ -743,15 +715,13 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                 children: [
                   Text(
                     report.imageUrls!.length == 1 ? 'Image' : 'Images',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 12,
-                    ),
+                    style: TextStyle(color: Colors.grey[600], fontSize: 12),
                   ),
                   const SizedBox(height: 8),
                   if (report.imageUrls!.length == 1)
                     GestureDetector(
-                      onTap: () => _showFullScreenImage(report.imageUrls!.first),
+                      onTap: () =>
+                          _showFullScreenImage(report.imageUrls!.first),
                       child: Container(
                         width: double.infinity,
                         height: 200,
@@ -769,15 +739,17 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                     GridView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        crossAxisSpacing: 8,
-                        mainAxisSpacing: 8,
-                      ),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 8,
+                          ),
                       itemCount: report.imageUrls!.length,
                       itemBuilder: (context, index) {
                         return GestureDetector(
-                          onTap: () => _showFullScreenImage(report.imageUrls![index]),
+                          onTap: () =>
+                              _showFullScreenImage(report.imageUrls![index]),
                           child: Container(
                             decoration: BoxDecoration(
                               color: Colors.grey[200],
@@ -800,10 +772,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                 children: [
                   Text(
                     'Image',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 12,
-                    ),
+                    style: TextStyle(color: Colors.grey[600], fontSize: 12),
                   ),
                   const SizedBox(height: 8),
                   GestureDetector(
@@ -815,10 +784,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                         color: Colors.grey[200],
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Image.network(
-                        report.imageUrl!,
-                        fit: BoxFit.cover,
-                      ),
+                      child: Image.network(report.imageUrl!, fit: BoxFit.cover),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -851,7 +817,8 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                     report.dateUnderReview != null
                         ? _formatDetailDate(report.dateUnderReview!)
                         : 'Pending',
-                    isActive: report.status == 'in-progress' ||
+                    isActive:
+                        report.status == 'in-progress' ||
                         report.status == 'resolved',
                   ),
                   // Response Team Dispatched - Active when status is resolved
@@ -896,27 +863,21 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: Colors.grey[600],
-            fontSize: 12,
-          ),
-        ),
+        Text(label, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
         const SizedBox(height: 4),
         Text(
           value,
-          style: const TextStyle(
-            color: Colors.black87,
-            fontSize: 14,
-          ),
+          style: const TextStyle(color: Colors.black87, fontSize: 14),
         ),
       ],
     );
   }
 
-  Widget _buildTimelineItem(String title, String date,
-      {required bool isActive}) {
+  Widget _buildTimelineItem(
+    String title,
+    String date, {
+    required bool isActive,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
@@ -928,9 +889,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                 width: 8,
                 height: 8,
                 decoration: BoxDecoration(
-                  color: isActive
-                      ? const Color(0xFF059669)
-                      : Colors.grey[400],
+                  color: isActive ? const Color(0xFF059669) : Colors.grey[400],
                   shape: BoxShape.circle,
                 ),
               ),
@@ -951,10 +910,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
               const SizedBox(height: 2),
               Text(
                 date,
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 13,
-                ),
+                style: TextStyle(color: Colors.grey[600], fontSize: 13),
               ),
             ],
           ),
@@ -976,7 +932,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
       'Sep',
       'Oct',
       'Nov',
-      'Dec'
+      'Dec',
     ];
     return '${months[dateTime.month - 1]} ${dateTime.day}, ${dateTime.year}';
   }
@@ -994,7 +950,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
       'September',
       'October',
       'November',
-      'December'
+      'December',
     ];
     return '${months[dateTime.month - 1]} ${dateTime.day}, ${dateTime.year} - ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')} ${dateTime.hour >= 12 ? 'PM' : 'AM'}';
   }

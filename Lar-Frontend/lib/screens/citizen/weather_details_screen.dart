@@ -13,7 +13,10 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen> {
     super.initState();
     // Optionally refresh weather when screen opens
     Future.microtask(() {
-      final weatherProvider = Provider.of<WeatherProvider>(context, listen: false);
+      final weatherProvider = Provider.of<WeatherProvider>(
+        context,
+        listen: false,
+      );
       weatherProvider.refreshWeather();
     });
   }
@@ -21,12 +24,12 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen> {
   String _getWeatherEmoji(String description, String main) {
     final desc = description.toLowerCase();
     final mainLower = main.toLowerCase();
-    
+
     // Thunderstorm
     if (desc.contains('thunderstorm') || mainLower.contains('thunderstorm')) {
       return '⛈️';
     }
-    
+
     // Rain
     if (desc.contains('rain') || mainLower.contains('rain')) {
       if (desc.contains('heavy') || desc.contains('shower')) {
@@ -34,37 +37,39 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen> {
       }
       return '🌦️';
     }
-    
+
     // Snow
     if (desc.contains('snow') || mainLower.contains('snow')) {
       return '❄️';
     }
-    
+
     // Clear
     if (desc.contains('clear') || mainLower.contains('clear')) {
       return '☀️';
     }
-    
+
     // Partly cloudy
     if (desc.contains('partly cloudy') || desc.contains('scattered clouds')) {
       return '⛅';
     }
-    
+
     // Mostly cloudy
     if (desc.contains('overcast') || desc.contains('mostly cloudy')) {
       return '🌥️';
     }
-    
+
     // Clouds
     if (desc.contains('cloud') || mainLower.contains('cloud')) {
       return '☁️';
     }
-    
+
     // Mist/Fog
-    if (desc.contains('mist') || desc.contains('fog') || mainLower.contains('mist')) {
+    if (desc.contains('mist') ||
+        desc.contains('fog') ||
+        mainLower.contains('mist')) {
       return '🌫️';
     }
-    
+
     // Default
     return '🌤️';
   }
@@ -78,7 +83,10 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen> {
       appBar: AppBar(
         backgroundColor: primaryGreen,
         elevation: 0,
-        title: Text('Weather Details', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: Text(
+          'Weather Details',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
@@ -93,7 +101,10 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen> {
                 children: [
                   CircularProgressIndicator(color: primaryGreen),
                   SizedBox(height: 16),
-                  Text('Fetching weather data...', style: TextStyle(color: Colors.black54)),
+                  Text(
+                    'Fetching weather data...',
+                    style: TextStyle(color: Colors.black54),
+                  ),
                 ],
               ),
             );
@@ -119,7 +130,9 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen> {
                     onPressed: () => weatherProvider.refreshWeather(),
                     icon: Icon(Icons.refresh),
                     label: Text('Retry'),
-                    style: ElevatedButton.styleFrom(backgroundColor: primaryGreen),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primaryGreen,
+                    ),
                   ),
                 ],
               ),
@@ -133,7 +146,10 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen> {
                 children: [
                   Icon(Icons.cloud_off, size: 48, color: Colors.grey),
                   SizedBox(height: 16),
-                  Text('No weather data available', style: TextStyle(color: Colors.black54)),
+                  Text(
+                    'No weather data available',
+                    style: TextStyle(color: Colors.black54),
+                  ),
                 ],
               ),
             );
@@ -158,7 +174,9 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen> {
                       end: Alignment.bottomRight,
                     ),
                     borderRadius: BorderRadius.circular(16),
-                    boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 8)],
+                    boxShadow: [
+                      BoxShadow(color: Colors.black12, blurRadius: 8),
+                    ],
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -169,7 +187,13 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Current Weather', style: TextStyle(color: Colors.white, fontSize: 14)),
+                              Text(
+                                'Current Weather',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                ),
+                              ),
                               SizedBox(height: 8),
                               Text(
                                 '${weather.temperature.toStringAsFixed(1)}°C',
@@ -191,9 +215,18 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen> {
                       Text(
                         weather.description
                             .split(' ')
-                            .map((word) => word.replaceFirst(word[0], word[0].toUpperCase()))
+                            .map(
+                              (word) => word.replaceFirst(
+                                word[0],
+                                word[0].toUpperCase(),
+                              ),
+                            )
                             .join(' '),
-                        style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ],
                   ),
@@ -202,7 +235,10 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen> {
                 SizedBox(height: 24),
 
                 // Weather details grid
-                Text('Weather Details', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text(
+                  'Weather Details',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
                 SizedBox(height: 12),
 
                 GridView.count(
@@ -234,7 +270,8 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen> {
                     _buildDetailCard(
                       icon: Icons.location_on,
                       label: 'Location',
-                      value: '${weatherProvider.currentPosition?.latitude.toStringAsFixed(2) ?? 'N/A'},${weatherProvider.currentPosition?.longitude.toStringAsFixed(2) ?? 'N/A'}',
+                      value:
+                          '${weatherProvider.currentPosition?.latitude.toStringAsFixed(2) ?? 'N/A'},${weatherProvider.currentPosition?.longitude.toStringAsFixed(2) ?? 'N/A'}',
                       bgColor: Colors.purple,
                     ),
                   ],
@@ -247,16 +284,22 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen> {
                   width: double.infinity,
                   padding: EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: shouldShowAlert ? Colors.orange.shade50 : Colors.green.shade50,
+                    color: shouldShowAlert
+                        ? Colors.orange.shade50
+                        : Colors.green.shade50,
                     border: Border.all(
-                      color: shouldShowAlert ? Colors.orange.shade300 : Colors.green.shade300,
+                      color: shouldShowAlert
+                          ? Colors.orange.shade300
+                          : Colors.green.shade300,
                     ),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
                     children: [
                       Icon(
-                        shouldShowAlert ? Icons.warning_amber_rounded : Icons.check_circle,
+                        shouldShowAlert
+                            ? Icons.warning_amber_rounded
+                            : Icons.check_circle,
                         color: shouldShowAlert ? Colors.orange : Colors.green,
                         size: 32,
                       ),
@@ -266,11 +309,15 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              shouldShowAlert ? 'Weather Alert Active' : 'Weather Conditions Normal',
+                              shouldShowAlert
+                                  ? 'Weather Alert Active'
+                                  : 'Weather Conditions Normal',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
-                                color: shouldShowAlert ? Colors.orange.shade900 : Colors.green.shade900,
+                                color: shouldShowAlert
+                                    ? Colors.orange.shade900
+                                    : Colors.green.shade900,
                               ),
                             ),
                             SizedBox(height: 4),
@@ -278,7 +325,10 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen> {
                               shouldShowAlert
                                   ? 'Severe weather detected in your area. Stay cautious.'
                                   : 'Current weather is safe for outdoor activities.',
-                              style: TextStyle(color: Colors.black54, fontSize: 12),
+                              style: TextStyle(
+                                color: Colors.black54,
+                                fontSize: 12,
+                              ),
                             ),
                           ],
                         ),
@@ -295,12 +345,19 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen> {
                   child: ElevatedButton.icon(
                     onPressed: () => weatherProvider.refreshWeather(),
                     icon: Icon(Icons.refresh, color: Colors.white),
-                    label: Text('Refresh Weather',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                    label: Text(
+                      'Refresh Weather',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: primaryGreen,
                       padding: EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                   ),
                 ),
