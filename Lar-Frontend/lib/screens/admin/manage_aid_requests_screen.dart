@@ -253,7 +253,7 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Color(0xFF0E9D63),
-        title: Text('Update Aid Request'),
+        title: Text('Update Aid Request', style: TextStyle(color: Colors.white)),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => setState(() => editMode = false),
@@ -420,7 +420,7 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Color(0xFF0E9D63),
-        title: Text('Request Details'),
+        title: Text('Request Details', style: TextStyle(color: Colors.white)),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => setState(() => selectedRequestId = null),
