@@ -189,7 +189,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         final unresolvedCount = reportsProvider.allReports
                             .where(
                               (r) => r.status.toLowerCase() == 'unresolved',
-                        )
+                            )
                             .length;
 
                         return Container(
@@ -242,7 +242,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                         Expanded(
                                           child: Column(
                                             crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                                CrossAxisAlignment.start,
                                             children: [
                                               Text(
                                                 'High Priority Reports',
@@ -271,10 +271,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                       child: ElevatedButton(
                                         onPressed: () {
                                           final authProvider =
-                                          Provider.of<AuthProvider>(
-                                            context,
-                                            listen: false,
-                                          );
+                                              Provider.of<AuthProvider>(
+                                                context,
+                                                listen: false,
+                                              );
                                           Navigator.of(context).push(
                                             MaterialPageRoute(
                                               builder: (context) =>
@@ -282,7 +282,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                                     create: (_) =>
                                                         ReportsProvider(
                                                           authProvider:
-                                                          authProvider,
+                                                              authProvider,
                                                         ),
                                                     child: ManageReportsScreen(
                                                       onBack: () {
@@ -363,12 +363,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         final unresolvedCount = reportsProvider.allReports
                             .where(
                               (r) => r.status.toLowerCase() == 'unresolved',
-                        )
+                            )
                             .length;
                         final inProgressCount = reportsProvider.allReports
                             .where(
                               (r) => r.status.toLowerCase() == 'in-progress',
-                        )
+                            )
                             .length;
                         final resolvedCount = reportsProvider.allReports
                             .where((r) => r.status.toLowerCase() == 'resolved')
@@ -494,11 +494,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     Consumer2<ReportsProvider, AidRequestProvider>(
                       builder: (context, reportsProvider, aidRequestProvider, _) {
                         final recentReport =
-                        reportsProvider.allReports.isNotEmpty
+                            reportsProvider.allReports.isNotEmpty
                             ? reportsProvider.allReports.first
                             : null;
                         final recentRequest =
-                        aidRequestProvider.aidRequests.isNotEmpty
+                            aidRequestProvider.aidRequests.isNotEmpty
                             ? aidRequestProvider.aidRequests.first
                             : null;
 
@@ -549,12 +549,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   Widget _buildStatCard(
-      String label,
-      String value,
-      String change,
-      IconData icon,
-      Color color,
-      ) {
+    String label,
+    String value,
+    String change,
+    IconData icon,
+    Color color,
+  ) {
     return Container(
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -917,12 +917,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   Widget _buildQuickAction(
-      BuildContext context,
-      String icon,
-      String label,
-      Color color,
-      String action,
-      ) {
+    BuildContext context,
+    String icon,
+    String label,
+    Color color,
+    String action,
+  ) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -1005,12 +1005,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   Widget _buildActivityCard(
-      String title,
-      String detail,
-      String time,
-      String status,
-      Color bgColor,
-      ) {
+    String title,
+    String detail,
+    String time,
+    String status,
+    Color bgColor,
+  ) {
     return Container(
       padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -1040,7 +1040,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 ),
                 child: Text(
                   status,
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                    color: _getActivityStatusTextColor(status),
+                  ),
                 ),
               ),
             ],
@@ -1061,12 +1065,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   Widget _menuItem(
-      IconData icon,
-      String label, {
-        VoidCallback? onTap,
-        bool selected = false,
-        Color? color,
-      }) {
+    IconData icon,
+    String label, {
+    VoidCallback? onTap,
+    bool selected = false,
+    Color? color,
+  }) {
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -1122,6 +1126,28 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         return Color(0xFFFEE2E2);
       default:
         return Color(0xFFF3F4F6);
+    }
+  }
+
+  // Provide matching text color for activity badges (reports and requests)
+  Color _getActivityStatusTextColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'unresolved':
+        return const Color(0xFFD97706); // dark yellow/orange
+      case 'in-progress':
+        return const Color(0xFF1E3A8A); // dark blue
+      case 'resolved':
+        return const Color(0xFF059669); // dark green
+      case 'pending':
+        return const Color(0xFFD97706);
+      case 'approved':
+        return const Color(0xFF059669);
+      case 'rejected':
+        return const Color(0xFFF04438); // red
+      case 'processing':
+        return const Color(0xFF1E3A8A);
+      default:
+        return Colors.black87;
     }
   }
 

@@ -102,11 +102,11 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     Widget quickAction(
-      IconData icon,
-      String label,
-      VoidCallback onTap,
-      Color bgColor,
-    ) {
+        IconData icon,
+        String label,
+        VoidCallback onTap,
+        Color bgColor,
+        ) {
       return InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
@@ -345,7 +345,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         'Weather Alert',
@@ -429,7 +429,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         shouldShowAlert
@@ -479,10 +479,10 @@ class _HomeScreenState extends State<HomeScreen> {
                               return GestureDetector(
                                 onTap: () async {
                                   final authProvider =
-                                      Provider.of<AuthProvider>(
-                                        context,
-                                        listen: false,
-                                      );
+                                  Provider.of<AuthProvider>(
+                                    context,
+                                    listen: false,
+                                  );
                                   await Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -514,17 +514,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                   .aidRequests
                                   .where(
                                     (request) =>
-                                        request.status.toLowerCase() ==
-                                        'pending',
-                                  )
+                                request.status.toLowerCase() ==
+                                    'pending',
+                              )
                                   .length;
                               return GestureDetector(
                                 onTap: () async {
                                   final authProvider =
-                                      Provider.of<AuthProvider>(
-                                        context,
-                                        listen: false,
-                                      );
+                                  Provider.of<AuthProvider>(
+                                    context,
+                                    listen: false,
+                                  );
                                   await Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -602,7 +602,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         quickAction(
                           Icons.report_problem,
                           'Submit Emergency',
-                          () => Navigator.push(
+                              () => Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) => SubmitEmergencyScreen(
@@ -615,7 +615,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         quickAction(
                           Icons.description_rounded,
                           'View Reports',
-                          () {
+                              () {
                             final authProvider = Provider.of<AuthProvider>(
                               context,
                               listen: false,
@@ -637,16 +637,16 @@ class _HomeScreenState extends State<HomeScreen> {
                         quickAction(
                           Icons.volunteer_activism,
                           'Request Aid',
-                          () async {
+                              () async {
                             final authProvider = Provider.of<AuthProvider>(
                               context,
                               listen: false,
                             );
                             final aidRequestProvider =
-                                Provider.of<AidRequestProvider>(
-                                  context,
-                                  listen: false,
-                                );
+                            Provider.of<AidRequestProvider>(
+                              context,
+                              listen: false,
+                            );
                             await Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -666,7 +666,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         quickAction(
                           Icons.notification_important,
                           'Aid Programs',
-                          () => Navigator.push(
+                              () => Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) => ViewAidProgramScreen(),
@@ -677,7 +677,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         quickAction(
                           Icons.map_rounded,
                           'Map Warnings',
-                          () => Navigator.push(
+                              () => Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) => MapWarningsScreen(),
@@ -688,7 +688,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         quickAction(
                           Icons.chat_rounded,
                           'AI Chatbot',
-                          () => Navigator.push(
+                              () => Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) => AIChatbotScreen(),
@@ -718,101 +718,103 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Consumer2<ReportsProvider, AidRequestProvider>(
                       builder:
                           (context, reportsProvider, aidRequestProvider, _) {
-                            // Get most recent report
-                            final reports = reportsProvider.allReports;
-                            final recentReport = reports.isNotEmpty
-                                ? reports.first
-                                : null;
+                        // Get most recent report
+                        final reports = reportsProvider.allReports;
+                        final recentReport = reports.isNotEmpty
+                            ? reports.first
+                            : null;
 
-                            // Get most recent aid request
-                            final requests = aidRequestProvider.aidRequests;
-                            final recentRequest = requests.isNotEmpty
-                                ? requests.first
-                                : null;
+                        // Get most recent aid request
+                        final requests = aidRequestProvider.aidRequests;
+                        final recentRequest = requests.isNotEmpty
+                            ? requests.first
+                            : null;
 
-                            return Column(
-                              children: [
-                                if (recentReport != null)
-                                  GestureDetector(
-                                    onTap: () async {
-                                      final authProvider =
-                                          Provider.of<AuthProvider>(
-                                            context,
-                                            listen: false,
-                                          );
-                                      await Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) =>
-                                              ChangeNotifierProvider(
-                                                create: (_) => ReportsProvider(
-                                                  authProvider: authProvider,
+                        return Column(
+                          children: [
+                            if (recentReport != null)
+                              GestureDetector(
+                                onTap: () async {
+                                  final authProvider =
+                                  Provider.of<AuthProvider>(
+                                    context,
+                                    listen: false,
+                                  );
+                                  await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          ChangeNotifierProvider(
+                                            create: (_) => ReportsProvider(
+                                              authProvider: authProvider,
+                                            ),
+                                            child: ViewReportsScreen(),
+                                          ),
+                                    ),
+                                  );
+                                  reportsProvider.fetchReports();
+                                },
+                                child: _activityCard(
+                                  'Report ${recentReport.reportId}',
+                                  recentReport.status,
+                                  _getReportStatusBgColor(
+                                    recentReport.status,
+                                  ),
+                                  recentReport.title,
+                                  recentReport.formattedDate,
+                                  isRequest: false,
+                                ),
+                              ),
+                            if (recentReport != null &&
+                                recentRequest != null)
+                              SizedBox(height: 8),
+                            if (recentRequest != null)
+                              GestureDetector(
+                                onTap: () async {
+                                  final authProvider =
+                                  Provider.of<AuthProvider>(
+                                    context,
+                                    listen: false,
+                                  );
+                                  await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          ChangeNotifierProvider(
+                                            create: (_) =>
+                                                AidRequestProvider(
+                                                  authProvider:
+                                                  authProvider,
                                                 ),
-                                                child: ViewReportsScreen(),
-                                              ),
-                                        ),
-                                      );
-                                      reportsProvider.fetchReports();
-                                    },
-                                    child: _activityCard(
-                                      'Report ${recentReport.reportId}',
-                                      recentReport.status,
-                                      _getReportStatusBgColor(
-                                        recentReport.status,
-                                      ),
-                                      recentReport.title,
-                                      recentReport.formattedDate,
+                                            child: ViewAidRequestScreen(),
+                                          ),
                                     ),
+                                  );
+                                  aidRequestProvider.fetchUserAidRequests();
+                                },
+                                child: _activityCard(
+                                  'Request ${recentRequest.requestId}',
+                                  recentRequest.status,
+                                  _getRequestStatusBgColor(
+                                    recentRequest.status,
                                   ),
-                                if (recentReport != null &&
-                                    recentRequest != null)
-                                  SizedBox(height: 8),
-                                if (recentRequest != null)
-                                  GestureDetector(
-                                    onTap: () async {
-                                      final authProvider =
-                                          Provider.of<AuthProvider>(
-                                            context,
-                                            listen: false,
-                                          );
-                                      await Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) =>
-                                              ChangeNotifierProvider(
-                                                create: (_) =>
-                                                    AidRequestProvider(
-                                                      authProvider:
-                                                          authProvider,
-                                                    ),
-                                                child: ViewAidRequestScreen(),
-                                              ),
-                                        ),
-                                      );
-                                      aidRequestProvider.fetchUserAidRequests();
-                                    },
-                                    child: _activityCard(
-                                      'Request ${recentRequest.requestId}',
-                                      recentRequest.status,
-                                      _getRequestStatusBgColor(
-                                        recentRequest.status,
-                                      ),
-                                      recentRequest.aidType,
-                                      recentRequest.formattedDate,
-                                    ),
-                                  ),
-                                if (recentReport == null &&
-                                    recentRequest == null)
-                                  Container(
-                                    padding: EdgeInsets.all(16),
-                                    child: Text(
-                                      'No recent activity',
-                                      style: TextStyle(color: Colors.grey[600]),
-                                    ),
-                                  ),
-                              ],
-                            );
-                          },
+                                  recentRequest.aidType,
+                                  recentRequest.formattedDate,
+                                  isRequest: true,
+                                ),
+                              ),
+                            if (recentReport == null &&
+                                recentRequest == null)
+                              Container(
+                                padding: EdgeInsets.all(16),
+                                child: Text(
+                                  'No recent activity',
+                                  style: TextStyle(color: Colors.grey[600]),
+                                ),
+                              ),
+                          ],
+                        );
+                      },
                     ),
                   ),
                   const AppFooter(),
@@ -869,12 +871,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _activityCard(
-    String title,
-    String status,
-    Color bg,
-    String subtitle,
-    String date,
-  ) {
+      String title,
+      String status,
+      Color bg,
+      String subtitle,
+      String date, {
+        bool isRequest = false,
+      }) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -904,7 +907,17 @@ class _HomeScreenState extends State<HomeScreen> {
               color: bg,
               borderRadius: BorderRadius.circular(6),
             ),
-            child: Text(status, style: TextStyle(fontSize: 12)),
+            child: Text(
+              // Status in Sentence case (e.g., "Unresolved")
+              _toSentenceCase(status),
+              style: TextStyle(
+                fontSize: 12,
+                color: isRequest
+                    ? _getRequestStatusTextColor(status)
+                    : _getReportStatusTextColor(status),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
         ],
       ),
@@ -920,12 +933,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _menuItem(
-    IconData icon,
-    String label, {
-    VoidCallback? onTap,
-    bool selected = false,
-    Color? color,
-  }) {
+      IconData icon,
+      String label, {
+        VoidCallback? onTap,
+        bool selected = false,
+        Color? color,
+      }) {
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -953,7 +966,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Color _getReportStatusBgColor(String status) {
     switch (status.toLowerCase()) {
       case 'unresolved':
-        return Colors.red.shade100;
+        return Colors.amber.shade100; // show as yellow
       case 'in-progress':
         return Colors.amber.shade100;
       case 'resolved':
@@ -974,5 +987,37 @@ class _HomeScreenState extends State<HomeScreen> {
       default:
         return Colors.grey.shade50;
     }
+  }
+
+  Color _getReportStatusTextColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'unresolved':
+        return const Color(0xFFD97706); // dark yellow/orange
+      case 'in-progress':
+        return const Color(0xFF1E3A8A); // dark blue
+      case 'resolved':
+        return const Color(0xFF059669); // dark green
+      default:
+        return Colors.black87;
+    }
+  }
+
+  Color _getRequestStatusTextColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return const Color(0xFFD97706);
+      case 'approved':
+        return const Color(0xFF059669);
+      case 'rejected':
+        return const Color(0xFFF04438);
+      default:
+        return Colors.black87;
+    }
+  }
+
+  String _toSentenceCase(String s) {
+    if (s.isEmpty) return s;
+    final lower = s.toLowerCase();
+    return lower[0].toUpperCase() + lower.substring(1);
   }
 }
