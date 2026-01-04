@@ -270,6 +270,7 @@ class PushNotificationService {
     print('✅ Notification channels created');
   }
 
+  @pragma('vm:entry-point')
   static Future<void> _firebaseMessagingBackgroundHandler(
       RemoteMessage message) async {
     print('Background notification: ${message.notification?.title}');
