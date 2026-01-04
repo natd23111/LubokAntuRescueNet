@@ -183,6 +183,149 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     ),
                     SizedBox(height: 24),
 
+                    // Priority Alerts
+                    Consumer<ReportsProvider>(
+                      builder: (context, reportsProvider, _) {
+                        final unresolvedCount = reportsProvider.allReports
+                            .where(
+                              (r) => r.status.toLowerCase() == 'unresolved',
+                        )
+                            .length;
+
+                        return Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Stack(
+                            children: [
+                              // Background and border
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Color(0xFFFEF2F2),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Colors.grey.shade300,
+                                    width: 1,
+                                  ),
+                                ),
+                              ),
+                              // Red left border
+                              Positioned(
+                                left: 0,
+                                top: 0,
+                                bottom: 0,
+                                child: Container(
+                                  width: 4,
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFFDC2626),
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(8),
+                                      bottomLeft: Radius.circular(8),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              // Content
+                              Padding(
+                                padding: EdgeInsets.all(16).copyWith(left: 16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.warning_rounded,
+                                          color: Color(0xFFDC2626),
+                                          size: 20,
+                                        ),
+                                        SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'High Priority Reports',
+                                                style: TextStyle(
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Color(0xFF7F1D1D),
+                                                ),
+                                              ),
+                                              SizedBox(height: 4),
+                                              Text(
+                                                '$unresolvedCount emergency report${unresolvedCount != 1 ? 's' : ''} require${unresolvedCount != 1 ? '' : 's'} immediate attention',
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Color(0xFFB91C1C),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 12),
+                                    SizedBox(
+                                      width: double.infinity,
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          final authProvider =
+                                          Provider.of<AuthProvider>(
+                                            context,
+                                            listen: false,
+                                          );
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ChangeNotifierProvider(
+                                                    create: (_) =>
+                                                        ReportsProvider(
+                                                          authProvider:
+                                                          authProvider,
+                                                        ),
+                                                    child: ManageReportsScreen(
+                                                      onBack: () {
+                                                        Navigator.of(
+                                                          context,
+                                                        ).pop();
+                                                        _refreshDashboardData();
+                                                      },
+                                                    ),
+                                                  ),
+                                            ),
+                                          );
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Color(0xFFDC2626),
+                                          padding: EdgeInsets.symmetric(
+                                            vertical: 10,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              6,
+                                            ),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          'View Reports',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                    SizedBox(height: 24),
+
                     // Report Types Chart
                     Consumer<ReportsProvider>(
                       builder: (context, reportsProvider, _) {
@@ -220,12 +363,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         final unresolvedCount = reportsProvider.allReports
                             .where(
                               (r) => r.status.toLowerCase() == 'unresolved',
-                            )
+                        )
                             .length;
                         final inProgressCount = reportsProvider.allReports
                             .where(
                               (r) => r.status.toLowerCase() == 'in-progress',
-                            )
+                        )
                             .length;
                         final resolvedCount = reportsProvider.allReports
                             .where((r) => r.status.toLowerCase() == 'resolved')
@@ -292,7 +435,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       },
                     ),
 
-                    SizedBox(height: 24),
+                    SizedBox(height: 12),
 
                     // Quick Actions
                     Text(
@@ -303,7 +446,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         color: Colors.black87,
                       ),
                     ),
-                    SizedBox(height: 12),
+                    SizedBox(height: 8),
                     GridView.count(
                       crossAxisCount: 3,
                       shrinkWrap: true,
@@ -351,11 +494,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     Consumer2<ReportsProvider, AidRequestProvider>(
                       builder: (context, reportsProvider, aidRequestProvider, _) {
                         final recentReport =
-                            reportsProvider.allReports.isNotEmpty
+                        reportsProvider.allReports.isNotEmpty
                             ? reportsProvider.allReports.first
                             : null;
                         final recentRequest =
-                            aidRequestProvider.aidRequests.isNotEmpty
+                        aidRequestProvider.aidRequests.isNotEmpty
                             ? aidRequestProvider.aidRequests.first
                             : null;
 
@@ -394,149 +537,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     ),
 
                     SizedBox(height: 24),
-
-                    // Priority Alerts
-                    Consumer<ReportsProvider>(
-                      builder: (context, reportsProvider, _) {
-                        final unresolvedCount = reportsProvider.allReports
-                            .where(
-                              (r) => r.status.toLowerCase() == 'unresolved',
-                            )
-                            .length;
-
-                        return Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Stack(
-                            children: [
-                              // Background and border
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: Color(0xFFFEF2F2),
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: Colors.grey.shade300,
-                                    width: 1,
-                                  ),
-                                ),
-                              ),
-                              // Red left border
-                              Positioned(
-                                left: 0,
-                                top: 0,
-                                bottom: 0,
-                                child: Container(
-                                  width: 4,
-                                  decoration: BoxDecoration(
-                                    color: Color(0xFFDC2626),
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(8),
-                                      bottomLeft: Radius.circular(8),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              // Content
-                              Padding(
-                                padding: EdgeInsets.all(16).copyWith(left: 16),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          Icons.warning_rounded,
-                                          color: Color(0xFFDC2626),
-                                          size: 20,
-                                        ),
-                                        SizedBox(width: 12),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'High Priority Reports',
-                                                style: TextStyle(
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Color(0xFF7F1D1D),
-                                                ),
-                                              ),
-                                              SizedBox(height: 4),
-                                              Text(
-                                                '$unresolvedCount emergency report${unresolvedCount != 1 ? 's' : ''} require${unresolvedCount != 1 ? '' : 's'} immediate attention',
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: Color(0xFFB91C1C),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 12),
-                                    SizedBox(
-                                      width: double.infinity,
-                                      child: ElevatedButton(
-                                        onPressed: () {
-                                          final authProvider =
-                                              Provider.of<AuthProvider>(
-                                                context,
-                                                listen: false,
-                                              );
-                                          Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ChangeNotifierProvider(
-                                                    create: (_) =>
-                                                        ReportsProvider(
-                                                          authProvider:
-                                                              authProvider,
-                                                        ),
-                                                    child: ManageReportsScreen(
-                                                      onBack: () {
-                                                        Navigator.of(
-                                                          context,
-                                                        ).pop();
-                                                        _refreshDashboardData();
-                                                      },
-                                                    ),
-                                                  ),
-                                            ),
-                                          );
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Color(0xFFDC2626),
-                                          padding: EdgeInsets.symmetric(
-                                            vertical: 10,
-                                          ),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              6,
-                                            ),
-                                          ),
-                                        ),
-                                        child: Text(
-                                          'View Reports',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                    SizedBox(height: 24),
                     const AppFooter(),
                   ],
                 ),
@@ -549,12 +549,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   Widget _buildStatCard(
-    String label,
-    String value,
-    String change,
-    IconData icon,
-    Color color,
-  ) {
+      String label,
+      String value,
+      String change,
+      IconData icon,
+      Color color,
+      ) {
     return Container(
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -917,12 +917,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   Widget _buildQuickAction(
-    BuildContext context,
-    String icon,
-    String label,
-    Color color,
-    String action,
-  ) {
+      BuildContext context,
+      String icon,
+      String label,
+      Color color,
+      String action,
+      ) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -1005,12 +1005,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   Widget _buildActivityCard(
-    String title,
-    String detail,
-    String time,
-    String status,
-    Color bgColor,
-  ) {
+      String title,
+      String detail,
+      String time,
+      String status,
+      Color bgColor,
+      ) {
     return Container(
       padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -1061,12 +1061,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   Widget _menuItem(
-    IconData icon,
-    String label, {
-    VoidCallback? onTap,
-    bool selected = false,
-    Color? color,
-  }) {
+      IconData icon,
+      String label, {
+        VoidCallback? onTap,
+        bool selected = false,
+        Color? color,
+      }) {
     return InkWell(
       onTap: onTap,
       child: Padding(

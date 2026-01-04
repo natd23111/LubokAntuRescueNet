@@ -14,7 +14,7 @@ class SubmitEmergencyScreen extends StatefulWidget {
   final VoidCallback onBack;
 
   const SubmitEmergencyScreen({Key? key, required this.onBack})
-    : super(key: key);
+      : super(key: key);
 
   @override
   State<SubmitEmergencyScreen> createState() => _SubmitEmergencyScreenState();
@@ -219,10 +219,10 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
               );
               await FirebaseService()
                   .updateDocument('emergency_reports', reportId, {
-                    'image_urls': uploadedUrls,
-                    'image_url': uploadedUrls.first,
-                    'updated_at': DateTime.now().toIso8601String(),
-                  });
+                'image_urls': uploadedUrls,
+                'image_url': uploadedUrls.first,
+                'updated_at': DateTime.now().toIso8601String(),
+              });
               print('DEBUG: Report updated with image URLs');
             }
 
@@ -335,13 +335,13 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
       }
 
       final Position position =
-          await Geolocator.getCurrentPosition(
-            desiredAccuracy: LocationAccuracy.high,
-          ).timeout(
-            const Duration(seconds: 15),
-            onTimeout: () =>
-                throw TimeoutException('Location request timed out'),
-          );
+      await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      ).timeout(
+        const Duration(seconds: 15),
+        onTimeout: () =>
+        throw TimeoutException('Location request timed out'),
+      );
 
       // Open map picker with current location as initial position
       final result = await Navigator.of(context).push(
@@ -566,19 +566,19 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                           underline: const SizedBox(),
                           hint: const Text('Select emergency type'),
                           items:
-                              [
-                                'Flood',
-                                'Fire',
-                                'Accident',
-                                'Medical Emergency',
-                                'Landslide',
-                                'Other',
-                              ].map((type) {
-                                return DropdownMenuItem(
-                                  value: type,
-                                  child: Text(type),
-                                );
-                              }).toList(),
+                          [
+                            'Flood',
+                            'Fire',
+                            'Accident',
+                            'Medical Emergency',
+                            'Landslide',
+                            'Other',
+                          ].map((type) {
+                            return DropdownMenuItem(
+                              value: type,
+                              child: Text(type),
+                            );
+                          }).toList(),
                           onChanged: (value) {
                             setState(() {
                               selectedEmergencyType = value;
@@ -712,7 +712,7 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                         maxLines: 4,
                         decoration: InputDecoration(
                           hintText:
-                              'Provide detailed description of the emergency',
+                          'Provide detailed description of the emergency',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                             borderSide: BorderSide(color: Colors.grey[300]!),
@@ -754,11 +754,11 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
                             gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 3,
-                                  crossAxisSpacing: 8,
-                                  mainAxisSpacing: 8,
-                                ),
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              crossAxisSpacing: 8,
+                              mainAxisSpacing: 8,
+                            ),
                             itemCount: selectedImages.length,
                             itemBuilder: (context, index) {
                               return Stack(
@@ -800,6 +800,7 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                         ),
                       // Upload Button
                       Container(
+                        width: double.infinity,
                         decoration: BoxDecoration(
                           border: Border.all(
                             color: Colors.grey[300]!,
@@ -876,22 +877,22 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                     ),
                     child: isSubmitting
                         ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                Colors.white,
-                              ),
-                            ),
-                          )
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Colors.white,
+                        ),
+                      ),
+                    )
                         : const Text(
-                            'Submit Report',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                      'Submit Report',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 8),
