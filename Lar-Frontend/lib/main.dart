@@ -21,21 +21,18 @@ import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
-
 // navigationKey provided by services/navigation_service.dart
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  
+
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   // Initialize Firebase Cloud Messaging and local notifications
   print('🔔 Initializing push notifications...');
   await PushNotificationService.initializePushNotifications();
   print('✅ Push notifications initialized');
-  
+
   runApp(
     MultiProvider(
       providers: [
@@ -45,14 +42,18 @@ void main() async {
         ChangeNotifierProvider(create: (_) => WarningsProvider()),
         ChangeNotifierProvider(create: (_) => NotificationsProvider()),
         ChangeNotifierProxyProvider<AuthProvider, ReportsProvider>(
-          create: (context) => ReportsProvider(authProvider: Provider.of<AuthProvider>(context, listen: false)),
-          update: (context, authProvider, previous) => 
-            ReportsProvider(authProvider: authProvider),
+          create: (context) => ReportsProvider(
+            authProvider: Provider.of<AuthProvider>(context, listen: false),
+          ),
+          update: (context, authProvider, previous) =>
+              ReportsProvider(authProvider: authProvider),
         ),
         ChangeNotifierProxyProvider<AuthProvider, AidRequestProvider>(
-          create: (context) => AidRequestProvider(authProvider: Provider.of<AuthProvider>(context, listen: false)),
-          update: (context, authProvider, previous) => 
-            AidRequestProvider(authProvider: authProvider),
+          create: (context) => AidRequestProvider(
+            authProvider: Provider.of<AuthProvider>(context, listen: false),
+          ),
+          update: (context, authProvider, previous) =>
+              AidRequestProvider(authProvider: authProvider),
         ),
       ],
       child: MyApp(),
@@ -66,9 +67,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Lubok Antu RescueNet',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: ThemeData(primarySwatch: Colors.blue),
       navigatorKey: navigationKey,
       home: SplashScreen(),
       routes: {
@@ -87,7 +86,7 @@ class MyApp extends StatelessWidget {
       onGenerateRoute: (settings) {
         // Handle route generation with arguments
         final args = settings.arguments as Map<String, dynamic>?;
-        
+
         switch (settings.name) {
           case '/view-reports':
           case '/view-public-reports':

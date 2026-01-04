@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../citizen_dashboard.dart';
+import '../../widgets/app_footer.dart';
 
 class RegisterScreen extends StatefulWidget {
   @override
@@ -54,7 +55,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (!_formKey.currentState!.validate()) return;
     if (!_agree) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('You must agree to the Terms & Conditions')));
+        const SnackBar(
+          content: Text('You must agree to the Terms & Conditions'),
+        ),
+      );
       return;
     }
 
@@ -70,10 +74,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final success = await auth.register(data);
     if (success) {
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (_) => HomeScreen()));
+        context,
+        MaterialPageRoute(builder: (_) => HomeScreen()),
+      );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Registration failed')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Registration failed')));
     }
   }
 
@@ -94,13 +101,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('Create a new citizen account',
-                  style: TextStyle(color: Colors.black54)),
+              const Text(
+                'Create a new citizen account',
+                style: TextStyle(color: Colors.black54),
+              ),
               const SizedBox(height: 12),
 
               Card(
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 elevation: 2,
                 child: Padding(
                   padding: const EdgeInsets.all(14),
@@ -141,11 +151,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           onChanged: (value) {
                             final formatted = _formatIC(value);
                             if (formatted != value) {
-                              _icController.value = _icController.value.copyWith(
-                                text: formatted,
-                                selection: TextSelection.collapsed(
-                                    offset: formatted.length),
-                              );
+                              _icController.value = _icController.value
+                                  .copyWith(
+                                    text: formatted,
+                                    selection: TextSelection.collapsed(
+                                      offset: formatted.length,
+                                    ),
+                                  );
                             }
                           },
                           validator: (v) => (v == null || v.trim().isEmpty)
@@ -199,24 +211,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             counterText: '',
                             prefixIcon: const Icon(Icons.lock_outline),
                             suffixIcon: IconButton(
-                              icon: Icon(_hidePassword
-                                  ? Icons.visibility_off
-                                  : Icons.visibility),
-                              onPressed: () =>
-                                  setState(() => _hidePassword = !_hidePassword),
+                              icon: Icon(
+                                _hidePassword
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
+                              ),
+                              onPressed: () => setState(
+                                () => _hidePassword = !_hidePassword,
+                              ),
                             ),
                           ),
                           obscureText: _hidePassword,
                           validator: (v) {
-                            if (v == null || v.isEmpty) return 'Please enter a password';
+                            if (v == null || v.isEmpty)
+                              return 'Please enter a password';
                             if (v.length < 8) return 'Minimum 8 characters';
                             if (v.length > 20) return 'Maximum 20 characters';
                             return null;
                           },
                         ),
                         const SizedBox(height: 6),
-                        const Text('Minimum 8 characters',
-                            style: TextStyle(fontSize: 12, color: Colors.black45)),
+                        const Text(
+                          'Minimum 8 characters',
+                          style: TextStyle(fontSize: 12, color: Colors.black45),
+                        ),
                         const SizedBox(height: 12),
 
                         // Confirm password
@@ -228,9 +246,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             border: const OutlineInputBorder(),
                             prefixIcon: const Icon(Icons.lock_outline),
                             suffixIcon: IconButton(
-                              icon: Icon(_hideConfirm
-                                  ? Icons.visibility_off
-                                  : Icons.visibility),
+                              icon: Icon(
+                                _hideConfirm
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
+                              ),
                               onPressed: () =>
                                   setState(() => _hideConfirm = !_hideConfirm),
                             ),
@@ -252,9 +272,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Checkbox(
-                                value: _agree,
-                                onChanged: (v) =>
-                                    setState(() => _agree = v ?? false)),
+                              value: _agree,
+                              onChanged: (v) =>
+                                  setState(() => _agree = v ?? false),
+                            ),
                             Expanded(
                               child: GestureDetector(
                                 onTap: () => setState(() => _agree = !_agree),
@@ -273,21 +294,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           height: 44,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                                backgroundColor: primaryGreen,
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8))),
-                            onPressed:
-                            auth.isLoading ? null : () => _submit(auth),
+                              backgroundColor: primaryGreen,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            onPressed: auth.isLoading
+                                ? null
+                                : () => _submit(auth),
                             child: auth.isLoading
                                 ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
-                              ),
-                            )
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
                                 : const Text('Submit'),
                           ),
                         ),
@@ -298,9 +322,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           height: 44,
                           child: OutlinedButton(
                             style: OutlinedButton.styleFrom(
-                                foregroundColor: Colors.black,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8))),
+                              foregroundColor: Colors.black,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
                             onPressed: () => Navigator.pop(context),
                             child: const Text('Cancel'),
                           ),
@@ -310,6 +336,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
               ),
+              const AppFooter(),
             ],
           ),
         ),
@@ -317,4 +344,3 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 }
-

@@ -45,8 +45,8 @@ class AidRequestModel {
       status: data['status'] ?? 'pending',
       submissionDate: data['submission_date'] != null
           ? (data['submission_date'] is Timestamp
-              ? (data['submission_date'] as Timestamp).toDate()
-              : DateTime.parse(data['submission_date']))
+                ? (data['submission_date'] as Timestamp).toDate()
+                : DateTime.parse(data['submission_date']))
           : DateTime.now(),
       description: data['description'] ?? '',
       familyMembers: (data['family_members'] as List<dynamic>? ?? [])
@@ -55,8 +55,8 @@ class AidRequestModel {
       monthlyIncome: (data['monthly_income'] ?? 0).toDouble(),
       createdAt: data['created_at'] != null
           ? (data['created_at'] is Timestamp
-              ? (data['created_at'] as Timestamp).toDate()
-              : DateTime.parse(data['created_at']))
+                ? (data['created_at'] as Timestamp).toDate()
+                : DateTime.parse(data['created_at']))
           : DateTime.now(),
       applicantName: data['applicant_name'] ?? data['full_name'],
       applicantIC: data['applicant_ic'] ?? data['ic_number'],
@@ -87,8 +87,18 @@ class AidRequestModel {
 
   String get formattedDate {
     final months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     return '${months[submissionDate.month - 1]} ${submissionDate.day}, ${submissionDate.year}';
   }
@@ -98,10 +108,7 @@ class FamilyMemberModel {
   final String name;
   final String status;
 
-  FamilyMemberModel({
-    required this.name,
-    required this.status,
-  });
+  FamilyMemberModel({required this.name, required this.status});
 
   factory FamilyMemberModel.fromMap(Map<String, dynamic> map) {
     return FamilyMemberModel(
@@ -111,9 +118,6 @@ class FamilyMemberModel {
   }
 
   Map<String, dynamic> toMap() {
-    return {
-      'name': name,
-      'status': status,
-    };
+    return {'name': name, 'status': status};
   }
 }

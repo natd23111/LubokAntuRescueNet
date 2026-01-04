@@ -52,20 +52,27 @@ class _EditAidProgramFormState extends State<EditAidProgramForm> {
   void initState() {
     super.initState();
     titleController = TextEditingController(text: widget.program.title);
-    descriptionController = TextEditingController(text: widget.program.description);
-    criteriaController = TextEditingController(text: widget.program.eligibilityCriteria);
-    aidAmountController = TextEditingController(text: widget.program.aidAmount?.toString() ?? '');
+    descriptionController = TextEditingController(
+      text: widget.program.description,
+    );
+    criteriaController = TextEditingController(
+      text: widget.program.eligibilityCriteria,
+    );
+    aidAmountController = TextEditingController(
+      text: widget.program.aidAmount?.toString() ?? '',
+    );
     startDate = widget.program.startDate;
     endDate = widget.program.endDate;
     // Ensure selectedCategory is in the categories list, otherwise use 'Financial'
-    selectedCategory = categories.contains(widget.program.category) 
-                       ? widget.program.category 
-                       : 'Financial';
+    selectedCategory = categories.contains(widget.program.category)
+        ? widget.program.category
+        : 'Financial';
     // Ensure selectedType is in the programTypes list, otherwise use 'Monthly'
-    selectedType = (widget.program.programType != null && 
-                   programTypes.contains(widget.program.programType)) 
-                   ? widget.program.programType! 
-                   : 'Monthly';
+    selectedType =
+        (widget.program.programType != null &&
+            programTypes.contains(widget.program.programType))
+        ? widget.program.programType!
+        : 'Monthly';
     selectedStatus = widget.program.status == 'active' ? 'Active' : 'Inactive';
   }
 
@@ -97,8 +104,20 @@ class _EditAidProgramFormState extends State<EditAidProgramForm> {
   }
 
   String formatDate(DateTime date) {
-    final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    final months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     return '${date.day} ${months[date.month - 1]}, ${date.year}';
   }
 
@@ -121,8 +140,8 @@ class _EditAidProgramFormState extends State<EditAidProgramForm> {
       title: titleController.text,
       category: selectedCategory,
       description: descriptionController.text,
-      aidAmount: aidAmountController.text.isNotEmpty 
-          ? aidAmountController.text 
+      aidAmount: aidAmountController.text.isNotEmpty
+          ? aidAmountController.text
           : '0',
       status: selectedStatus.toLowerCase(),
       startDate: startDate,
@@ -162,7 +181,7 @@ class _EditAidProgramFormState extends State<EditAidProgramForm> {
         backgroundColor: const Color(0xFF0E9D63),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
@@ -282,7 +301,10 @@ class _EditAidProgramFormState extends State<EditAidProgramForm> {
                   border: Border.all(color: Colors.grey[300]!),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 12,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -290,7 +312,11 @@ class _EditAidProgramFormState extends State<EditAidProgramForm> {
                       formatDate(startDate),
                       style: const TextStyle(fontSize: 14),
                     ),
-                    const Icon(Icons.calendar_today, size: 18, color: Color(0xFF0E9D63)),
+                    const Icon(
+                      Icons.calendar_today,
+                      size: 18,
+                      color: Color(0xFF0E9D63),
+                    ),
                   ],
                 ),
               ),
@@ -314,7 +340,10 @@ class _EditAidProgramFormState extends State<EditAidProgramForm> {
                   border: Border.all(color: Colors.grey[300]!),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 12,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -322,7 +351,11 @@ class _EditAidProgramFormState extends State<EditAidProgramForm> {
                       formatDate(endDate),
                       style: const TextStyle(fontSize: 14),
                     ),
-                    const Icon(Icons.calendar_today, size: 18, color: Color(0xFF0E9D63)),
+                    const Icon(
+                      Icons.calendar_today,
+                      size: 18,
+                      color: Color(0xFF0E9D63),
+                    ),
                   ],
                 ),
               ),

@@ -13,14 +13,23 @@ class WarningsProvider extends ChangeNotifier {
 
   // Getters
   List<Warning> get warnings => _warnings;
+
   bool get isLoading => _isLoading;
+
   String? get error => _error;
+
   Position? get currentPosition => _currentPosition;
 
   int get activeWarningsCount => _warnings.length;
-  int get highSeverityCount => _warnings.where((w) => w.severity == 'high').length;
-  int get mediumSeverityCount => _warnings.where((w) => w.severity == 'medium').length;
-  int get lowSeverityCount => _warnings.where((w) => w.severity == 'low').length;
+
+  int get highSeverityCount =>
+      _warnings.where((w) => w.severity == 'high').length;
+
+  int get mediumSeverityCount =>
+      _warnings.where((w) => w.severity == 'medium').length;
+
+  int get lowSeverityCount =>
+      _warnings.where((w) => w.severity == 'low').length;
 
   WarningsProvider() {
     _initializeLocation();
@@ -61,7 +70,8 @@ class WarningsProvider extends ChangeNotifier {
       }
 
       if (permission == LocationPermission.deniedForever) {
-        _error = 'Location permissions are permanently denied. Open app settings to enable.';
+        _error =
+            'Location permissions are permanently denied. Open app settings to enable.';
         notifyListeners();
         return false;
       }
@@ -77,12 +87,15 @@ class WarningsProvider extends ChangeNotifier {
 
   Future<void> _getCurrentLocation() async {
     try {
-      _currentPosition = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      ).timeout(
-        const Duration(seconds: 15),
-        onTimeout: () => throw TimeoutException('Location request timed out after 15 seconds'),
-      );
+      _currentPosition =
+          await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.high,
+          ).timeout(
+            const Duration(seconds: 15),
+            onTimeout: () => throw TimeoutException(
+              'Location request timed out after 15 seconds',
+            ),
+          );
       notifyListeners();
     } catch (e) {
       _error = 'Error getting location: $e';
@@ -103,12 +116,13 @@ class WarningsProvider extends ChangeNotifier {
 
       // Fetch from Firebase emergency reports
       _warnings = await _fetchFirebaseWarnings();
-      
+
       // Sort by severity (high > medium > low) then by distance
       _warnings.sort((a, b) {
         const severityOrder = {'high': 0, 'medium': 1, 'low': 2};
-        int severityCompare = (severityOrder[a.severity] ?? 999)
-            .compareTo(severityOrder[b.severity] ?? 999);
+        int severityCompare = (severityOrder[a.severity] ?? 999).compareTo(
+          severityOrder[b.severity] ?? 999,
+        );
         if (severityCompare != 0) return severityCompare;
         return a.distance.compareTo(b.distance);
       });
@@ -133,7 +147,9 @@ class WarningsProvider extends ChangeNotifier {
       final warnings = <Warning>[];
 
       debugPrint('=== FIREBASE WARNINGS FETCH START ===');
-      debugPrint('Current location: ${_currentPosition?.latitude}, ${_currentPosition?.longitude}');
+      debugPrint(
+        'Current location: ${_currentPosition?.latitude}, ${_currentPosition?.longitude}',
+      );
 
       // Query emergency reports from Firestore
       final snapshot = await firestore
@@ -143,7 +159,9 @@ class WarningsProvider extends ChangeNotifier {
           .get()
           .timeout(const Duration(seconds: 15));
 
-      debugPrint('[WarningsProvider] Found ${snapshot.docs.length} emergency reports in Firebase');
+      debugPrint(
+        '[WarningsProvider] Found ${snapshot.docs.length} emergency reports in Firebase',
+      );
 
       for (var doc in snapshot.docs) {
         try {
@@ -155,14 +173,15 @@ class WarningsProvider extends ChangeNotifier {
           debugPrint('  Status: ${data['status']}');
           debugPrint('  Priority: ${data['priority']}');
           debugPrint('  Lat: ${data['latitude']}, Lon: ${data['longitude']}');
-          
+
           // Parse emergency report data using correct field names from Firebase schema
           final incidentType = (data['type'] ?? 'Unknown') as String;
-          final incidentLocation = (data['location'] ?? 'Unknown Location') as String;
+          final incidentLocation =
+              (data['location'] ?? 'Unknown Location') as String;
           final description = (data['description'] ?? '') as String;
           final status = (data['status'] ?? 'reported') as String;
           final priority = (data['priority'] ?? 'medium') as String;
-          
+
           // Parse created_at timestamp
           final createdAt = data['created_at'] != null
               ? DateTime.parse(data['created_at'].toString())
@@ -190,28 +209,34 @@ class WarningsProvider extends ChangeNotifier {
           // Use both incident type AND priority to determine severity
           final severity = _mapIncidentSeverity(incidentType, status, priority);
 
-          debugPrint('[WarningsProvider] Mapped to: type=$warningType, severity=$severity, distance=${distance.toStringAsFixed(2)}km');
+          debugPrint(
+            '[WarningsProvider] Mapped to: type=$warningType, severity=$severity, distance=${distance.toStringAsFixed(2)}km',
+          );
 
-          warnings.add(Warning(
-            id: doc.id,
-            type: warningType,
-            location: incidentLocation,
-            severity: severity,
-            distance: distance,
-            description: description.isEmpty
-                ? 'Citizen reported: $incidentType'
-                : description,
-            timestamp: createdAt,
-            latitude: latitude,
-            longitude: longitude,
-          ));
+          warnings.add(
+            Warning(
+              id: doc.id,
+              type: warningType,
+              location: incidentLocation,
+              severity: severity,
+              distance: distance,
+              description: description.isEmpty
+                  ? 'Citizen reported: $incidentType'
+                  : description,
+              timestamp: createdAt,
+              latitude: latitude,
+              longitude: longitude,
+            ),
+          );
         } catch (e) {
           debugPrint('[WarningsProvider] Error parsing emergency report: $e');
           continue;
         }
       }
 
-      debugPrint('[WarningsProvider] Total warnings extracted: ${warnings.length}');
+      debugPrint(
+        '[WarningsProvider] Total warnings extracted: ${warnings.length}',
+      );
       debugPrint('[WarningsProvider] Firebase fetch complete\n');
       return warnings;
     } catch (e) {
@@ -225,9 +250,9 @@ class WarningsProvider extends ChangeNotifier {
     if (incidentType.isEmpty || incidentType.toLowerCase() == 'unknown') {
       return 'Emergency Alert';
     }
-    
+
     final type = incidentType.toLowerCase().trim();
-    
+
     // Exact matches first
     if (type == 'flood' || type == 'banjir') {
       return 'Flood';
@@ -246,7 +271,7 @@ class WarningsProvider extends ChangeNotifier {
     } else if (type == 'thunderstorm' || type == 'ribut') {
       return 'Thunderstorm';
     }
-    
+
     // Substring matches
     if (type.contains('flood') || type.contains('banjir')) {
       return 'Flood';
@@ -265,27 +290,35 @@ class WarningsProvider extends ChangeNotifier {
     } else if (type.contains('storm') || type.contains('ribut')) {
       return 'Thunderstorm';
     }
-    
+
     // Return original if no match found
     return incidentType;
   }
 
   // Map incident severity based on type, status, and priority from Firebase
   // Available types: Flood, Fire, Accident, Medical Emergency, Landslide, Other
-  String _mapIncidentSeverity(String incidentType, String status, String priority) {
+  String _mapIncidentSeverity(
+    String incidentType,
+    String status,
+    String priority,
+  ) {
     if (incidentType.isEmpty) {
       return 'medium';
     }
-    
+
     final type = incidentType.toLowerCase().trim();
     final pri = priority.toLowerCase().trim();
 
     // HIGH SEVERITY - Life-threatening incidents
     // Flood, Fire, Landslide, Medical Emergency
-    if (type.contains('flood') || type.contains('banjir') ||
-        type.contains('fire') || type.contains('kebakaran') || 
-        type.contains('landslide') || type.contains('longsoran') ||
-        type.contains('medical') || type.contains('emergency')) {
+    if (type.contains('flood') ||
+        type.contains('banjir') ||
+        type.contains('fire') ||
+        type.contains('kebakaran') ||
+        type.contains('landslide') ||
+        type.contains('longsoran') ||
+        type.contains('medical') ||
+        type.contains('emergency')) {
       return 'high';
     }
 
@@ -309,14 +342,17 @@ class WarningsProvider extends ChangeNotifier {
   }
 
   // Haversine formula to calculate distance between two coordinates
-  double _calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+  double _calculateDistance(
+    double lat1,
+    double lon1,
+    double lat2,
+    double lon2,
+  ) {
     const p = 0.017453292519943295;
-    final a = 0.5 -
+    final a =
+        0.5 -
         cos((lat2 - lat1) * p) / 2 +
-        cos(lat1 * p) *
-            cos(lat2 * p) *
-            (1 - cos((lon2 - lon1) * p)) /
-            2;
+        cos(lat1 * p) * cos(lat2 * p) * (1 - cos((lon2 - lon1) * p)) / 2;
     return 12742 * asin(sqrt(a));
   }
 
@@ -327,6 +363,4 @@ class WarningsProvider extends ChangeNotifier {
   List<Warning> getNearbyWarnings({double radiusKm = 5.0}) {
     return _warnings.where((w) => w.distance <= radiusKm).toList();
   }
-
-
 }

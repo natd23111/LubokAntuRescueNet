@@ -5,11 +5,11 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'navigation_service.dart';
- 
 
 class PushNotificationService {
-  static final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
-  
+  static final FirebaseMessaging _firebaseMessaging =
+      FirebaseMessaging.instance;
+
   // Local notification plugin for displaying notifications
   static final FlutterLocalNotificationsPlugin _localNotifications =
       FlutterLocalNotificationsPlugin();
@@ -30,7 +30,7 @@ class PushNotificationService {
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       print('✅ Push notifications authorized');
-      
+
       // Handle messages when app is in foreground
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
         print('Foreground notification: ${message.notification?.title}');
@@ -44,8 +44,11 @@ class PushNotificationService {
       });
 
       // Handle background messages
-      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-    } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
+      FirebaseMessaging.onBackgroundMessage(
+        _firebaseMessagingBackgroundHandler,
+      );
+    } else if (settings.authorizationStatus ==
+        AuthorizationStatus.provisional) {
       print('⚠️ Push notifications provisional');
     } else {
       print('❌ Push notifications denied');
@@ -63,10 +66,10 @@ class PushNotificationService {
 
     final DarwinInitializationSettings iosSettings =
         DarwinInitializationSettings(
-      requestSoundPermission: true,
-      requestBadgePermission: true,
-      requestAlertPermission: true,
-    );
+          requestSoundPermission: true,
+          requestBadgePermission: true,
+          requestAlertPermission: true,
+        );
 
     final InitializationSettings initSettings = InitializationSettings(
       android: androidSettings,
@@ -84,14 +87,16 @@ class PushNotificationService {
   }
 
   /// Handle when user taps a notification
-  static Future<void> _handleNotificationTap(NotificationResponse response) async {
+  static Future<void> _handleNotificationTap(
+    NotificationResponse response,
+  ) async {
     final payload = response.payload;
     print('📳 Notification tapped!');
     print('   Payload: $payload');
     print('   ID: ${response.id}');
     print('   Action ID: ${response.actionId}');
     print('   NavigationKey currentState: ${navigationKey.currentState}');
-    
+
     if (payload != null && payload.isNotEmpty) {
       // Try to parse JSON payload (used for FCM/local map payloads)
       try {
@@ -101,16 +106,35 @@ class PushNotificationService {
         if (parsed is Map<String, dynamic>) {
           final map = parsed;
           print('✅ Payload is a Map with keys: ${map.keys.toList()}');
-          
-          // Check if there's a nested 'data' object (most notifications have this structure)
-          final dataMap = map['data'] is Map<String, dynamic> ? map['data'] as Map<String, dynamic> : null;
-          
-          // Extract from nested data object first, then from top level
-          final reportId = dataMap?['reportId'] ?? dataMap?['report_id'] ?? map['reportId'] ?? map['report_id'] ?? dataMap?['requestId'] ?? map['requestId'];
-          final reportType = dataMap?['reportType'] ?? dataMap?['report_type'] ?? map['reportType'] ?? map['report_type'] ?? map['type'];
-          final programId = dataMap?['programId'] ?? dataMap?['program_id'] ?? map['programId'] ?? map['program_id'];
 
-          print('🔍 Extracted - reportId: $reportId, reportType: $reportType, programId: $programId');
+          // Check if there's a nested 'data' object (most notifications have this structure)
+          final dataMap = map['data'] is Map<String, dynamic>
+              ? map['data'] as Map<String, dynamic>
+              : null;
+
+          // Extract from nested data object first, then from top level
+          final reportId =
+              dataMap?['reportId'] ??
+              dataMap?['report_id'] ??
+              map['reportId'] ??
+              map['report_id'] ??
+              dataMap?['requestId'] ??
+              map['requestId'];
+          final reportType =
+              dataMap?['reportType'] ??
+              dataMap?['report_type'] ??
+              map['reportType'] ??
+              map['report_type'] ??
+              map['type'];
+          final programId =
+              dataMap?['programId'] ??
+              dataMap?['program_id'] ??
+              map['programId'] ??
+              map['program_id'];
+
+          print(
+            '🔍 Extracted - reportId: $reportId, reportType: $reportType, programId: $programId',
+          );
 
           if (reportId != null && reportType != null) {
             print('✅ Both reportId and reportType found');
@@ -119,7 +143,10 @@ class PushNotificationService {
               final state = navigationKey.currentState;
               print('   State is null? ${state == null}');
               if (state != null) {
-                state.pushNamed('/view-aid-requests', arguments: {'requestId': reportId});
+                state.pushNamed(
+                  '/view-aid-requests',
+                  arguments: {'requestId': reportId},
+                );
                 print('✅ Navigation executed');
               } else {
                 print('❌ NavigationState is null - cannot navigate');
@@ -130,7 +157,10 @@ class PushNotificationService {
               final state = navigationKey.currentState;
               print('   State is null? ${state == null}');
               if (state != null) {
-                state.pushNamed('/view-reports', arguments: {'reportType': 'emergency', 'reportId': reportId});
+                state.pushNamed(
+                  '/view-reports',
+                  arguments: {'reportType': 'emergency', 'reportId': reportId},
+                );
                 print('✅ Navigation executed');
               } else {
                 print('❌ NavigationState is null - cannot navigate');
@@ -141,7 +171,10 @@ class PushNotificationService {
               final state = navigationKey.currentState;
               print('   State is null? ${state == null}');
               if (state != null) {
-                state.pushNamed('/view-public-reports', arguments: {'reportType': reportType, 'reportId': reportId});
+                state.pushNamed(
+                  '/view-public-reports',
+                  arguments: {'reportType': reportType, 'reportId': reportId},
+                );
                 print('✅ Navigation executed');
               } else {
                 print('❌ NavigationState is null - cannot navigate');
@@ -155,7 +188,10 @@ class PushNotificationService {
             final state = navigationKey.currentState;
             print('   State is null? ${state == null}');
             if (state != null) {
-              state.pushNamed('/program-details', arguments: {'programId': programId});
+              state.pushNamed(
+                '/program-details',
+                arguments: {'programId': programId},
+              );
               print('✅ Navigation executed');
             } else {
               print('❌ NavigationState is null - cannot navigate');
@@ -170,7 +206,9 @@ class PushNotificationService {
         try {
           final uid = FirebaseAuth.instance.currentUser?.uid;
           if (uid != null && payload != null && payload.isNotEmpty) {
-            print('🔎 Attempting to resolve notification id from Firestore: $payload');
+            print(
+              '🔎 Attempting to resolve notification id from Firestore: $payload',
+            );
             final doc = await FirebaseFirestore.instance
                 .collection('users')
                 .doc(uid)
@@ -178,38 +216,62 @@ class PushNotificationService {
                 .doc(payload)
                 .get();
             if (doc.exists && doc.data() != null) {
-              final Map<String, dynamic> map = Map<String, dynamic>.from(doc.data()!);
+              final Map<String, dynamic> map = Map<String, dynamic>.from(
+                doc.data()!,
+              );
               final type = map['type'] as String? ?? '';
               final data = map['data'] as Map<String, dynamic>? ?? {};
               final reportId = data['reportId'] ?? data['requestId'];
-              final reportType = data['reportType'] ?? data['report_type'] ?? data['type'];
+              final reportType =
+                  data['reportType'] ?? data['report_type'] ?? data['type'];
               final programId = data['programId'] ?? data['program_id'];
 
               if (reportId != null && reportType != null) {
                 if (reportType.toString().toLowerCase() == 'aid') {
                   print('➡️ Navigating (resolved) to aid request: $reportId');
-                  navigationKey.currentState?.pushNamed('/view-aid-requests', arguments: {'requestId': reportId});
+                  navigationKey.currentState?.pushNamed(
+                    '/view-aid-requests',
+                    arguments: {'requestId': reportId},
+                  );
                   return;
                 } else if (reportType.toString().toLowerCase() == 'emergency') {
-                  print('➡️ Navigating (resolved) to emergency report: $reportId');
-                  navigationKey.currentState?.pushNamed('/view-reports', arguments: {'reportType': 'emergency', 'reportId': reportId});
+                  print(
+                    '➡️ Navigating (resolved) to emergency report: $reportId',
+                  );
+                  navigationKey.currentState?.pushNamed(
+                    '/view-reports',
+                    arguments: {
+                      'reportType': 'emergency',
+                      'reportId': reportId,
+                    },
+                  );
                   return;
                 } else {
                   print('➡️ Navigating (resolved) to public report: $reportId');
-                  navigationKey.currentState?.pushNamed('/view-public-reports', arguments: {'reportType': reportType, 'reportId': reportId});
+                  navigationKey.currentState?.pushNamed(
+                    '/view-public-reports',
+                    arguments: {'reportType': reportType, 'reportId': reportId},
+                  );
                   return;
                 }
               }
 
               if (programId != null) {
-                print('➡️ Navigating (resolved) to program details: $programId');
-                navigationKey.currentState?.pushNamed('/program-details', arguments: {'programId': programId});
+                print(
+                  '➡️ Navigating (resolved) to program details: $programId',
+                );
+                navigationKey.currentState?.pushNamed(
+                  '/program-details',
+                  arguments: {'programId': programId},
+                );
                 return;
               }
             }
           }
         } catch (resolveErr) {
-          print('❌ Error resolving notification id from Firestore: $resolveErr');
+          print(
+            '❌ Error resolving notification id from Firestore: $resolveErr',
+          );
         }
 
         // Fallback: pass to any registered callback (e.g., provider instance)
@@ -226,8 +288,7 @@ class PushNotificationService {
 
   /// Create notification channels for different notification types
   static Future<void> _createNotificationChannels() async {
-    const AndroidNotificationChannel reportChannel =
-        AndroidNotificationChannel(
+    const AndroidNotificationChannel reportChannel = AndroidNotificationChannel(
       'report_status',
       'Report Status Updates',
       description: 'Notifications about your report status changes',
@@ -245,26 +306,29 @@ class PushNotificationService {
 
     const AndroidNotificationChannel aidProgramChannel =
         AndroidNotificationChannel(
-      'aid_program',
-      'New Aid Programs',
-      description: 'Notifications about new aid programs',
-      importance: Importance.max,
-      sound: RawResourceAndroidNotificationSound('notification'),
-    );
+          'aid_program',
+          'New Aid Programs',
+          description: 'Notifications about new aid programs',
+          importance: Importance.max,
+          sound: RawResourceAndroidNotificationSound('notification'),
+        );
 
     await _localNotifications
         .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+          AndroidFlutterLocalNotificationsPlugin
+        >()
         ?.createNotificationChannel(reportChannel);
 
     await _localNotifications
         .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+          AndroidFlutterLocalNotificationsPlugin
+        >()
         ?.createNotificationChannel(alertChannel);
 
     await _localNotifications
         .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+          AndroidFlutterLocalNotificationsPlugin
+        >()
         ?.createNotificationChannel(aidProgramChannel);
 
     print('✅ Notification channels created');
@@ -272,7 +336,8 @@ class PushNotificationService {
 
   @pragma('vm:entry-point')
   static Future<void> _firebaseMessagingBackgroundHandler(
-      RemoteMessage message) async {
+    RemoteMessage message,
+  ) async {
     print('Background notification: ${message.notification?.title}');
     _handleNotification(message);
   }
@@ -287,7 +352,7 @@ class PushNotificationService {
       Body: ${notification.body}
       Data: $data
       ''');
-      
+
       // Display local notification
       _displayLocalNotification(
         title: notification.title ?? 'Notification',
@@ -304,22 +369,21 @@ class PushNotificationService {
     required Map<String, dynamic> payload,
   }) async {
     try {
-      
       const AndroidNotificationDetails androidDetails =
           AndroidNotificationDetails(
-        'report_status',
-        'Report Status Updates',
-        channelDescription: 'Notifications about your report status changes',
-        importance: Importance.max,
-        priority: Priority.max,
-        showWhen: true,
-        enableVibration: true,
-        playSound: true,
-        sound: RawResourceAndroidNotificationSound('notification'),
-      );
+            'report_status',
+            'Report Status Updates',
+            channelDescription:
+                'Notifications about your report status changes',
+            importance: Importance.max,
+            priority: Priority.max,
+            showWhen: true,
+            enableVibration: true,
+            playSound: true,
+            sound: RawResourceAndroidNotificationSound('notification'),
+          );
 
-      const DarwinNotificationDetails iosDetails =
-          DarwinNotificationDetails(
+      const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
         presentAlert: true,
         presentBadge: true,
         presentSound: true,
@@ -329,7 +393,6 @@ class PushNotificationService {
         android: androidDetails,
         iOS: iosDetails,
       );
-
 
       // Encode payload as JSON string so tap handlers can parse it reliably
       final String payloadJson = jsonEncode(payload);
@@ -354,7 +417,6 @@ class PushNotificationService {
     String? payload,
   }) async {
     try {
-      
       final NotificationDetails platformDetails = NotificationDetails(
         android: const AndroidNotificationDetails(
           'report_status',
@@ -385,8 +447,6 @@ class PushNotificationService {
       print('❌ Error in showLocalNotification wrapper: $e');
     }
   }
-
- 
 
   static Future<String?> getToken() async {
     return await _firebaseMessaging.getToken();

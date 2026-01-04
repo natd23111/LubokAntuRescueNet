@@ -14,20 +14,22 @@ class ApiService {
   );
 
   ApiService() {
-    _dio.interceptors.add(InterceptorsWrapper(
-      onRequest: (options, handler) async {
-        final token = await StorageUtil.getToken();
-        if (token != null) {
-          options.headers['Authorization'] = 'Bearer $token';
-        }
-        return handler.next(options);
-      },
-      onError: (error, handler) {
-        print('API Error: ${error.message}');
-        print('Status Code: ${error.response?.statusCode}');
-        return handler.next(error);
-      },
-    ));
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          final token = await StorageUtil.getToken();
+          if (token != null) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
+          return handler.next(options);
+        },
+        onError: (error, handler) {
+          print('API Error: ${error.message}');
+          print('Status Code: ${error.response?.statusCode}');
+          return handler.next(error);
+        },
+      ),
+    );
   }
 
   Future<Response> post(String endpoint, Map<String, dynamic> data) async {

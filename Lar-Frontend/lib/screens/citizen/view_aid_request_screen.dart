@@ -41,7 +41,10 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
 
       // Ensure provider has userId set and data loaded
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      final aidProvider = Provider.of<AidRequestProvider>(context, listen: false);
+      final aidProvider = Provider.of<AidRequestProvider>(
+        context,
+        listen: false,
+      );
       if (authProvider.userId != null) {
         aidProvider.setUserId(authProvider.userId!);
       }
@@ -113,12 +116,21 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
 
   List<AidRequestModel> _getFilteredRequests(List<AidRequestModel> requests) {
     return requests
-        .where((r) =>
-            (activeTab == 'pending' || activeTab == 'approved' || activeTab == 'rejected' ? r.status.toLowerCase() == activeTab.toLowerCase() : true) &&
-            (selectedStatus == 'All' || r.aidType.toLowerCase() == selectedStatus.toLowerCase()) &&
-            (r.requestId.toLowerCase().contains(searchQuery.toLowerCase()) ||
-                r.aidType.toLowerCase().contains(searchQuery.toLowerCase()) ||
-                r.description.toLowerCase().contains(searchQuery.toLowerCase())))
+        .where(
+          (r) =>
+              (activeTab == 'pending' ||
+                      activeTab == 'approved' ||
+                      activeTab == 'rejected'
+                  ? r.status.toLowerCase() == activeTab.toLowerCase()
+                  : true) &&
+              (selectedStatus == 'All' ||
+                  r.aidType.toLowerCase() == selectedStatus.toLowerCase()) &&
+              (r.requestId.toLowerCase().contains(searchQuery.toLowerCase()) ||
+                  r.aidType.toLowerCase().contains(searchQuery.toLowerCase()) ||
+                  r.description.toLowerCase().contains(
+                    searchQuery.toLowerCase(),
+                  )),
+        )
         .toList();
   }
 
@@ -130,229 +142,239 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
           return _buildDetailView();
         }
 
-        final filteredRequests = _getFilteredRequests(aidRequestProvider.aidRequests);
+        final filteredRequests = _getFilteredRequests(
+          aidRequestProvider.aidRequests,
+        );
 
         return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF059669),
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: const Text(
-          'My Aid Requests',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-      ),
-      body: Column(
-        children: [
-          // Tabs
-          Container(
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(color: Colors.grey[200]!),
-              ),
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+            backgroundColor: const Color(0xFF059669),
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () => Navigator.of(context).pop(),
             ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => setState(() => activeTab = 'pending'),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        border: activeTab == 'pending'
-                            ? Border(
-                                bottom: BorderSide(
-                                  color: const Color(0xFF059669),
-                                  width: 2,
-                                ),
-                              )
-                            : null,
-                      ),
-                      child: Center(
-                        child: Text(
-                          'Pending (${aidRequestProvider.aidRequests.where((r) => r.status.toLowerCase() == 'pending').length})',
-                          style: TextStyle(
-                            color: activeTab == 'pending'
-                                ? const Color(0xFF059669)
-                                : Colors.grey[600],
-                            fontWeight: activeTab == 'pending'
-                                ? FontWeight.w600
-                                : FontWeight.normal,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => setState(() => activeTab = 'approved'),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        border: activeTab == 'approved'
-                            ? Border(
-                                bottom: BorderSide(
-                                  color: const Color(0xFF059669),
-                                  width: 2,
-                                ),
-                              )
-                            : null,
-                      ),
-                      child: Center(
-                        child: Text(
-                          'Approved (${aidRequestProvider.aidRequests.where((r) => r.status.toLowerCase() == 'approved').length})',
-                          style: TextStyle(
-                            color: activeTab == 'approved'
-                                ? const Color(0xFF059669)
-                                : Colors.grey[600],
-                            fontWeight: activeTab == 'approved'
-                                ? FontWeight.w600
-                                : FontWeight.normal,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => setState(() => activeTab = 'rejected'),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        border: activeTab == 'rejected'
-                            ? Border(
-                                bottom: BorderSide(
-                                  color: const Color(0xFF059669),
-                                  width: 2,
-                                ),
-                              )
-                            : null,
-                      ),
-                      child: Center(
-                        child: Text(
-                          'Rejected (${aidRequestProvider.aidRequests.where((r) => r.status.toLowerCase() == 'rejected').length})',
-                          style: TextStyle(
-                            color: activeTab == 'rejected'
-                                ? const Color(0xFF059669)
-                                : Colors.grey[600],
-                            fontWeight: activeTab == 'rejected'
-                                ? FontWeight.w600
-                                : FontWeight.normal,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Search
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: TextField(
-              controller: searchController,
-              onChanged: (value) => setState(() => searchQuery = value),
-              decoration: InputDecoration(
-                hintText: 'Search aid requests',
-                prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: Colors.grey[300]!),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(
-                    color: Color(0xFF059669),
-                    width: 2,
-                  ),
-                ),
+            title: const Text(
+              'My Aid Requests',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
               ),
             ),
           ),
-
-          // Filter chips
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  'All',
-                  'Financial Aid',
-                  'Disaster Relief',
-                  'Education Aid',
-                  'Medical Fund',
-                ].map((type) {
-                  final isSelected = selectedStatus == type;
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: GestureDetector(
-                      onTap: () => setState(() => selectedStatus = type),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? const Color(0xFF059669)
-                              : Colors.white,
-                          border: Border.all(
-                            color: isSelected
-                                ? const Color(0xFF059669)
-                                : Colors.grey[300]!,
+          body: Column(
+            children: [
+              // Tabs
+              Container(
+                decoration: BoxDecoration(
+                  border: Border(bottom: BorderSide(color: Colors.grey[200]!)),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => activeTab = 'pending'),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            border: activeTab == 'pending'
+                                ? Border(
+                                    bottom: BorderSide(
+                                      color: const Color(0xFF059669),
+                                      width: 2,
+                                    ),
+                                  )
+                                : null,
                           ),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          type,
-                          style: TextStyle(
-                            color: isSelected
-                                ? Colors.white
-                                : Colors.grey[700],
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
+                          child: Center(
+                            child: Text(
+                              'Pending (${aidRequestProvider.aidRequests.where((r) => r.status.toLowerCase() == 'pending').length})',
+                              style: TextStyle(
+                                color: activeTab == 'pending'
+                                    ? const Color(0xFF059669)
+                                    : Colors.grey[600],
+                                fontWeight: activeTab == 'pending'
+                                    ? FontWeight.w600
+                                    : FontWeight.normal,
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
-
-          // Content
-          Expanded(
-            child: aidRequestProvider.isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF059669)),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => activeTab = 'approved'),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            border: activeTab == 'approved'
+                                ? Border(
+                                    bottom: BorderSide(
+                                      color: const Color(0xFF059669),
+                                      width: 2,
+                                    ),
+                                  )
+                                : null,
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Approved (${aidRequestProvider.aidRequests.where((r) => r.status.toLowerCase() == 'approved').length})',
+                              style: TextStyle(
+                                color: activeTab == 'approved'
+                                    ? const Color(0xFF059669)
+                                    : Colors.grey[600],
+                                fontWeight: activeTab == 'approved'
+                                    ? FontWeight.w600
+                                    : FontWeight.normal,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
-                  )
-                : filteredRequests.isEmpty
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => activeTab = 'rejected'),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            border: activeTab == 'rejected'
+                                ? Border(
+                                    bottom: BorderSide(
+                                      color: const Color(0xFF059669),
+                                      width: 2,
+                                    ),
+                                  )
+                                : null,
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Rejected (${aidRequestProvider.aidRequests.where((r) => r.status.toLowerCase() == 'rejected').length})',
+                              style: TextStyle(
+                                color: activeTab == 'rejected'
+                                    ? const Color(0xFF059669)
+                                    : Colors.grey[600],
+                                fontWeight: activeTab == 'rejected'
+                                    ? FontWeight.w600
+                                    : FontWeight.normal,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Search
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: TextField(
+                  controller: searchController,
+                  onChanged: (value) => setState(() => searchQuery = value),
+                  decoration: InputDecoration(
+                    hintText: 'Search aid requests',
+                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF059669),
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              // Filter chips
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children:
+                        [
+                          'All',
+                          'Financial Aid',
+                          'Disaster Relief',
+                          'Education Aid',
+                          'Medical Fund',
+                        ].map((type) {
+                          final isSelected = selectedStatus == type;
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: GestureDetector(
+                              onTap: () =>
+                                  setState(() => selectedStatus = type),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? const Color(0xFF059669)
+                                      : Colors.white,
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? const Color(0xFF059669)
+                                        : Colors.grey[300]!,
+                                  ),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  type,
+                                  style: TextStyle(
+                                    color: isSelected
+                                        ? Colors.white
+                                        : Colors.grey[700],
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                  ),
+                ),
+              ),
+
+              // Content
+              Expanded(
+                child: aidRequestProvider.isLoading
+                    ? const Center(
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Color(0xFF059669),
+                          ),
+                        ),
+                      )
+                    : filteredRequests.isEmpty
                     ? Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.inbox, size: 64, color: Colors.grey[300]),
+                            Icon(
+                              Icons.inbox,
+                              size: 64,
+                              color: Colors.grey[300],
+                            ),
                             const SizedBox(height: 16),
                             Text(
                               'No aid requests found',
-                              style:
-                                  TextStyle(color: Colors.grey[600], fontSize: 16),
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 16,
+                              ),
                             ),
                           ],
                         ),
@@ -370,49 +392,44 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
                           return _buildRequestCard(request);
                         },
                       ),
-          ),
-          
-          // Error display
-          if (aidRequestProvider.error != null)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.red[50],
-                border: Border(
-                  top: BorderSide(color: Colors.red[200]!),
+              ),
+
+              // Error display
+              if (aidRequestProvider.error != null)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.red[50],
+                    border: Border(top: BorderSide(color: Colors.red[200]!)),
+                  ),
+                  child: Text(
+                    'Error: ${aidRequestProvider.error}',
+                    style: TextStyle(color: Colors.red[700], fontSize: 12),
+                  ),
                 ),
-              ),
-              child: Text(
-                'Error: ${aidRequestProvider.error}',
-                style: TextStyle(color: Colors.red[700], fontSize: 12),
-              ),
+            ],
+          ),
+          bottomNavigationBar: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              border: Border(top: BorderSide(color: Colors.grey[200]!)),
             ),
-        ],
-      ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          border: Border(top: BorderSide(color: Colors.grey[200]!)),
-        ),
-        child: SizedBox(
-          width: double.infinity,
-          child: OutlinedButton(
-            onPressed: () => Navigator.of(context).pop(),
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+            child: SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: () => Navigator.of(context).pop(),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  side: BorderSide(color: Colors.grey[300]!),
+                ),
+                child: Text('Back', style: TextStyle(color: Colors.grey[600])),
               ),
-              side: BorderSide(color: Colors.grey[300]!),
-            ),
-            child: Text(
-              'Back',
-              style: TextStyle(color: Colors.grey[600]),
             ),
           ),
-        ),
-      ),
         );
       },
     );
@@ -465,13 +482,9 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
               children: [
                 Text(
                   request.formattedDate,
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
-                Icon(Icons.chevron_right,
-                    color: Colors.grey[400], size: 20),
+                Icon(Icons.chevron_right, color: Colors.grey[400], size: 20),
               ],
             ),
           ],
@@ -483,7 +496,9 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
   Widget _buildDetailView() {
     return Consumer<AidRequestProvider>(
       builder: (context, aidRequestProvider, _) {
-        final request = aidRequestProvider.aidRequests.firstWhere((r) => r.requestId == selectedRequestId);
+        final request = aidRequestProvider.aidRequests.firstWhere(
+          (r) => r.requestId == selectedRequestId,
+        );
 
         return Scaffold(
           backgroundColor: Colors.white,
@@ -506,8 +521,20 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Request ID', style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
-                        Text(request.requestId, style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w600)),
+                        Text(
+                          'Request ID',
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 12,
+                          ),
+                        ),
+                        Text(
+                          request.requestId,
+                          style: const TextStyle(
+                            color: Colors.black87,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ],
                     ),
                     _buildStatusBadge(request.status),
@@ -526,10 +553,22 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
                 if (request.applicantAddress != null)
                   _buildDetailRow('Address', request.applicantAddress!),
                 _buildDetailRow('Date Submitted', request.formattedDate),
-                _buildDetailRow('Monthly Income', 'RM ${request.monthlyIncome.toStringAsFixed(2)}'),
-                _buildDetailRow('Family Members', request.familyMembers.length.toString()),
+                _buildDetailRow(
+                  'Monthly Income',
+                  'RM ${request.monthlyIncome.toStringAsFixed(2)}',
+                ),
+                _buildDetailRow(
+                  'Family Members',
+                  request.familyMembers.length.toString(),
+                ),
                 const SizedBox(height: 16),
-                Text('Family Composition', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600)),
+                Text(
+                  'Family Composition',
+                  style: TextStyle(
+                    color: Colors.black87,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(height: 8),
                 ...request.familyMembers.map((member) {
                   return Container(
@@ -542,8 +581,20 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(member.name, style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w500)),
-                        Text(member.status, style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+                        Text(
+                          member.name,
+                          style: const TextStyle(
+                            color: Colors.black87,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Text(
+                          member.status,
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 12,
+                          ),
+                        ),
                       ],
                     ),
                   );
@@ -569,7 +620,10 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
                   ),
                   side: BorderSide(color: Colors.grey[300]!),
                 ),
-                child: Text('Back to List', style: TextStyle(color: Colors.grey[600])),
+                child: Text(
+                  'Back to List',
+                  style: TextStyle(color: Colors.grey[600]),
+                ),
               ),
             ),
           ),
@@ -584,7 +638,10 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+          Text(
+            label,
+            style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+          ),
           const SizedBox(height: 4),
           Text(value, style: const TextStyle(color: Colors.black87)),
         ],

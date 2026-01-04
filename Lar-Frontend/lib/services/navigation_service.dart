@@ -4,6 +4,12 @@ import 'package:flutter/material.dart';
 final GlobalKey<NavigatorState> navigationKey = GlobalKey<NavigatorState>();
 
 // Helper to navigate with optional arguments
-Future<T?> navigateTo<T extends Object?>(String routeName, {Object? arguments}) {
-  return navigationKey.currentState!.pushNamed<T>(routeName, arguments: arguments);
+Future<T?> navigateTo<T extends Object?>(
+  String routeName, {
+  Object? arguments,
+}) {
+  return navigationKey.currentState!.pushNamed<T>(
+    routeName,
+    arguments: arguments,
+  );
 }

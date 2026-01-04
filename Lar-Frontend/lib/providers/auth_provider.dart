@@ -51,9 +51,12 @@ class AuthProvider with ChangeNotifier {
   Future<void> _loadUserProfile() async {
     try {
       if (currentUser == null) return;
-      
-      final doc = await _firestore.collection('users').doc(currentUser!.uid).get();
-      
+
+      final doc = await _firestore
+          .collection('users')
+          .doc(currentUser!.uid)
+          .get();
+
       if (doc.exists) {
         final data = doc.data() ?? {};
         userName = data['full_name'] ?? currentUser!.email ?? 'User';
@@ -127,7 +130,9 @@ class AuthProvider with ChangeNotifier {
 
       if (userCredential.user != null) {
         // Update display name
-        await userCredential.user!.updateDisplayName(data['full_name'] ?? 'User');
+        await userCredential.user!.updateDisplayName(
+          data['full_name'] ?? 'User',
+        );
 
         // Save user profile to Firestore
         await _firestore.collection('users').doc(userCredential.user!.uid).set({
@@ -165,7 +170,10 @@ class AuthProvider with ChangeNotifier {
     try {
       if (currentUser == null) return;
 
-      final doc = await _firestore.collection('users').doc(currentUser!.uid).get();
+      final doc = await _firestore
+          .collection('users')
+          .doc(currentUser!.uid)
+          .get();
 
       if (doc.exists) {
         final data = doc.data() ?? {};
@@ -188,7 +196,7 @@ class AuthProvider with ChangeNotifier {
     try {
       await _auth.signOut();
       await StorageUtil.clearToken();
-      
+
       userName = null;
       userIc = null;
       userEmail = null;

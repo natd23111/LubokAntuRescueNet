@@ -27,7 +27,7 @@ class _AIChatbotScreenState extends State<AIChatbotScreen> {
   List<ChatMessage> _messages = [];
   bool _isTyping = false;
   final primaryGreen = Color(0xFF0E9D63);
-  
+
   final List<String> quickQuestions = [
     'What should I do during a flood?',
     'How do I check my report status?',
@@ -41,7 +41,8 @@ class _AIChatbotScreenState extends State<AIChatbotScreen> {
     // Add initial greeting message
     _messages.add(
       ChatMessage(
-        text: 'Hello! I am the RescueNet AI Assistant. I can help you with emergency procedures, disaster preparedness, aid information, and answer questions about the rescue network. How can I assist you today?',
+        text:
+            'Hello! I am the RescueNet AI Assistant. I can help you with emergency procedures, disaster preparedness, aid information, and answer questions about the rescue network. How can I assist you today?',
         isUser: false,
         timestamp: DateTime.now(),
       ),
@@ -58,7 +59,7 @@ class _AIChatbotScreenState extends State<AIChatbotScreen> {
   Future<String> _sendToHuggingFace(String userMessage) async {
     try {
       final apiToken = HuggingFaceConfig.apiToken;
-      
+
       if (apiToken == 'hf_your_token_here') {
         return 'Error: Hugging Face API token not set. Please update lib/config/hugging_face_config.dart with your token from https://huggingface.co/settings/tokens';
       }
@@ -69,40 +70,38 @@ class _AIChatbotScreenState extends State<AIChatbotScreen> {
 
       // Build the messages for chat completion
       final messages = [
-        {
-          "role": "system",
-          "content": HuggingFaceConfig.systemPrompt,
-        },
-        {
-          "role": "user",
-          "content": userMessage,
-        }
+        {"role": "system", "content": HuggingFaceConfig.systemPrompt},
+        {"role": "user", "content": userMessage},
       ];
 
-      final response = await http.post(
-        url,
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer $apiToken",
-        },
-        body: jsonEncode({
-          "model": HuggingFaceConfig.model,
-          "messages": messages,
-          "temperature": 0.7,
-          "max_tokens": 512,
-        }),
-      ).timeout(const Duration(seconds: 45));
+      final response = await http
+          .post(
+            url,
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer $apiToken",
+            },
+            body: jsonEncode({
+              "model": HuggingFaceConfig.model,
+              "messages": messages,
+              "temperature": 0.7,
+              "max_tokens": 512,
+            }),
+          )
+          .timeout(const Duration(seconds: 45));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         try {
           // OpenAI-compatible API returns choices array
-          if (data is Map && data['choices'] is List && (data['choices'] as List).isNotEmpty) {
+          if (data is Map &&
+              data['choices'] is List &&
+              (data['choices'] as List).isNotEmpty) {
             final firstChoice = data['choices'][0];
             final content = firstChoice['message']['content'];
-            return content is String && content.isNotEmpty 
-              ? content 
-              : "I'm having trouble generating a response. Please try again.";
+            return content is String && content.isNotEmpty
+                ? content
+                : "I'm having trouble generating a response. Please try again.";
           }
           return "Error parsing response: ${data.toString()}";
         } catch (e) {
@@ -121,11 +120,9 @@ class _AIChatbotScreenState extends State<AIChatbotScreen> {
     if (text.isEmpty) return;
 
     setState(() {
-      _messages.add(ChatMessage(
-        text: text,
-        isUser: true,
-        timestamp: DateTime.now(),
-      ));
+      _messages.add(
+        ChatMessage(text: text, isUser: true, timestamp: DateTime.now()),
+      );
       _isTyping = true;
     });
 
@@ -143,22 +140,22 @@ class _AIChatbotScreenState extends State<AIChatbotScreen> {
       final response = await _sendToHuggingFace(userMessage);
 
       setState(() {
-        _messages.add(ChatMessage(
-          text: response,
-          isUser: false,
-          timestamp: DateTime.now(),
-        ));
+        _messages.add(
+          ChatMessage(text: response, isUser: false, timestamp: DateTime.now()),
+        );
         _isTyping = false;
       });
 
       _scrollToBottom();
     } catch (e) {
       setState(() {
-        _messages.add(ChatMessage(
-          text: "Error: ${e.toString()}",
-          isUser: false,
-          timestamp: DateTime.now(),
-        ));
+        _messages.add(
+          ChatMessage(
+            text: "Error: ${e.toString()}",
+            isUser: false,
+            timestamp: DateTime.now(),
+          ),
+        );
         _isTyping = false;
       });
       _scrollToBottom();
@@ -185,7 +182,11 @@ class _AIChatbotScreenState extends State<AIChatbotScreen> {
         elevation: 0,
         title: Text(
           'AI Assistant',
-          style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),
@@ -266,7 +267,10 @@ class _AIChatbotScreenState extends State<AIChatbotScreen> {
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(color: Colors.grey.shade300),
                       ),
-                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                       child: TextField(
                         controller: _messageController,
                         decoration: InputDecoration(
@@ -300,7 +304,9 @@ class _AIChatbotScreenState extends State<AIChatbotScreen> {
       padding: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment: message.isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment: message.isUser
+            ? MainAxisAlignment.end
+            : MainAxisAlignment.start,
         children: [
           if (!message.isUser) ...[
             Container(
@@ -310,13 +316,19 @@ class _AIChatbotScreenState extends State<AIChatbotScreen> {
                 color: Colors.grey.shade300,
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.smart_toy, color: Colors.grey.shade700, size: 18),
+              child: Icon(
+                Icons.smart_toy,
+                color: Colors.grey.shade700,
+                size: 18,
+              ),
             ),
             SizedBox(width: 8),
           ],
           Flexible(
             child: Column(
-              crossAxisAlignment: message.isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              crossAxisAlignment: message.isUser
+                  ? CrossAxisAlignment.end
+                  : CrossAxisAlignment.start,
               children: [
                 Container(
                   constraints: BoxConstraints(
@@ -333,7 +345,9 @@ class _AIChatbotScreenState extends State<AIChatbotScreen> {
                   child: Text(
                     message.text,
                     style: TextStyle(
-                      color: message.isUser ? Colors.white : Colors.grey.shade800,
+                      color: message.isUser
+                          ? Colors.white
+                          : Colors.grey.shade800,
                       fontSize: 14,
                       height: 1.4,
                     ),
@@ -344,10 +358,7 @@ class _AIChatbotScreenState extends State<AIChatbotScreen> {
                   padding: EdgeInsets.symmetric(horizontal: 12),
                   child: Text(
                     DateFormat('HH:mm').format(message.timestamp),
-                    style: TextStyle(
-                      color: Colors.grey.shade500,
-                      fontSize: 11,
-                    ),
+                    style: TextStyle(color: Colors.grey.shade500, fontSize: 11),
                   ),
                 ),
               ],
@@ -442,4 +453,3 @@ class _AIChatbotScreenState extends State<AIChatbotScreen> {
     );
   }
 }
-

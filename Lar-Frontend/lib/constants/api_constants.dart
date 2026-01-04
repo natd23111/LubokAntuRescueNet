@@ -1,5 +1,6 @@
 class ApiConstants {
   static const baseUrl = 'http://10.0.2.2:8000/api';
+
   // static const baseUrl = 'http://192.168.0.11:8000/api';
 
   // Auth
@@ -16,7 +17,8 @@ class ApiConstants {
   // Emergency Reports
   static const submitEmergency = '/reports/emergency';
   static const myEmergencyReports = '/reports/my';
-  static const updateEmergency = '/admin/reports/emergency/update'; // append {id}
+  static const updateEmergency =
+      '/admin/reports/emergency/update'; // append {id}
 
   // Aid Requests
   static const submitAid = '/reports/aid';

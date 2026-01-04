@@ -12,10 +12,12 @@ class NotificationSettingsScreen extends StatefulWidget {
   const NotificationSettingsScreen({super.key});
 
   @override
-  _NotificationSettingsScreenState createState() => _NotificationSettingsScreenState();
+  _NotificationSettingsScreenState createState() =>
+      _NotificationSettingsScreenState();
 }
 
-class _NotificationSettingsScreenState extends State<NotificationSettingsScreen> {
+class _NotificationSettingsScreenState
+    extends State<NotificationSettingsScreen> {
   bool _telegramEnabled = true;
   bool _floodAlerts = true;
   bool _fireAlerts = true;
@@ -31,41 +33,57 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
 
   /// Setup handler for when user taps notification in status bar
   void _setupNotificationTapHandler() {
-    final notificationsProvider = Provider.of<NotificationsProvider>(context, listen: false);
-    notificationsProvider.onNotificationTapped = _handleStatusBarNotificationTap;
+    final notificationsProvider = Provider.of<NotificationsProvider>(
+      context,
+      listen: false,
+    );
+    notificationsProvider.onNotificationTapped =
+        _handleStatusBarNotificationTap;
   }
 
   /// Handle tap from status bar notification
   void _handleStatusBarNotificationTap(String notificationId) {
     print('👆 Status bar notification tapped: $notificationId');
     // Find the notification in the provider and handle its tap
-    final notificationsProvider = Provider.of<NotificationsProvider>(context, listen: false);
-    
-    print('📋 Current notifications count: ${notificationsProvider.notifications.length}');
+    final notificationsProvider = Provider.of<NotificationsProvider>(
+      context,
+      listen: false,
+    );
+
+    print(
+      '📋 Current notifications count: ${notificationsProvider.notifications.length}',
+    );
     for (var n in notificationsProvider.notifications) {
       print('  - ${n.id} | ${n.title}');
     }
-    
+
     try {
-      final notification = notificationsProvider.notifications
-          .firstWhere((n) => n.id == notificationId);
+      final notification = notificationsProvider.notifications.firstWhere(
+        (n) => n.id == notificationId,
+      );
       print('✅ Found notification: ${notification.title}');
       _handleNotificationTap(notification);
     } catch (e) {
       print('⚠️ Notification not found in list, attempting to parse payload');
       // Try to parse the payload if it's JSON coming from FCM/local message
       try {
-        final Map<String, dynamic> payloadMap = jsonDecode(notificationId) as Map<String, dynamic>;
+        final Map<String, dynamic> payloadMap =
+            jsonDecode(notificationId) as Map<String, dynamic>;
         print('📦 Parsed payload: $payloadMap');
-        final String? reportId = payloadMap['reportId'] ?? payloadMap['requestId'];
-        final String? reportType = payloadMap['reportType'] ?? payloadMap['type'];
+        final String? reportId =
+            payloadMap['reportId'] ?? payloadMap['requestId'];
+        final String? reportType =
+            payloadMap['reportType'] ?? payloadMap['type'];
 
         if (reportId != null && reportType != null) {
-          print('➡️ Navigating based on payload: reportId=$reportId, reportType=$reportType');
+          print(
+            '➡️ Navigating based on payload: reportId=$reportId, reportType=$reportType',
+          );
           if (reportType == 'aid' || reportType.toLowerCase() == 'aid') {
             _navigateToAidRequest(reportId);
             return;
-          } else if (reportType == 'emergency' || reportType.toLowerCase() == 'emergency') {
+          } else if (reportType == 'emergency' ||
+              reportType.toLowerCase() == 'emergency') {
             _navigateToEmergencyReport(reportId);
             return;
           } else {
@@ -90,10 +108,10 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     final telegramService = TelegramService();
-    
+
     // Load Telegram notification preference from Firestore
     final telegramStatus = await telegramService.getTelegramStatus();
-    
+
     setState(() {
       _telegramEnabled = telegramStatus['enabled'] as bool? ?? true;
       _floodAlerts = prefs.getBool('flood_alerts') ?? true;
@@ -101,13 +119,16 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
       _landslideAlerts = prefs.getBool('landslide_alerts') ?? true;
       _weatherWarnings = prefs.getBool('weather_warnings') ?? true;
     });
-    
+
     print('✅ Loaded preferences from Firestore and SharedPreferences');
     print('   Telegram enabled: $_telegramEnabled');
-    
+
     // Fetch notifications when screen loads
     if (mounted) {
-      Provider.of<NotificationsProvider>(context, listen: false).fetchNotifications();
+      Provider.of<NotificationsProvider>(
+        context,
+        listen: false,
+      ).fetchNotifications();
     }
   }
 
@@ -117,9 +138,12 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
     await prefs.setBool('fire_alerts', _fireAlerts);
     await prefs.setBool('landslide_alerts', _landslideAlerts);
     await prefs.setBool('weather_warnings', _weatherWarnings);
-    
+
     // Update the provider with new preferences
-    Provider.of<NotificationsProvider>(context, listen: false).setAlertPreferences(
+    Provider.of<NotificationsProvider>(
+      context,
+      listen: false,
+    ).setAlertPreferences(
       floodAlerts: _floodAlerts,
       fireAlerts: _fireAlerts,
       landslideAlerts: _landslideAlerts,
@@ -133,11 +157,15 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
       final telegramService = TelegramService();
       await telegramService.toggleTelegramNotifications(enabled);
       print('✅ Saved Telegram preference to Firestore: $enabled');
-      
+
       // Show feedback
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(enabled ? '✅ Telegram notifications enabled' : '✅ Telegram notifications disabled'),
+          content: Text(
+            enabled
+                ? '✅ Telegram notifications enabled'
+                : '✅ Telegram notifications disabled',
+          ),
           backgroundColor: Colors.green,
           duration: Duration(seconds: 2),
         ),
@@ -162,7 +190,10 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
       backgroundColor: Color(0xFFF6F7F9),
       appBar: AppBar(
         backgroundColor: primaryGreen,
-        title: Text('Notification Settings', style: TextStyle(color: Colors.white)),
+        title: Text(
+          'Notification Settings',
+          style: TextStyle(color: Colors.white),
+        ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
@@ -183,7 +214,11 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
               // Alert Types Section
               Text(
                 'Alert Types',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
               ),
 
               SizedBox(height: 12),
@@ -251,20 +286,31 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                 children: [
                   Text(
                     'Recent Notifications',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
                   ),
                   Consumer<NotificationsProvider>(
                     builder: (context, provider, _) {
                       if (provider.unreadCount > 0) {
                         return Container(
-                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.red,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
                             '${provider.unreadCount} new',
-                            style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         );
                       }
@@ -293,11 +339,18 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                       child: Center(
                         child: Column(
                           children: [
-                            Icon(Icons.notifications_none, size: 48, color: Colors.grey.shade300),
+                            Icon(
+                              Icons.notifications_none,
+                              size: 48,
+                              color: Colors.grey.shade300,
+                            ),
                             SizedBox(height: 12),
                             Text(
                               'No notifications yet',
-                              style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                              style: TextStyle(
+                                color: Colors.grey.shade600,
+                                fontSize: 14,
+                              ),
                             ),
                           ],
                         ),
@@ -306,7 +359,9 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                   }
 
                   return Column(
-                    children: provider.recentNotifications.asMap().entries.map((entry) {
+                    children: provider.recentNotifications.asMap().entries.map((
+                      entry,
+                    ) {
                       final index = entry.key;
                       final notification = entry.value;
                       return Column(
@@ -314,12 +369,16 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                           _buildDynamicNotificationCard(
                             notification: notification,
                             onDismiss: () {
-                              Provider.of<NotificationsProvider>(context, listen: false)
-                                  .deleteNotification(notification.id);
+                              Provider.of<NotificationsProvider>(
+                                context,
+                                listen: false,
+                              ).deleteNotification(notification.id);
                             },
                             onRead: () {
-                              Provider.of<NotificationsProvider>(context, listen: false)
-                                  .markAsRead(notification.id);
+                              Provider.of<NotificationsProvider>(
+                                context,
+                                listen: false,
+                              ).markAsRead(notification.id);
                             },
                           ),
                           if (index < provider.recentNotifications.length - 1)
@@ -353,11 +412,16 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                                 ),
                                 TextButton(
                                   onPressed: () {
-                                    Provider.of<NotificationsProvider>(context, listen: false)
-                                        .clearAllNotifications();
+                                    Provider.of<NotificationsProvider>(
+                                      context,
+                                      listen: false,
+                                    ).clearAllNotifications();
                                     Navigator.pop(context);
                                   },
-                                  child: Text('Clear All', style: TextStyle(color: Colors.red)),
+                                  child: Text(
+                                    'Clear All',
+                                    style: TextStyle(color: Colors.red),
+                                  ),
                                 ),
                               ],
                             ),
@@ -372,7 +436,10 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                         ),
                         child: Text(
                           'Clear All Notifications',
-                          style: TextStyle(color: Colors.red.shade600, fontWeight: FontWeight.w500),
+                          style: TextStyle(
+                            color: Colors.red.shade600,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                     );
@@ -433,7 +500,9 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                   Row(
                     children: [
                       Icon(
-                        isLinked ? Icons.notifications_active : Icons.notifications_off,
+                        isLinked
+                            ? Icons.notifications_active
+                            : Icons.notifications_off,
                         color: isLinked ? primaryGreen : Colors.grey.shade400,
                       ),
                       SizedBox(width: 12),
@@ -443,25 +512,30 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                           children: [
                             Text(
                               'Telegram Alerts',
-                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                              ),
                             ),
                             SizedBox(height: 2),
                             Text(
-                              isLinked ? 'Connected to @rescuenet_bot' : 'Receive alerts via Telegram',
-                              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                              isLinked
+                                  ? 'Connected to @rescuenet_bot'
+                                  : 'Receive alerts via Telegram',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey.shade600,
+                              ),
                             ),
                           ],
                         ),
                       ),
                       SizedBox(width: 12),
-                      _buildToggleSwitch(
-                        _telegramEnabled,
-                        (value) {
-                          setState(() => _telegramEnabled = value);
-                          _saveTelegramPreference(value);
-                        },
-                        primaryGreen,
-                      ),
+                      _buildToggleSwitch(_telegramEnabled, (value) {
+                        setState(() => _telegramEnabled = value);
+                        _saveTelegramPreference(value);
+                      }, primaryGreen),
                     ],
                   ),
                   SizedBox(height: 12),
@@ -479,7 +553,10 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   }
 
   /// UI when Telegram is connected
-  Widget _buildTelegramConnectedUI(TelegramService telegramService, Color primaryGreen) {
+  Widget _buildTelegramConnectedUI(
+    TelegramService telegramService,
+    Color primaryGreen,
+  ) {
     return Container(
       padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -496,14 +573,22 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
               SizedBox(width: 8),
               Text(
                 'Connected to Telegram',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.blue.shade800),
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.blue.shade800,
+                ),
               ),
             ],
           ),
           SizedBox(height: 6),
           Text(
             '@rescuenet_bot',
-            style: TextStyle(fontSize: 12, color: Colors.blue.shade700, fontWeight: FontWeight.w500),
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.blue.shade700,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           SizedBox(height: 10),
           SizedBox(
@@ -531,7 +616,10 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   }
 
   /// UI to connect Telegram
-  Widget _buildTelegramConnectUI(TelegramService telegramService, Color primaryGreen) {
+  Widget _buildTelegramConnectUI(
+    TelegramService telegramService,
+    Color primaryGreen,
+  ) {
     return Container(
       padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -559,10 +647,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                   borderRadius: BorderRadius.circular(6),
                 ),
               ),
-              child: Text(
-                'Connect Telegram',
-                style: TextStyle(fontSize: 12),
-              ),
+              child: Text('Connect Telegram', style: TextStyle(fontSize: 12)),
             ),
           ),
         ],
@@ -575,7 +660,8 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => TelegramLinkingDialog(telegramService: telegramService),
+      builder: (context) =>
+          TelegramLinkingDialog(telegramService: telegramService),
     ).then((result) {
       if (result == true) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -595,7 +681,9 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: Text('Disconnect Telegram'),
-        content: Text('Are you sure you want to disconnect your Telegram account? You will stop receiving Telegram alerts.'),
+        content: Text(
+          'Are you sure you want to disconnect your Telegram account? You will stop receiving Telegram alerts.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -620,7 +708,12 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
     );
   }
 
-  Widget _buildAlertToggle(String title, String subtitle, bool value, Function(bool) onChanged) {
+  Widget _buildAlertToggle(
+    String title,
+    String subtitle,
+    bool value,
+    Function(bool) onChanged,
+  ) {
     return Container(
       padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -636,7 +729,11 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
               children: [
                 Text(
                   title,
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87),
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
+                  ),
                 ),
                 SizedBox(height: 2),
                 Text(
@@ -653,7 +750,11 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
     );
   }
 
-  Widget _buildToggleSwitch(bool value, Function(bool) onChanged, Color activeColor) {
+  Widget _buildToggleSwitch(
+    bool value,
+    Function(bool) onChanged,
+    Color activeColor,
+  ) {
     return GestureDetector(
       onTap: () => onChanged(!value),
       child: AnimatedContainer(
@@ -690,13 +791,11 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
     required VoidCallback onDismiss,
     required VoidCallback onRead,
   }) {
-    final bgColor = notification.isRead 
-      ? Colors.white 
-      : Color(0xFFF0F9FF);
-    
-    final borderColor = notification.isRead 
-      ? Colors.grey.shade200 
-      : Color(0xFF0E9D63).withOpacity(0.2);
+    final bgColor = notification.isRead ? Colors.white : Color(0xFFF0F9FF);
+
+    final borderColor = notification.isRead
+        ? Colors.grey.shade200
+        : Color(0xFF0E9D63).withOpacity(0.2);
 
     return GestureDetector(
       onTap: () => _handleNotificationTap(notification),
@@ -756,7 +855,11 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                       ),
                     GestureDetector(
                       onTap: onDismiss,
-                      child: Icon(Icons.close, size: 16, color: Colors.grey.shade400),
+                      child: Icon(
+                        Icons.close,
+                        size: 16,
+                        color: Colors.grey.shade400,
+                      ),
                     ),
                   ],
                 ),
@@ -821,8 +924,10 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
 
     // Mark as read if not already
     if (!notification.isRead) {
-      Provider.of<NotificationsProvider>(context, listen: false)
-          .markAsRead(notification.id);
+      Provider.of<NotificationsProvider>(
+        context,
+        listen: false,
+      ).markAsRead(notification.id);
     }
 
     // Route based on notification type
@@ -870,18 +975,18 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   /// Navigate to public report from another citizen
   void _navigateToPublicReport(String reportId, String reportType) {
     print('Navigating to public $reportType report: $reportId');
-    Navigator.of(context).pushNamed('/view-public-reports', arguments: {
-      'reportType': reportType,
-      'reportId': reportId,
-    });
+    Navigator.of(context).pushNamed(
+      '/view-public-reports',
+      arguments: {'reportType': reportType, 'reportId': reportId},
+    );
   }
 
   /// Navigate to aid program details
   void _navigateToProgram(String programId) {
     print('Navigating to program: $programId');
-    Navigator.of(context).pushNamed('/program-details', arguments: {
-      'programId': programId,
-    });
+    Navigator.of(
+      context,
+    ).pushNamed('/program-details', arguments: {'programId': programId});
   }
 
   /// Navigate to weather alerts
@@ -894,19 +999,19 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   void _navigateToEmergencyReport(String reportId) {
     print('Navigating to emergency report: $reportId');
     // Navigate to my reports screen
-    Navigator.of(context).pushNamed('/view-reports', arguments: {
-      'reportType': 'emergency',
-      'reportId': reportId,
-    });
+    Navigator.of(context).pushNamed(
+      '/view-reports',
+      arguments: {'reportType': 'emergency', 'reportId': reportId},
+    );
   }
 
   /// Navigate to aid request details
   void _navigateToAidRequest(String reportId) {
     print('Navigating to aid request: $reportId');
     // Navigate to my reports screen
-    Navigator.of(context).pushNamed('/view-aid-requests', arguments: {
-      'requestId': reportId,
-    });
+    Navigator.of(
+      context,
+    ).pushNamed('/view-aid-requests', arguments: {'requestId': reportId});
   }
 
   /// Build test notification section for UI testing
@@ -953,7 +1058,9 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                     backgroundColor: Color(0xFF0277BD),
                     foregroundColor: Colors.white,
                     padding: EdgeInsets.symmetric(vertical: 8),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6),
+                    ),
                   ),
                 ),
               ),
@@ -967,7 +1074,9 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                     backgroundColor: Color(0xFF6A1B9A),
                     foregroundColor: Colors.white,
                     padding: EdgeInsets.symmetric(vertical: 8),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6),
+                    ),
                   ),
                 ),
               ),
@@ -980,13 +1089,17 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
 
   /// Create test flood alert notification
   void _createTestFloodAlert() {
-    final notificationsProvider = Provider.of<NotificationsProvider>(context, listen: false);
+    final notificationsProvider = Provider.of<NotificationsProvider>(
+      context,
+      listen: false,
+    );
     final weatherDetails = notificationsProvider.getWeatherAlertDetails();
-    
-    final location = weatherDetails != null && weatherDetails['location'] != null
+
+    final location =
+        weatherDetails != null && weatherDetails['location'] != null
         ? weatherDetails['location']
         : 'your area';
-    
+
     notificationsProvider.sendNotification(
       title: '🌧️ Heavy Rainfall Warning',
       body: 'Heavy rainfall expected in $location',
@@ -998,7 +1111,8 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
         'weatherCode': '80',
         'description': 'Heavy rainfall expected',
         'location': location,
-        'detailedInfo': 'Heavy rainfall expected\n\nTemperature: 28.5°C\nWind Speed: 15.2 km/h\nLocation: $location',
+        'detailedInfo':
+            'Heavy rainfall expected\n\nTemperature: 28.5°C\nWind Speed: 15.2 km/h\nLocation: $location',
       },
       icon: '🌧️',
       actionUrl: '/alerts/weather',
@@ -1015,13 +1129,17 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
 
   /// Create test thunderstorm alert notification
   void _createTestThunderstormAlert() {
-    final notificationsProvider = Provider.of<NotificationsProvider>(context, listen: false);
+    final notificationsProvider = Provider.of<NotificationsProvider>(
+      context,
+      listen: false,
+    );
     final weatherDetails = notificationsProvider.getWeatherAlertDetails();
-    
-    final location = weatherDetails != null && weatherDetails['location'] != null
+
+    final location =
+        weatherDetails != null && weatherDetails['location'] != null
         ? weatherDetails['location']
         : 'your area';
-    
+
     notificationsProvider.sendNotification(
       title: '⛈️ Thunderstorm Alert',
       body: 'Severe thunderstorm warning for $location',
@@ -1033,7 +1151,8 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
         'weatherCode': '95',
         'description': 'Severe thunderstorm with heavy rainfall',
         'location': location,
-        'detailedInfo': 'Severe thunderstorm with heavy rainfall\n\nTemperature: 26.3°C\nWind Speed: 22.8 km/h\nLocation: $location',
+        'detailedInfo':
+            'Severe thunderstorm with heavy rainfall\n\nTemperature: 26.3°C\nWind Speed: 22.8 km/h\nLocation: $location',
       },
       icon: '⛈️',
       actionUrl: '/alerts/weather',
@@ -1046,4 +1165,5 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
         duration: Duration(seconds: 2),
       ),
     );
-  }}
+  }
+}

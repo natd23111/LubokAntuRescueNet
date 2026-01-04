@@ -79,7 +79,9 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
         AidProgram? selectedProgram;
         if (selectedProgramId != null && provider.programs.isNotEmpty) {
           try {
-            selectedProgram = provider.programs.firstWhere((p) => p.id == selectedProgramId);
+            selectedProgram = provider.programs.firstWhere(
+              (p) => p.id == selectedProgramId,
+            );
           } catch (e) {
             selectedProgram = null;
           }
@@ -192,7 +194,10 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
               children: [
                 // Category Filter - keep visible
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
                   decoration: BoxDecoration(
                     border: Border(
                       bottom: BorderSide(color: Colors.grey[200]!),
@@ -217,8 +222,9 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
                             return Padding(
                               padding: const EdgeInsets.only(right: 8),
                               child: GestureDetector(
-                                onTap: () =>
-                                    setState(() => selectedCategory = cat['id']!),
+                                onTap: () => setState(
+                                  () => selectedCategory = cat['id']!,
+                                ),
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 12,
@@ -264,12 +270,18 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
                         const SizedBox(height: 16),
                         Text(
                           'No programs available',
-                          style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 16,
+                          ),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           'No aid programs match the selected category',
-                          style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                          style: TextStyle(
+                            color: Colors.grey[500],
+                            fontSize: 12,
+                          ),
                         ),
                       ],
                     ),
@@ -321,11 +333,12 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
             children: [
               // Category Filter
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 16,
+                ),
                 decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(color: Colors.grey[200]!),
-                  ),
+                  border: Border(bottom: BorderSide(color: Colors.grey[200]!)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -387,7 +400,10 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
               // Programs List
               Expanded(
                 child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   itemCount: filteredPrograms.length,
                   itemBuilder: (context, index) {
                     final program = filteredPrograms[index];
@@ -458,14 +474,17 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
                                     vertical: 4,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: _getCategoryColor(program.category)
-                                        .withOpacity(0.1),
+                                    color: _getCategoryColor(
+                                      program.category,
+                                    ).withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: Text(
                                     program.category.toUpperCase(),
                                     style: TextStyle(
-                                      color: _getCategoryColor(program.category),
+                                      color: _getCategoryColor(
+                                        program.category,
+                                      ),
                                       fontSize: 11,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -506,10 +525,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
                   ),
                   side: BorderSide(color: Colors.grey[300]!),
                 ),
-                child: Text(
-                  'Back',
-                  style: TextStyle(color: Colors.grey[600]),
-                ),
+                child: Text('Back', style: TextStyle(color: Colors.grey[600])),
               ),
             ),
           ),
@@ -520,8 +536,18 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
 
   String _formatDate(DateTime date) {
     final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }
@@ -533,7 +559,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
         backgroundColor: const Color(0xFF059669),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back,color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => setState(() => selectedProgramId = null),
         ),
         title: const Text(
@@ -556,10 +582,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
               children: [
                 Text(
                   'Program ID',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -591,15 +614,14 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
               children: [
                 Text(
                   'Category',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
                 const SizedBox(height: 8),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: _getCategoryColor(program.category).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(20),
@@ -623,18 +645,12 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
               children: [
                 Text(
                   'Description',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   program.description ?? 'No description available',
-                  style: const TextStyle(
-                    color: Colors.black87,
-                    fontSize: 14,
-                  ),
+                  style: const TextStyle(color: Colors.black87, fontSize: 14),
                 ),
               ],
             ),
@@ -649,10 +665,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
                     children: [
                       Text(
                         'Start Date',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 12,
-                        ),
+                        style: TextStyle(color: Colors.grey[600], fontSize: 12),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -672,10 +685,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
                     children: [
                       Text(
                         'End Date',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 12,
-                        ),
+                        style: TextStyle(color: Colors.grey[600], fontSize: 12),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -698,18 +708,12 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
               children: [
                 Text(
                   'Eligibility Criteria',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   program.eligibilityCriteria ?? 'N/A',
-                  style: const TextStyle(
-                    color: Colors.black87,
-                    fontSize: 14,
-                  ),
+                  style: const TextStyle(color: Colors.black87, fontSize: 14),
                 ),
               ],
             ),
@@ -721,10 +725,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
               children: [
                 Text(
                   'Aid Amount',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -755,20 +756,30 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('1. Go to "Request Aid" section',
-                        style: TextStyle(color: Colors.grey[700], fontSize: 13)),
+                    Text(
+                      '1. Go to "Request Aid" section',
+                      style: TextStyle(color: Colors.grey[700], fontSize: 13),
+                    ),
                     const SizedBox(height: 6),
-                    Text('2. Select the appropriate aid category',
-                        style: TextStyle(color: Colors.grey[700], fontSize: 13)),
+                    Text(
+                      '2. Select the appropriate aid category',
+                      style: TextStyle(color: Colors.grey[700], fontSize: 13),
+                    ),
                     const SizedBox(height: 6),
-                    Text('3. Fill in your household details',
-                        style: TextStyle(color: Colors.grey[700], fontSize: 13)),
+                    Text(
+                      '3. Fill in your household details',
+                      style: TextStyle(color: Colors.grey[700], fontSize: 13),
+                    ),
                     const SizedBox(height: 6),
-                    Text('4. Submit the request form',
-                        style: TextStyle(color: Colors.grey[700], fontSize: 13)),
+                    Text(
+                      '4. Submit the request form',
+                      style: TextStyle(color: Colors.grey[700], fontSize: 13),
+                    ),
                     const SizedBox(height: 6),
-                    Text('5. Wait for approval notification',
-                        style: TextStyle(color: Colors.grey[700], fontSize: 13)),
+                    Text(
+                      '5. Wait for approval notification',
+                      style: TextStyle(color: Colors.grey[700], fontSize: 13),
+                    ),
                   ],
                 ),
               ],
@@ -796,10 +807,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
                   const SizedBox(height: 8),
                   Text(
                     'Applications will be reviewed within 7-14 working days. You will be notified via email and in-app notification.',
-                    style: TextStyle(
-                      color: Colors.blue[700],
-                      fontSize: 13,
-                    ),
+                    style: TextStyle(color: Colors.blue[700], fontSize: 13),
                   ),
                 ],
               ),
@@ -851,8 +859,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
-                onPressed: () =>
-                    setState(() => selectedProgramId = null),
+                onPressed: () => setState(() => selectedProgramId = null),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
@@ -860,10 +867,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
                   ),
                   side: BorderSide(color: Colors.grey[300]!),
                 ),
-                child: Text(
-                  'Back',
-                  style: TextStyle(color: Colors.grey[700]),
-                ),
+                child: Text('Back', style: TextStyle(color: Colors.grey[700])),
               ),
             ),
           ],
@@ -872,4 +876,3 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
     );
   }
 }
-

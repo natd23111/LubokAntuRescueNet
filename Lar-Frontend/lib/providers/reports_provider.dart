@@ -57,28 +57,30 @@ class Report {
       reporterContact: data['reporter_contact'] ?? '',
       dateReported: data['date_reported'] != null
           ? (data['date_reported'] is Timestamp
-              ? (data['date_reported'] as Timestamp).toDate()
-              : DateTime.parse(data['date_reported']))
+                ? (data['date_reported'] as Timestamp).toDate()
+                : DateTime.parse(data['date_reported']))
           : DateTime.now(),
       dateUpdated: data['date_updated'] != null
           ? (data['date_updated'] is Timestamp
-              ? (data['date_updated'] as Timestamp).toDate()
-              : DateTime.parse(data['date_updated']))
+                ? (data['date_updated'] as Timestamp).toDate()
+                : DateTime.parse(data['date_updated']))
           : null,
       dateUnderReview: data['date_under_review'] != null
           ? (data['date_under_review'] is Timestamp
-              ? (data['date_under_review'] as Timestamp).toDate()
-              : DateTime.parse(data['date_under_review']))
+                ? (data['date_under_review'] as Timestamp).toDate()
+                : DateTime.parse(data['date_under_review']))
           : null,
       dateDispatched: data['date_dispatched'] != null
           ? (data['date_dispatched'] is Timestamp
-              ? (data['date_dispatched'] as Timestamp).toDate()
-              : DateTime.parse(data['date_dispatched']))
+                ? (data['date_dispatched'] as Timestamp).toDate()
+                : DateTime.parse(data['date_dispatched']))
           : null,
       adminNotes: data['admin_notes'],
       imageUrl: data['image_url'],
       imageUrls: data['image_urls'] != null
-          ? List<String>.from((data['image_urls'] as List).map((e) => e.toString()))
+          ? List<String>.from(
+              (data['image_urls'] as List).map((e) => e.toString()),
+            )
           : (data['image_url'] != null ? [data['image_url'].toString()] : null),
       userId: data['user_id'],
     );
@@ -113,8 +115,20 @@ class Report {
   }
 
   String _monthName(int month) {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     return months[month - 1];
   }
 }
@@ -132,13 +146,23 @@ class ReportsProvider extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   List<Report> get reports => _filteredReports;
+
   List<Report> get allReports => _reports;
+
   List<Report> get myReports => _myReports;
+
   List<Report> get activeReports => _reports
-      .where((report) => report.status.toLowerCase() == 'unresolved' || report.status.toLowerCase() == 'in-progress')
+      .where(
+        (report) =>
+            report.status.toLowerCase() == 'unresolved' ||
+            report.status.toLowerCase() == 'in-progress',
+      )
       .toList();
+
   bool get isLoading => _isLoading;
+
   String? get error => _error;
+
   String get activeTab => _activeTab;
 
   ReportsProvider({dynamic authProvider}) {
@@ -172,9 +196,7 @@ class ReportsProvider extends ChangeNotifier {
 
       print('DEBUG: Fetched ${snapshot.docs.length} reports from Firestore');
 
-      _reports = snapshot.docs
-          .map((doc) => Report.fromFirestore(doc))
-          .toList();
+      _reports = snapshot.docs.map((doc) => Report.fromFirestore(doc)).toList();
 
       _applyFilters();
       _isLoading = false;
@@ -201,8 +223,10 @@ class ReportsProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      print('DEBUG: Fetching all reports first, then filtering for user_id = $_userId');
-      
+      print(
+        'DEBUG: Fetching all reports first, then filtering for user_id = $_userId',
+      );
+
       // Get all reports ordered by date
       final snapshot = await _firestore
           .collection('emergency_reports')
@@ -210,7 +234,7 @@ class ReportsProvider extends ChangeNotifier {
           .get();
 
       print('DEBUG: Fetched ${snapshot.docs.length} total reports');
-      
+
       // Filter by user_id locally to avoid composite index requirement
       final allReports = snapshot.docs
           .map((doc) => Report.fromFirestore(doc))
@@ -224,8 +248,10 @@ class ReportsProvider extends ChangeNotifier {
         }
         return matches;
       }).toList();
-      
-      print('DEBUG: After filtering: ${_myReports.length} reports match user_id $_userId');
+
+      print(
+        'DEBUG: After filtering: ${_myReports.length} reports match user_id $_userId',
+      );
 
       _isLoading = false;
       notifyListeners();
@@ -340,7 +366,8 @@ class ReportsProvider extends ChangeNotifier {
     }).toList();
 
     print(
-        'DEBUG: Filtered to ${_filteredReports.length} reports (from ${_reports.length})');
+      'DEBUG: Filtered to ${_filteredReports.length} reports (from ${_reports.length})',
+    );
   }
 
   Stream<List<Report>> getReportsStream({String? filterStatus}) {
@@ -379,10 +406,9 @@ class ReportsProvider extends ChangeNotifier {
       final nextCounter = currentCounter + 1;
 
       // Update the counter in Firestore (atomically)
-      await _firestore
-          .collection('_metadata')
-          .doc(counterDocId)
-          .set({'counter': nextCounter});
+      await _firestore.collection('_metadata').doc(counterDocId).set({
+        'counter': nextCounter,
+      });
 
       final reportId = 'ER$year${nextCounter.toString().padLeft(4, '0')}';
       print('DEBUG: Generated report ID: $reportId (counter: $nextCounter)');

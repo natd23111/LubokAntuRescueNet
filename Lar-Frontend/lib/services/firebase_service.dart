@@ -7,11 +7,11 @@ import 'package:firebase_storage/firebase_storage.dart';
 /// This service works alongside MySQL/Laravel backend
 class FirebaseService {
   static final FirebaseService _instance = FirebaseService._internal();
-  
+
   factory FirebaseService() {
     return _instance;
   }
-  
+
   FirebaseService._internal();
 
   // Firebase instances
@@ -21,12 +21,14 @@ class FirebaseService {
 
   // Getters
   FirebaseAuth get auth => _auth;
+
   FirebaseFirestore get firestore => _firestore;
+
   FirebaseStorage get storage => _storage;
 
   /// Get current user
   User? get currentUser => _auth.currentUser;
-  
+
   /// Check if user is authenticated
   bool get isAuthenticated => currentUser != null;
 
@@ -34,17 +36,21 @@ class FirebaseService {
 
   /// Sign up with email and password
   /// Note: Also sync with Laravel backend
-  Future<UserCredential> signUp(String email, String password, String displayName) async {
+  Future<UserCredential> signUp(
+    String email,
+    String password,
+    String displayName,
+  ) async {
     final userCredential = await _auth.createUserWithEmailAndPassword(
       email: email,
       password: password,
     );
-    
+
     await userCredential.user?.updateDisplayName(displayName);
-    
+
     // Create corresponding Firestore document
     await _createUserDocument(userCredential.user!.uid, email, displayName);
-    
+
     return userCredential;
   }
 
@@ -70,7 +76,11 @@ class FirebaseService {
 
   /// Create user document in Firestore
   /// This complements your MySQL users table
-  Future<void> _createUserDocument(String uid, String email, String displayName) async {
+  Future<void> _createUserDocument(
+    String uid,
+    String email,
+    String displayName,
+  ) async {
     try {
       await _firestore.collection('users').doc(uid).set({
         'uid': uid,
@@ -98,28 +108,35 @@ class FirebaseService {
   // ============== REAL-TIME FEATURES ==============
 
   /// Listen to real-time updates for a specific collection
-  Stream<QuerySnapshot> listenToCollection(String collectionName, {
+  Stream<QuerySnapshot> listenToCollection(
+    String collectionName, {
     String? whereField,
     dynamic whereValue,
   }) {
     Query query = _firestore.collection(collectionName);
-    
+
     if (whereField != null && whereValue != null) {
       query = query.where(whereField, isEqualTo: whereValue);
     }
-    
+
     return query.snapshots();
   }
 
   /// Listen to specific document changes
-  Stream<DocumentSnapshot> listenToDocument(String collectionName, String documentId) {
+  Stream<DocumentSnapshot> listenToDocument(
+    String collectionName,
+    String documentId,
+  ) {
     return _firestore.collection(collectionName).doc(documentId).snapshots();
   }
 
   // ============== FIRESTORE OPERATIONS ==============
 
   /// Add document to collection
-  Future<DocumentReference> addDocument(String collectionName, Map<String, dynamic> data) async {
+  Future<DocumentReference> addDocument(
+    String collectionName,
+    Map<String, dynamic> data,
+  ) async {
     return await _firestore.collection(collectionName).add({
       ...data,
       'createdAt': FieldValue.serverTimestamp(),
@@ -127,12 +144,20 @@ class FirebaseService {
   }
 
   /// Set document with ID
-  Future<void> setDocument(String collectionName, String documentId, Map<String, dynamic> data) async {
+  Future<void> setDocument(
+    String collectionName,
+    String documentId,
+    Map<String, dynamic> data,
+  ) async {
     await _firestore.collection(collectionName).doc(documentId).set(data);
   }
 
   /// Update document
-  Future<void> updateDocument(String collectionName, String documentId, Map<String, dynamic> data) async {
+  Future<void> updateDocument(
+    String collectionName,
+    String documentId,
+    Map<String, dynamic> data,
+  ) async {
     await _firestore.collection(collectionName).doc(documentId).update(data);
   }
 
@@ -142,7 +167,10 @@ class FirebaseService {
   }
 
   /// Get single document
-  Future<DocumentSnapshot> getDocument(String collectionName, String documentId) async {
+  Future<DocumentSnapshot> getDocument(
+    String collectionName,
+    String documentId,
+  ) async {
     return await _firestore.collection(collectionName).doc(documentId).get();
   }
 
@@ -156,19 +184,19 @@ class FirebaseService {
     bool descending = false,
   }) async {
     Query query = _firestore.collection(collectionName);
-    
+
     if (whereField != null && whereValue != null) {
       query = query.where(whereField, isEqualTo: whereValue);
     }
-    
+
     if (orderBy != null) {
       query = query.orderBy(orderBy, descending: descending);
     }
-    
+
     if (limit != null) {
       query = query.limit(limit);
     }
-    
+
     return await query.get();
   }
 
@@ -178,7 +206,7 @@ class FirebaseService {
   Future<String> uploadFile(String path, dynamic file) async {
     try {
       TaskSnapshot snapshot;
-      
+
       if (file is String) {
         // File path
         snapshot = await _storage.ref(path).putFile(File(file));
@@ -186,7 +214,7 @@ class FirebaseService {
         // Assuming it's already a File or bytes
         snapshot = await _storage.ref(path).putData(file);
       }
-      
+
       return await snapshot.ref.getDownloadURL();
     } catch (e) {
       print('Error uploading file: $e');
@@ -215,7 +243,10 @@ class FirebaseService {
   }
 
   /// Sync aid program data from MySQL to Firestore for real-time features
-  Future<void> syncAidProgramToFirebase(String aidId, Map<String, dynamic> data) async {
+  Future<void> syncAidProgramToFirebase(
+    String aidId,
+    Map<String, dynamic> data,
+  ) async {
     try {
       await _firestore.collection('aid_programs').doc(aidId).set({
         ...data,
@@ -229,11 +260,11 @@ class FirebaseService {
   /// Get aid programs from Firestore (real-time)
   Stream<QuerySnapshot> getAidProgramsRealTime({String? status}) {
     Query query = _firestore.collection('aid_programs');
-    
+
     if (status != null) {
       query = query.where('status', isEqualTo: status);
     }
-    
+
     return query.orderBy('createdAt', descending: true).snapshots();
   }
 

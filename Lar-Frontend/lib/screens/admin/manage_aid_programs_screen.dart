@@ -10,7 +10,8 @@ class ManageAidProgramsScreen extends StatefulWidget {
   const ManageAidProgramsScreen({Key? key}) : super(key: key);
 
   @override
-  State<ManageAidProgramsScreen> createState() => _ManageAidProgramsScreenState();
+  State<ManageAidProgramsScreen> createState() =>
+      _ManageAidProgramsScreenState();
 }
 
 class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
@@ -26,11 +27,11 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
   void _handleAddProgram(AidProgram program) async {
     final provider = Provider.of<AidProgramProvider>(context, listen: false);
     print('DEBUG: Submitting program: ${program.title}');
-    
+
     final success = await provider.createProgram(program);
-    
+
     print('DEBUG: Program creation result: $success');
-    
+
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -47,14 +48,19 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
         SnackBar(
           content: Text(errorMsg),
           backgroundColor: Colors.red[600],
-          duration: const Duration(seconds: 5),  // Longer timeout so user can read
+          duration: const Duration(
+            seconds: 5,
+          ), // Longer timeout so user can read
         ),
       );
     }
   }
 
   void _handleEditProgram(int index) {
-    final programs = Provider.of<AidProgramProvider>(context, listen: false).programs;
+    final programs = Provider.of<AidProgramProvider>(
+      context,
+      listen: false,
+    ).programs;
     if (index >= 0 && index < programs.length) {
       final program = programs[index];
       Navigator.of(context).push(
@@ -81,10 +87,10 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
   void _handleDeleteProgram(int index) async {
     final provider = Provider.of<AidProgramProvider>(context, listen: false);
     final programs = provider.programs;
-    
+
     if (index >= 0 && index < programs.length) {
       final program = programs[index];
-      
+
       // Show confirmation dialog
       showDialog(
         context: context,
@@ -99,8 +105,10 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
             TextButton(
               onPressed: () async {
                 Navigator.of(context).pop();
-                final success = await provider.deleteProgram(program.id.toString());
-                
+                final success = await provider.deleteProgram(
+                  program.id.toString(),
+                );
+
                 if (success && mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -128,15 +136,17 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
   void _toggleProgramStatus(int index) async {
     final provider = Provider.of<AidProgramProvider>(context, listen: false);
     final programs = provider.programs;
-    
+
     if (index >= 0 && index < programs.length) {
       final program = programs[index];
       final success = await provider.toggleProgramStatus(program.id);
-      
+
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Program status changed to ${programs[index].status.toUpperCase()}'),
+            content: Text(
+              'Program status changed to ${programs[index].status.toUpperCase()}',
+            ),
             backgroundColor: Colors.blue[600],
             duration: const Duration(seconds: 2),
           ),
@@ -157,7 +167,10 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
       await FirebaseSeeder.seedDatabase();
       if (mounted) {
         // Refresh the programs list
-        await Provider.of<AidProgramProvider>(context, listen: false).fetchPrograms();
+        await Provider.of<AidProgramProvider>(
+          context,
+          listen: false,
+        ).fetchPrograms();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('✅ Database seeded successfully!'),
@@ -184,7 +197,9 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Clear Database'),
-        content: const Text('Are you sure you want to delete all aid programs and user profiles? This cannot be undone.'),
+        content: const Text(
+          'Are you sure you want to delete all aid programs and user profiles? This cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -197,7 +212,10 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
                 await FirebaseSeeder.clearDatabase();
                 if (mounted) {
                   // Refresh the programs list
-                  await Provider.of<AidProgramProvider>(context, listen: false).fetchPrograms();
+                  await Provider.of<AidProgramProvider>(
+                    context,
+                    listen: false,
+                  ).fetchPrograms();
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('✅ Database cleared successfully!'),
@@ -230,8 +248,20 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
   }
 
   String _monthName(int month) {
-    final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    final months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     return months[month - 1];
   }
 
@@ -244,8 +274,9 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
           appBar: AppBar(
             backgroundColor: const Color(0xFF0E9D63),
             elevation: 0,
+            iconTheme: const IconThemeData(color: Colors.white),
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () => Navigator.of(context).pop(),
             ),
             title: const Text(
@@ -315,59 +346,62 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
                 child: provider.isLoading
                     ? const Center(
                         child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF0E9D63)),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Color(0xFF0E9D63),
+                          ),
                         ),
                       )
                     : provider.programs.isEmpty
-                        ? Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.folder_open,
-                                  size: 64,
-                                  color: Colors.grey[300],
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  'No aid programs found',
-                                  style: TextStyle(
-                                    color: Colors.grey[600],
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.folder_open,
+                              size: 64,
+                              color: Colors.grey[300],
                             ),
-                          )
-                        : SingleChildScrollView(
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(bottom: 12.0),
-                                  child: Text(
-                                    '${provider.programs.length} active program(s)',
-                                    style: TextStyle(
-                                      color: Colors.grey[600],
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ),
-                                ListView.separated(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: provider.programs.length,
-                                  separatorBuilder: (context, index) => const SizedBox(height: 12),
-                                  itemBuilder: (context, index) {
-                                    final program = provider.programs[index];
-                                    return _buildProgramCard(program, index);
-                                  },
-                                ),
-                                const SizedBox(height: 20),
-                              ],
+                            const SizedBox(height: 16),
+                            Text(
+                              'No aid programs found',
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 16,
+                              ),
                             ),
-                          ),
+                          ],
+                        ),
+                      )
+                    : SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 12.0),
+                              child: Text(
+                                '${provider.programs.length} active program(s)',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                            ListView.separated(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: provider.programs.length,
+                              separatorBuilder: (context, index) =>
+                                  const SizedBox(height: 12),
+                              itemBuilder: (context, index) {
+                                final program = provider.programs[index];
+                                return _buildProgramCard(program, index);
+                              },
+                            ),
+                            const SizedBox(height: 20),
+                          ],
+                        ),
+                      ),
               ),
 
               // Back Button
@@ -386,7 +420,7 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
                     ),
                     child: Text(
                       'Back',
-                      style: TextStyle(color: Colors.grey[600]),
+                      style: TextStyle(color: Colors.grey[700]),
                     ),
                   ),
                 ),
@@ -427,10 +461,7 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
                     const SizedBox(height: 4),
                     Text(
                       'ID: ${program.id}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                     ),
                   ],
                 ),
@@ -438,7 +469,7 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: program.status == 'active' 
+                  color: program.status == 'active'
                       ? const Color(0xFF0E9D63).withOpacity(0.1)
                       : Colors.orange.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(4),
@@ -448,7 +479,7 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: program.status == 'active' 
+                    color: program.status == 'active'
                         ? const Color(0xFF0E9D63)
                         : Colors.orange,
                   ),
@@ -467,20 +498,14 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
                 program.description!,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey[700],
-                ),
+                style: TextStyle(fontSize: 13, color: Colors.grey[700]),
               ),
             ),
 
           // Duration
           Text(
             'Duration: ${_formatDate(program.startDate)} - ${_formatDate(program.endDate)}',
-            style: TextStyle(
-              fontSize: 13,
-              color: Colors.grey[700],
-            ),
+            style: TextStyle(fontSize: 13, color: Colors.grey[700]),
           ),
 
           const SizedBox(height: 16),
@@ -521,13 +546,17 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
                         borderRadius: BorderRadius.circular(6),
                       ),
                       side: BorderSide(
-                        color: program.status == 'active' ? Colors.orange : Colors.green,
+                        color: program.status == 'active'
+                            ? Colors.orange
+                            : Colors.green,
                       ),
                     ),
                     child: Text(
                       program.status == 'active' ? 'Deactivate' : 'Activate',
                       style: TextStyle(
-                        color: program.status == 'active' ? Colors.orange : Colors.green,
+                        color: program.status == 'active'
+                            ? Colors.orange
+                            : Colors.green,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                       ),
@@ -548,11 +577,7 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
                     side: const BorderSide(color: Colors.red, width: 1),
                     padding: EdgeInsets.zero,
                   ),
-                  child: const Icon(
-                    Icons.delete,
-                    size: 18,
-                    color: Colors.red,
-                  ),
+                  child: const Icon(Icons.delete, size: 18, color: Colors.red),
                 ),
               ),
             ],

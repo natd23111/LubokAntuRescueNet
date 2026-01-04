@@ -29,10 +29,16 @@ class AidProgram {
       title: json['title'] ?? '',
       category: json['category'] ?? 'other',
       status: _mapStatusToLowerCase(json['status'] ?? 'Active'),
-      startDate: json['start_date'] != null ? DateTime.parse(json['start_date']) : DateTime.now(),
-      endDate: json['end_date'] != null ? DateTime.parse(json['end_date']) : DateTime.now(),
+      startDate: json['start_date'] != null
+          ? DateTime.parse(json['start_date'])
+          : DateTime.now(),
+      endDate: json['end_date'] != null
+          ? DateTime.parse(json['end_date'])
+          : DateTime.now(),
       description: json['description'],
-      aidAmount: json['aid_amount'] != null ? json['aid_amount'].toString() : null,
+      aidAmount: json['aid_amount'] != null
+          ? json['aid_amount'].toString()
+          : null,
       eligibilityCriteria: json['criteria'],
       programType: json['program_type'],
     );
