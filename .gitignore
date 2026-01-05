@@ -1,6 +1,9 @@
 # Remove Lar-Backend completely from git tracking
 Lar-Backend/
 
+# Remove Lar-AdminWeb completely from git tracking
+Lar-AdminWeb/
+
 Lar-Frontend/lib/firebase_options.dart
 FIREBASE_STORAGE_RULES.txt
 Lar-Frontend/package-lock.json
