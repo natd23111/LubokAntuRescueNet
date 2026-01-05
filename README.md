@@ -33,7 +33,7 @@ LubokAntuRescueNet/
 | **Frontend** | Flutter 3.9.2+, Dart, Provider state management |
 | **Mobile Platforms** | Android, iOS, Web |
 | **Backend** | Firebase (Firestore, Auth, Storage, Messaging) |
-| **APIs** | Google Maps, Gemini, Firebase |
+| **APIs** | Google Maps, Ai Chatbot, Firebase |
 | **Services** | Location services, Push notifications, Image processing |
 
 ---
