@@ -9,34 +9,15 @@ class FirebaseSeeder {
     try {
       print('Starting Firebase database seeding...');
 
-      // Create admin user
-      print('Creating admin user...');
-      final adminId = await _createUser(
-        email: 'admin@rescuenet.com',
-        password: 'password123',
-        fullName: 'Admin User',
-        icNo: '960115-12-1234',
-        phoneNo: '0123456789',
-        address: 'Admin Office, Lubok Antu',
-        role: 'admin',
-      );
-
-      // Create citizen user
-      print('Creating citizen user...');
-      final citizenUserId = await _createUser(
-        email: 'citizen@rescuenet.com',
-        password: 'password123',
-        fullName: 'John Citizen',
-        icNo: '980225-08-5678',
-        phoneNo: '0129876543',
-        address: 'Block A, Jalan Sejahtera, Lubok Antu',
-        role: 'resident',
-      );
-
-      // Only proceed if we have valid user IDs
-      if (adminId == null || citizenUserId == null) {
-        throw Exception('Failed to create seed users');
-      }
+      // Use existing admin and citizen user IDs
+      // Assumes admin and citizen users already exist in your Firebase project
+      print('Using existing admin and citizen users...');
+      
+      // You can modify these IDs to match your existing users
+      const String adminId = 'admin@rescuenet.com'; // Replace with actual admin UID
+      const String citizenUserId1 = 'citizen@rescuenet.com'; // Replace with actual citizen UID
+      const String citizenUserId2 = 'citizen2@rescuenet.com'; // Additional citizen
+      const String citizenUserId3 = 'citizen3@rescuenet.com'; // Additional citizen
 
       // Create aid programs
       print('Creating aid programs...');
@@ -44,77 +25,25 @@ class FirebaseSeeder {
 
       // Create reports
       print('Creating reports...');
-      await _createReports(citizenUserId);
+      await _createReports([citizenUserId1, citizenUserId2, citizenUserId3]);
+
+      // Create aid requests
+      print('Creating aid requests...');
+      await _createAidRequests([citizenUserId1, citizenUserId2, citizenUserId3]);
+
+      // Create notifications
+      print('Creating notifications...');
+      await _createNotifications(citizenUserId1);
+
+      // Create warnings
+      print('Creating warnings...');
+      await _createWarnings();
 
       print('✅ Firebase seeding completed successfully!');
     } catch (e) {
       print('❌ Error seeding database: $e');
       rethrow;
     }
-  }
-
-  static Future<String?> _createUser({
-    required String email,
-    required String password,
-    required String fullName,
-    required String icNo,
-    required String phoneNo,
-    required String address,
-    required String role,
-  }) async {
-    try {
-      // Check if user already exists in Firestore
-      final existingUsers = await _firestore
-          .collection('users')
-          .where('email', isEqualTo: email)
-          .limit(1)
-          .get();
-      
-      if (existingUsers.docs.isNotEmpty) {
-        print('  ℹ User already exists: $email');
-        return existingUsers.docs.first.id;
-      }
-
-      // Try to create Firebase Auth user
-      UserCredential? userCredential;
-      try {
-        userCredential = await _auth.createUserWithEmailAndPassword(
-          email: email,
-          password: password,
-        );
-      } catch (authError) {
-        if (authError.toString().contains('email-already-in-use')) {
-          // User exists in Auth, try to sign in instead
-          print('  ℹ Auth user already exists: $email');
-          userCredential = await _auth.signInWithEmailAndPassword(
-            email: email,
-            password: password,
-          );
-        } else {
-          rethrow;
-        }
-      }
-
-      // Create or update user profile in Firestore
-      await _firestore.collection('users').doc(userCredential.user!.uid).set({
-        'full_name': fullName,
-        'ic_no': icNo,
-        'phone_no': phoneNo,
-        'address': address,
-        'email': email,
-        'role': role,
-        'status': 'active',
-        'created_at': DateTime.now().toIso8601String(),
-        'updated_at': DateTime.now().toIso8601String(),
-      });
-
-      print('  ✓ Created/updated user: $email ($role)');
-      return userCredential.user!.uid;
-    } catch (e) {
-      print('  ✗ Error creating user $email: $e');
-      rethrow;
-    }
-    return null;
   }
 
   static Future<void> _createAidPrograms() async {
@@ -211,7 +140,12 @@ class FirebaseSeeder {
     }
   }
 
-  static Future<void> _createReports(String? citizenUserId) async {
+  static Future<void> _createReports(List<String> userIds) async {
+    if (userIds.isEmpty) {
+      print('  ⚠ No user IDs provided for reports');
+      return;
+    }
+
     final reports = [
       {
         'title': 'House Fire in Taman Sejahtera',
@@ -228,7 +162,7 @@ class FirebaseSeeder {
             DateTime.now().subtract(Duration(days: 1)).toIso8601String(),
         'date_updated': null,
         'admin_notes': null,
-        'user_id': citizenUserId,
+        'user_id': userIds[0],
       },
       {
         'title': 'Flood in Jalan Sungai Besar',
@@ -246,7 +180,7 @@ class FirebaseSeeder {
         'date_updated':
             DateTime.now().subtract(Duration(hours: 3)).toIso8601String(),
         'admin_notes': 'Emergency services deployed. Evacuation in progress.',
-        'user_id': citizenUserId,
+        'user_id': userIds[1] ?? userIds[0],
       },
       {
         'title': 'Medical Emergency in Kampung Meruan',
@@ -264,7 +198,7 @@ class FirebaseSeeder {
         'date_updated':
             DateTime.now().subtract(Duration(days: 2)).toIso8601String(),
         'admin_notes': 'Patient transported to hospital. Status: Stable.',
-        'user_id': citizenUserId,
+        'user_id': userIds[2] ?? userIds[0],
       },
       {
         'title': 'Car Accident on Jalan Raya',
@@ -281,7 +215,7 @@ class FirebaseSeeder {
             DateTime.now().subtract(Duration(hours: 2)).toIso8601String(),
         'date_updated': null,
         'admin_notes': null,
-        'user_id': citizenUserId,
+        'user_id': userIds[1] ?? userIds[0],
       },
       {
         'title': 'Medical Emergency in Kampung Baru',
@@ -298,7 +232,7 @@ class FirebaseSeeder {
             DateTime.now().subtract(Duration(hours: 1)).toIso8601String(),
         'date_updated': null,
         'admin_notes': null,
-        'user_id': citizenUserId,
+        'user_id': userIds[0],
       },
       {
         'title': 'Landslide on Bukit Tinggi Road',
@@ -317,7 +251,7 @@ class FirebaseSeeder {
             DateTime.now().subtract(Duration(hours: 5)).toIso8601String(),
         'admin_notes':
             'Road cordoned off. Engineering team assessing stability.',
-        'user_id': citizenUserId,
+        'user_id': userIds[2] ?? userIds[0],
       },
       {
         'title': 'Fire in Taman Indah',
@@ -335,7 +269,7 @@ class FirebaseSeeder {
         'date_updated':
             DateTime.now().subtract(Duration(days: 3)).toIso8601String(),
         'admin_notes': 'Fire contained. No injuries. Investigation completed.',
-        'user_id': citizenUserId,
+        'user_id': userIds[1] ?? userIds[0],
       },
       {
         'title': 'Car Accident on Jalan Raya Utama',
@@ -353,7 +287,7 @@ class FirebaseSeeder {
         'date_updated':
             DateTime.now().subtract(Duration(days: 4)).toIso8601String(),
         'admin_notes': 'Incident cleared. All parties accounted for.',
-        'user_id': citizenUserId,
+        'user_id': userIds[0],
       },
     ];
 
@@ -378,6 +312,129 @@ class FirebaseSeeder {
         counter++;
       } catch (e) {
         print('  ✗ Error creating report ${report['title']}: $e');
+        rethrow;
+      }
+    }
+  }
+
+  static Future<void> _createAidRequests(List<String> userIds) async {
+    if (userIds.isEmpty) {
+      print('  ⚠ No user IDs provided for aid requests');
+      return;
+    }
+
+    final requests = [
+      {
+        'user_id': userIds[0],
+        'program_id': 'AID2026001',
+        'status': 'approved',
+        'title': 'B40 Assistance Application',
+        'description': 'Applied for monthly household assistance',
+        'date_submitted': DateTime.now().subtract(Duration(days: 10)).toIso8601String(),
+        'date_approved': DateTime.now().subtract(Duration(days: 5)).toIso8601String(),
+      },
+      {
+        'user_id': userIds[1] ?? userIds[0],
+        'program_id': 'AID2026003',
+        'status': 'pending',
+        'title': 'Medical Assistance Application',
+        'description': 'Requesting financial aid for emergency hospitalization',
+        'date_submitted': DateTime.now().subtract(Duration(days: 3)).toIso8601String(),
+        'date_approved': null,
+      },
+    ];
+
+    int counter = 1;
+    for (var request in requests) {
+      try {
+        request['created_at'] = DateTime.now().toIso8601String();
+        request['updated_at'] = DateTime.now().toIso8601String();
+
+        final requestId = 'AR2026${counter.toString().padLeft(3, '0')}';
+
+        await _firestore.collection('aid_requests').doc(requestId).set(request);
+        print('  ✓ Created aid request: ${request['title']} (ID: $requestId)');
+        counter++;
+      } catch (e) {
+        print('  ✗ Error creating aid request: $e');
+        rethrow;
+      }
+    }
+  }
+
+  static Future<void> _createNotifications(String userId) async {
+    final notifications = [
+      {
+        'title': 'Aid Application Approved',
+        'body': 'Your B40 application has been approved.',
+        'type': 'aid_update',
+        'timestamp': Timestamp.fromDate(DateTime.now().subtract(Duration(days: 1))),
+        'isRead': false,
+      },
+      {
+        'title': 'Emergency Report Update',
+        'body': 'Your flood report has been resolved.',
+        'type': 'report_status',
+        'timestamp': Timestamp.fromDate(DateTime.now().subtract(Duration(hours: 5))),
+        'isRead': true,
+      },
+    ];
+
+    int counter = 1;
+    for (var notification in notifications) {
+      try {
+        final notificationId = 'NOTIF${DateTime.now().year}${counter.toString().padLeft(4, '0')}';
+
+        await _firestore
+            .collection('users')
+            .doc(userId)
+            .collection('notifications')
+            .doc(notificationId)
+            .set(notification);
+        print('  ✓ Created notification: ${notification['title']}');
+        counter++;
+      } catch (e) {
+        print('  ✗ Error creating notification: $e');
+        rethrow;
+      }
+    }
+  }
+
+  static Future<void> _createWarnings() async {
+    final warnings = [
+      {
+        'id': 'WARN2026001',
+        'type': 'Flood',
+        'location': 'Jalan Sungai Besar',
+        'severity': 'high',
+        'distance': 0.8,
+        'description': 'Flash flood warning due to heavy rainfall.',
+        'timestamp': DateTime.now().subtract(Duration(hours: 1)).toIso8601String(),
+        'latitude': 3.4156,
+        'longitude': 102.7369,
+        'status': 'active',
+      },
+      {
+        'id': 'WARN2026002',
+        'type': 'Landslide',
+        'location': 'Bukit Tinggi Road',
+        'severity': 'medium',
+        'distance': 1.5,
+        'description': 'Landslide risk high due to soil instability.',
+        'timestamp': DateTime.now().subtract(Duration(hours: 2)).toIso8601String(),
+        'latitude': 3.4201,
+        'longitude': 102.7401,
+        'status': 'active',
+      },
+    ];
+
+    for (var warning in warnings) {
+      try {
+        final warningId = warning['id'] as String;
+        await _firestore.collection('warnings').doc(warningId).set(warning);
+        print('  ✓ Created warning: ${warning['location']}');
+      } catch (e) {
+        print('  ✗ Error creating warning: $e');
         rethrow;
       }
     }

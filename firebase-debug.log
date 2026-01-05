@@ -1,0 +1,22 @@
+[debug] [2026-01-04T13:50:47.531Z] ----------------------------------------------------------------------
+[debug] [2026-01-04T13:50:47.533Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\user\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only firestore:rules
+[debug] [2026-01-04T13:50:47.533Z] CLI Version:   15.1.0
+[debug] [2026-01-04T13:50:47.533Z] Platform:      win32
+[debug] [2026-01-04T13:50:47.533Z] Node Version:  v25.2.1
+[debug] [2026-01-04T13:50:47.533Z] Time:          Sun Jan 04 2026 21:50:47 GMT+0800 (Malaysia Time)
+[debug] [2026-01-04T13:50:47.533Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-01-04T13:50:47.535Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2026-01-04T13:50:48.571Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] 
+[error] Error: Cannot understand what targets to deploy/serve. No targets in firebase.json match '--only firestore:rules'. If you are using PowerShell make sure you place quotes around any comma-separated lists (ex: --only "functions,firestore").
+[debug] [2026-01-04T13:50:48.937Z] Error: EBUSY: resource busy or locked, unlink 'E:\Unimas\Year 4\SELab\Project\Lubok Antu RescueNet\firebase-debug.log'
+    at Object.unlinkSync (node:fs:1918:11)
+    at process.<anonymous> (C:\Users\user\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\cli.js:44:16)
+    at process.emit (node:events:520:35)
+    at process.exit (node:internal/process/per_thread:236:15)
+    at Timeout._onTimeout (C:\Users\user\AppData\Roaming\npm\node_modules\firebase-tools\lib\errorOut.js:20:17)
+    at listOnTimeout (node:internal/timers:605:17)
+    at process.processTimers (node:internal/timers:541:7)
+[error] 
+[error] Error: An unexpected error has occurred.

@@ -49,7 +49,7 @@ service cloud.firestore {
       allow write: if isAdmin() || canSeed();
     }
     
-    // Emergency reports - anyone logged in can create, only owner/admin can update/delete
+    // Emergency reports - anyone logged in can create, only owner/admin can update/delete, or seeding
     match /emergency_reports/{reportId} {
       allow read: if true;
       allow create: if canSeed()
@@ -63,7 +63,7 @@ service cloud.firestore {
       allow delete: if isAdmin() || canSeed();
     }
     
-    // Aid requests - users can create/read their own, admins can read/update/delete all
+    // Aid requests - users can create/read their own, admins can read/update/delete all, or seeding
     match /aid_requests/{requestId} {
       allow read: if isSignedIn()
                   && (resource.data.user_id == request.auth.uid || isAdmin());
@@ -74,6 +74,12 @@ service cloud.firestore {
                     || (isSignedIn()
                     && (resource.data.user_id == request.auth.uid || isAdmin()));
       allow delete: if isAdmin() || canSeed();
+    }
+    
+    // Warnings - public read, admin/seeding write
+    match /warnings/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin() || canSeed();
     }
     
     // Metadata for counters - authenticated users or seeding

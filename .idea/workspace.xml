@@ -6,7 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="c73decfb-371e-4850-b835-a74b93fcf489" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/services/push_notification_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/services/push_notification_service.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FIRESTORE_SECURITY_RULES.txt" beforeDir="false" afterPath="$PROJECT_DIR$/FIRESTORE_SECURITY_RULES.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/scripts/seed_firebase.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/scripts/seed_firebase.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
