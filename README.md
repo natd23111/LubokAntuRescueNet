@@ -7,7 +7,6 @@ This repository contains the **Flutter mobile frontend application** with Fireba
 ```
 LubokAntuRescueNet/
 ├── Lar-Frontend/          → Flutter Mobile Application
-├── Lar-AdminWeb/          → Admin Web Dashboard
 ├── firebase-functions/    → Firebase Cloud Functions
 └── documentation/         → Setup guides & architecture
 ```
