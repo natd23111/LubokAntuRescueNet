@@ -7,7 +7,17 @@ Lar-AdminWeb/
 # Ignore all markdown documentation files
 *.md
 
+# CRITICAL: Sensitive files and secrets
 Lar-Frontend/lib/firebase_options.dart
+Lar-Frontend/android/app/AndroidManifest.xml
+Lar-Frontend/ios/Runner/GoogleService-Info.plist
+.env
+.env.local
+*.key
+*.pem
+*credentials*
+*secrets*
+
 FIREBASE_STORAGE_RULES.txt
 Lar-Frontend/package-lock.json
 Lar-Frontend/package.json
