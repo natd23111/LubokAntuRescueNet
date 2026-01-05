@@ -146,27 +146,6 @@ Lar-Frontend/
 
 ---
 
-## 🔧 Development Workflow
-
-### Running Tests
-```bash
-# Run all tests
-flutter test
-
-# Run with coverage
-flutter test --coverage
-```
-
-### Code Quality
-```bash
-# Analyze code
-flutter analyze
-
-# Format code
-dart format lib/
-
-# Run linter
-flutter pub run effective_dart:rules
 ```
 
 ### Build Release APK/APP
@@ -183,39 +162,6 @@ flutter build ios
 
 ---
 
-## 📚 Documentation
-
-Complete documentation available:
-
-| Document | Purpose |
-|----------|---------|
-| [Firebase Setup Guide](FIREBASE_MIGRATION_GUIDE.md) | Firebase configuration & deployment |
-| [Aid Program System](README_AID_PROGRAM_SYSTEM.md) | Aid programs CRUD operations |
-| [Filtering Guide](FILTERING_REFERENCE_GUIDE.md) | Search & filter implementation |
-| [Notifications Setup](NOTIFICATION_TESTING_GUIDE.md) | Push notifications configuration |
-| [Admin Dashboard](ADMIN_DASHBOARD_SETUP.md) | Web admin interface guide |
-| [Project Analysis](PROJECT_ANALYSIS_STRENGTHS_WEAKNESSES.md) | Complete strengths & weaknesses analysis |
-
----
-
-## 🔐 Security Considerations
-
-### Current Security Measures
-- ✅ Firebase Authentication with email/password
-- ✅ Firestore Security Rules (role-based access)
-- ✅ Image validation (size, format)
-- ✅ Location bounds validation
-- ✅ Input validation on all forms
-
-### Recommended Improvements
-- 🟡 Add end-to-end encryption for sensitive data
-- 🟡 Implement token refresh mechanism
-- 🟡 Add biometric authentication
-- 🟡 Enhance password complexity requirements
-- 🟡 Add audit logging for admin actions
-
----
-
 ## 🚀 Deployment
 
 ### Firebase Deployment
@@ -224,15 +170,6 @@ cd firebase-functions
 npm install
 firebase deploy --only functions,firestore:rules
 ```
-
-### Flutter App Distribution
-- **Android**: Upload to Google Play Store
-- **iOS**: Upload to Apple App Store
-- **Web**: Deploy to Firebase Hosting or custom server
-
-See [FIREBASE_MIGRATION_GUIDE.md](FIREBASE_MIGRATION_GUIDE.md) for detailed deployment steps.
-
----
 
 ## 🐛 Troubleshooting
 
@@ -245,57 +182,6 @@ flutter clean
 flutter pub get
 flutter run
 ```
-
-**Location Permission Issues**
-- Ensure location permissions are granted in app settings
-- Check location services are enabled on device
-- Review [WEB_LOCATION_FIX.md](WEB_LOCATION_FIX.md) for web-specific fixes
-
-**Push Notification Issues**
-- Verify FCM configuration in Firebase Console
-- Check [WEB_FIREBASE_MESSAGING_FIX.md](WEB_FIREBASE_MESSAGING_FIX.md) for web platform issues
-- Ensure service worker is properly configured for web
-
----
-
-## 📊 Project Status
-
-**Current Phase**: Development with Production Features  
-**Overall Rating**: 7/10 - Good foundation with improvement opportunities
-
-### Production Readiness
-- 🟢 **Ready for Beta**: Core features functional
-- 🟡 **Needs Review**: Error handling, testing coverage
-- 🔴 **Before Production**: Security audit, comprehensive testing
-
-See [PROJECT_ANALYSIS_STRENGTHS_WEAKNESSES.md](PROJECT_ANALYSIS_STRENGTHS_WEAKNESSES.md) for detailed analysis.
-
----
-
-## 👥 Contributing
-
-1. Create a feature branch: `git checkout -b feature/your-feature`
-2. Commit changes: `git commit -m "Add feature description"`
-3. Push to branch: `git push origin feature/your-feature`
-4. Submit a pull request
-
----
-
-## 📝 License
-
-This project is managed by Pusat Khidmat Lubok Antu. For licensing inquiries, contact the project administrator.
-
----
-
-## 📞 Support
-
-For issues or questions:
-- Check documentation files in repository
-- Review the [Project Analysis](PROJECT_ANALYSIS_STRENGTHS_WEAKNESSES.md)
-- Submit issues with detailed reproduction steps
-- Contact the development team
-
----
 
 **Last Updated**: January 5, 2026  
 **Backend Status**: Separated to standalone repository  
