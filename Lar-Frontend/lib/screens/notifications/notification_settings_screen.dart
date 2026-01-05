@@ -3,8 +3,8 @@ import 'dart:convert';
 
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/notifications_provider.dart';
-import '../../models/notification.dart';
 import '../../services/telegram_service.dart';
 import 'telegram_linking_dialog.dart';
 
@@ -184,6 +184,7 @@ class _NotificationSettingsScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final primaryGreen = Color(0xFF0E9D63);
 
     return Scaffold(
@@ -191,7 +192,7 @@ class _NotificationSettingsScreenState
       appBar: AppBar(
         backgroundColor: primaryGreen,
         title: Text(
-          'Notification Settings',
+          l10n.notificationSettings,
           style: TextStyle(color: Colors.white),
         ),
         leading: IconButton(

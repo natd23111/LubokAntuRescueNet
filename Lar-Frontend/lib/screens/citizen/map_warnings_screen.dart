@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:free_map/free_map.dart';
 import 'dart:async';
+import '../../l10n/app_localizations.dart';
 import '../../providers/warnings_provider.dart';
 import '../../models/warning.dart';
 
@@ -12,6 +12,8 @@ final String _mapTilerUrl =
     'https://api.maptiler.com/maps/base-v4/{z}/{x}/{y}.png?key=05qm5umVozsJ1MUwgXPY';
 
 class MapWarningsScreen extends StatefulWidget {
+  const MapWarningsScreen({super.key});
+
   @override
   _MapWarningsScreenState createState() => _MapWarningsScreenState();
 }
@@ -408,6 +410,7 @@ class _MapWarningsScreenState extends State<MapWarningsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final primaryGreen = Color(0xFF0E9D63);
 
     return Consumer<WarningsProvider>(
@@ -438,7 +441,7 @@ class _MapWarningsScreenState extends State<MapWarningsScreen> {
                     // Real Interactive Map with Warning Markers
                     Stack(
                       children: [
-                        Container(
+                        SizedBox(
                           width: double.infinity,
                           height: 350,
                           child: FlutterMap(
@@ -877,16 +880,16 @@ class _MapWarningsScreenState extends State<MapWarningsScreen> {
                             height: 48,
                             child: OutlinedButton(
                               onPressed: () => Navigator.pop(context),
+                              style: OutlinedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
                               child: Text(
                                 'Back',
                                 style: TextStyle(
                                   color: Colors.grey[600],
                                   fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              style: OutlinedButton.styleFrom(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
                             ),
@@ -961,10 +964,10 @@ class _MapWarningsScreenState extends State<MapWarningsScreen> {
               positions.length];
 
       return Positioned(
-        top: position['top'] as double?,
-        left: position['left'] as double?,
-        right: position['right'] as double?,
-        bottom: position['bottom'] as double?,
+        top: position['top'],
+        left: position['left'],
+        right: position['right'],
+        bottom: position['bottom'],
         child: Container(
           width: 32,
           height: 32,
@@ -998,7 +1001,7 @@ class _MapWarningsScreenState extends State<MapWarningsScreen> {
 class BlinkingWarningMarker extends StatefulWidget {
   final String severity;
 
-  const BlinkingWarningMarker({required this.severity});
+  const BlinkingWarningMarker({super.key, required this.severity});
 
   @override
   _BlinkingWarningMarkerState createState() => _BlinkingWarningMarkerState();

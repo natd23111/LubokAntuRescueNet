@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../citizen_dashboard.dart';
 import '../../widgets/app_footer.dart';
 
 class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
+
   @override
   _RegisterScreenState createState() => _RegisterScreenState();
 }
@@ -32,21 +35,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  String? _validateEmail(String? v) {
-    if (v == null || v.trim().isEmpty) return 'Please enter your email';
-    if (v.length > 64) return 'Email max is 64 characters';
+  String? _validateEmail(String? v, AppLocalizations l10n) {
+    if (v == null || v.trim().isEmpty) return l10n.emailRequired;
+    if (v.length > 64) return l10n.emailMaxCharacters;
     final pattern = RegExp(r"^[^@\s]+@[^@\s]+\.[^@\s]+");
-    if (!pattern.hasMatch(v.trim())) return 'Enter a valid email';
+    if (!pattern.hasMatch(v.trim())) return l10n.enterValidEmail;
     return null;
   }
 
   String _formatIC(String value) {
     value = value.replaceAll('-', '');
     if (value.length >= 6) {
-      value = value.substring(0, 6) + '-' + value.substring(6);
+      value = '${value.substring(0, 6)}-${value.substring(6)}';
     }
     if (value.length >= 10) {
-      value = value.substring(0, 9) + '-' + value.substring(9);
+      value = '${value.substring(0, 9)}-${value.substring(9)}';
     }
     return value;
   }
@@ -54,9 +57,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> _submit(AuthProvider auth) async {
     if (!_formKey.currentState!.validate()) return;
     if (!_agree) {
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('You must agree to the Terms & Conditions'),
+        SnackBar(
+          content: Text(l10n.iAgreeToTerms),
         ),
       );
       return;
@@ -78,9 +82,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
         MaterialPageRoute(builder: (_) => HomeScreen()),
       );
     } else {
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Registration failed')));
+      ).showSnackBar(SnackBar(content: Text(l10n.registrationFailed)));
     }
   }
 
@@ -88,12 +93,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
     final primaryGreen = const Color(0xFF0E9D63);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: primaryGreen,
-        title: const Text('Register', style: TextStyle(color: Colors.white)),
-        leading: const BackButton(color: Colors.white),
+        title: Text(l10n.register, style: TextStyle(color: Colors.white)),
+        leading: BackButton(color: Colors.white),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -101,8 +107,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
-                'Create a new citizen account',
+              Text(
+                l10n.createNewAccount,
                 style: TextStyle(color: Colors.black54),
               ),
               const SizedBox(height: 12),
@@ -124,14 +130,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           controller: _nameController,
                           maxLength: 40,
                           decoration: InputDecoration(
-                            labelText: 'Full Name',
-                            hintText: 'Enter full name',
+                            labelText: l10n.fullName,
+                            hintText: l10n.enterFullName,
                             border: const OutlineInputBorder(),
                             counterText: '',
                             prefixIcon: const Icon(Icons.person_outline),
                           ),
                           validator: (v) => (v == null || v.trim().isEmpty)
-                              ? 'Please enter your full name'
+                              ? l10n.fullNameRequired
                               : null,
                         ),
                         const SizedBox(height: 12),
@@ -141,8 +147,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           controller: _icController,
                           maxLength: 14,
                           decoration: InputDecoration(
-                            labelText: 'IC Number',
-                            hintText: 'e.g., 950123-13-5678',
+                            labelText: l10n.icNumber,
+                            hintText: l10n.enterICNumber,
                             border: const OutlineInputBorder(),
                             counterText: '',
                             prefixIcon: const Icon(Icons.credit_card_outlined),
@@ -161,7 +167,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             }
                           },
                           validator: (v) => (v == null || v.trim().isEmpty)
-                              ? 'Please enter your IC number'
+                              ? l10n.icRequired
                               : null,
                         ),
                         const SizedBox(height: 12),
@@ -171,15 +177,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           controller: _phoneController,
                           maxLength: 12,
                           decoration: InputDecoration(
-                            labelText: 'Phone No',
-                            hintText: 'Enter Phone No',
+                            labelText: l10n.phoneNo,
+                            hintText: l10n.enterPhoneNo,
                             border: const OutlineInputBorder(),
                             counterText: '',
                             prefixIcon: const Icon(Icons.phone_outlined),
                           ),
                           keyboardType: TextInputType.phone,
                           validator: (v) => (v == null || v.trim().isEmpty)
-                              ? 'Please enter your phone number'
+                              ? l10n.phoneRequired
                               : null,
                         ),
                         const SizedBox(height: 12),
@@ -189,14 +195,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           controller: _emailController,
                           maxLength: 64,
                           decoration: InputDecoration(
-                            labelText: 'Email',
-                            hintText: 'Enter email address',
+                            labelText: l10n.email,
+                            hintText: l10n.enterEmail,
                             border: const OutlineInputBorder(),
                             counterText: '',
                             prefixIcon: const Icon(Icons.email_outlined),
                           ),
                           keyboardType: TextInputType.emailAddress,
-                          validator: _validateEmail,
+                          validator: (v) => _validateEmail(v, l10n),
                         ),
                         const SizedBox(height: 12),
 
@@ -205,8 +211,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           controller: _passwordController,
                           maxLength: 20,
                           decoration: InputDecoration(
-                            labelText: 'Password',
-                            hintText: 'Enter password',
+                            labelText: l10n.password,
+                            hintText: l10n.enterPassword,
                             border: const OutlineInputBorder(),
                             counterText: '',
                             prefixIcon: const Icon(Icons.lock_outline),
@@ -223,16 +229,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           obscureText: _hidePassword,
                           validator: (v) {
-                            if (v == null || v.isEmpty)
-                              return 'Please enter a password';
-                            if (v.length < 8) return 'Minimum 8 characters';
-                            if (v.length > 20) return 'Maximum 20 characters';
+                            if (v == null || v.isEmpty) {
+                              return l10n.enterPassword2;
+                            }
+                            if (v.length < 8) return l10n.passwordMin8;
+                            if (v.length > 20) return l10n.passwordMax20;
                             return null;
                           },
                         ),
                         const SizedBox(height: 6),
-                        const Text(
-                          'Minimum 8 characters',
+                        Text(
+                          l10n.minimumCharacters,
                           style: TextStyle(fontSize: 12, color: Colors.black45),
                         ),
                         const SizedBox(height: 12),
@@ -241,8 +248,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         TextFormField(
                           controller: _confirmController,
                           decoration: InputDecoration(
-                            labelText: 'Confirm Password',
-                            hintText: 'Re-enter password',
+                            labelText: l10n.confirmPassword,
+                            hintText: l10n.reEnterPassword,
                             border: const OutlineInputBorder(),
                             prefixIcon: const Icon(Icons.lock_outline),
                             suffixIcon: IconButton(
@@ -257,10 +264,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           obscureText: _hideConfirm,
                           validator: (v) {
-                            if (v == null || v.isEmpty)
-                              return 'Please confirm your password';
-                            if (v != _passwordController.text)
-                              return 'Passwords do not match';
+                            if (v == null || v.isEmpty) {
+                              return l10n.confirmPassword2;
+                            }
+                            if (v != _passwordController.text) {
+                              return l10n.passwordMismatch;
+                            }
                             return null;
                           },
                         ),
@@ -279,8 +288,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             Expanded(
                               child: GestureDetector(
                                 onTap: () => setState(() => _agree = !_agree),
-                                child: const Text(
-                                  'I agree to the Terms & Conditions and Privacy Policy *',
+                                child: Text(
+                                  l10n.agreeTermsPrivacy,
                                   style: TextStyle(height: 1.3),
                                 ),
                               ),
@@ -312,7 +321,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       strokeWidth: 2,
                                     ),
                                   )
-                                : const Text('Submit'),
+                                : Text(l10n.submit),
                           ),
                         ),
 
@@ -328,7 +337,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                             ),
                             onPressed: () => Navigator.pop(context),
-                            child: const Text('Cancel'),
+                            child: Text(l10n.cancel),
                           ),
                         ),
                       ],

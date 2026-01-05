@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/aid_request_provider.dart';
 import '../../models/aid_request_model.dart';
 
 class ManageAidRequestsScreen extends StatefulWidget {
   final VoidCallback onBack;
 
-  const ManageAidRequestsScreen({required this.onBack});
+  const ManageAidRequestsScreen({super.key, required this.onBack});
 
   @override
   _ManageAidRequestsScreenState createState() =>
@@ -233,6 +234,7 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Consumer<AidRequestProvider>(
       builder: (context, provider, _) {
         aidRequestProvider = provider;
@@ -344,7 +346,7 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
             ),
             SizedBox(height: 8),
             DropdownButtonFormField<String>(
-              value: selectedStatus ?? request.status.toLowerCase(),
+              initialValue: selectedStatus ?? request.status.toLowerCase(),
               items: ['pending', 'approved', 'rejected']
                   .map(
                     (status) => DropdownMenuItem(
@@ -642,7 +644,7 @@ class _ManageAidRequestsScreenState extends State<ManageAidRequestsScreen> {
                   ],
                 ),
               );
-            }).toList(),
+            }),
             SizedBox(height: 16),
             _buildDetailRow('Description', request.description),
           ],

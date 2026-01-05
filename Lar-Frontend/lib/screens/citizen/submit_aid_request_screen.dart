@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/aid_request_provider.dart';
 import '../../models/aid_request_model.dart';
@@ -17,7 +18,7 @@ class SubmitAidRequestScreen extends StatefulWidget {
   final String? preselectedCategory;
   final String? preselectedAmount;
 
-  const SubmitAidRequestScreen({
+  const SubmitAidRequestScreen({super.key, 
     this.preselectedProgramId,
     this.preselectedCategory,
     this.preselectedAmount,
@@ -195,7 +196,7 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
     setState(() {
       if (count! > familyMembers.length) {
         // Add more family members
-        for (int i = familyMembers.length; i < count!; i++) {
+        for (int i = familyMembers.length; i < count; i++) {
           familyMembers.add(
             FamilyMember(
               id: DateTime.now().millisecondsSinceEpoch + i,
@@ -204,9 +205,9 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
             ),
           );
         }
-      } else if (count! < familyMembers.length) {
+      } else if (count < familyMembers.length) {
         // Remove family members from the end
-        familyMembers = familyMembers.sublist(0, count!);
+        familyMembers = familyMembers.sublist(0, count);
       }
     });
   }
@@ -252,6 +253,7 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Consumer<AidRequestProvider>(
       builder: (context, aidRequestProvider, _) {
         return Scaffold(
@@ -333,7 +335,7 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
                       _buildFormLabel('Aid Type / Category'),
                       const SizedBox(height: 8),
                       DropdownButtonFormField<String>(
-                        value: selectedAidType.isEmpty ? null : selectedAidType,
+                        initialValue: selectedAidType.isEmpty ? null : selectedAidType,
                         decoration: InputDecoration(
                           hintText: 'Select aid type',
                           border: OutlineInputBorder(
@@ -458,7 +460,7 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
                               member: member,
                               canDelete: familyMembers.length > 1,
                             );
-                          }).toList(),
+                          }),
                           const SizedBox(height: 12),
                           _buildAddMemberButton(),
                         ],
@@ -684,7 +686,7 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
 
           // Status Dropdown
           DropdownButtonFormField<String>(
-            value: member.status,
+            initialValue: member.status,
             decoration: InputDecoration(
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),

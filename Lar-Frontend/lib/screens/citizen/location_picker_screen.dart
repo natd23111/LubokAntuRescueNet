@@ -3,6 +3,7 @@ import 'package:free_map/free_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'dart:async';
+import '../../l10n/app_localizations.dart';
 
 // Model for address components
 class AddressComponents {
@@ -30,10 +31,10 @@ class LocationPickerScreen extends StatefulWidget {
   final double? initialLongitude;
 
   const LocationPickerScreen({
-    Key? key,
+    super.key,
     this.initialLatitude,
     this.initialLongitude,
-  }) : super(key: key);
+  });
 
   @override
   State<LocationPickerScreen> createState() => _LocationPickerScreenState();
@@ -50,9 +51,9 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
   String locationStatus =
       'Acquiring location...'; // "GPS verified", "approximate", "Manual"
   Timer? _searchDebounceTimer;
-  Map<String, AddressComponents> _placemarkCache =
+  final Map<String, AddressComponents> _placemarkCache =
       {}; // Cache for placemark results
-  List<LatLng> _locationHistory = []; // Recent locations for quick access
+  final List<LatLng> _locationHistory = []; // Recent locations for quick access
   bool _isDraggingMarker = false;
   double _zoomLevel = 17.0;
 
@@ -243,12 +244,14 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
 
             List<String> addressParts = [];
             if (street.isNotEmpty) addressParts.add(street);
-            if (thoroughfare.isNotEmpty && thoroughfare != street)
+            if (thoroughfare.isNotEmpty && thoroughfare != street) {
               addressParts.add(thoroughfare);
+            }
             if (postalCode.isNotEmpty) addressParts.add(postalCode);
             if (locality.isNotEmpty) addressParts.add(locality);
-            if (administrativeArea.isNotEmpty)
+            if (administrativeArea.isNotEmpty) {
               addressParts.add(administrativeArea);
+            }
 
             address = addressParts.join(', ');
             if (address.isEmpty) {
@@ -419,9 +422,10 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Select Location'),
+        title: Text(l10n.selectLocation),
         centerTitle: true,
         elevation: 0,
         backgroundColor: const Color(0xFF0E9D63),

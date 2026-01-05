@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/weather_provider.dart';
 
 class WeatherDetailsScreen extends StatefulWidget {
+  const WeatherDetailsScreen({super.key});
+
   @override
   _WeatherDetailsScreenState createState() => _WeatherDetailsScreenState();
 }
@@ -76,6 +79,7 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final primaryGreen = Color(0xFF0E9D63);
 
     return Scaffold(
@@ -84,7 +88,7 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen> {
         backgroundColor: primaryGreen,
         elevation: 0,
         title: Text(
-          'Weather Details',
+          l10n.weatherDetails,
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         leading: IconButton(

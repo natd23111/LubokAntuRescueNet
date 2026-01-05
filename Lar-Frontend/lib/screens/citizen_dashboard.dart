@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/reports_provider.dart';
 import '../../providers/aid_request_provider.dart';
@@ -19,6 +20,8 @@ import 'citizen/view_aid_request_screen.dart';
 import '../../widgets/app_footer.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -59,6 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final primaryGreen = Color(0xFF0E9D63);
+    final l10n = AppLocalizations.of(context)!;
 
     // Set status bar color to green
     SystemChrome.setSystemUIOverlayStyle(
@@ -165,7 +169,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'RescueNet',
+                          l10n.rescueNet,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 24,
@@ -174,7 +178,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         SizedBox(height: 4),
                         Text(
-                          'Citizen Dashboard',
+                          l10n.citizenDashboard,
                           style: TextStyle(color: Colors.white70),
                         ),
                       ],
@@ -206,7 +210,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   _menuItem(
                     Icons.home,
-                    'Dashboard',
+                    l10n.dashboard,
                     selected: true,
                     onTap: () {
                       _toggleMenu();
@@ -214,7 +218,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   _menuItem(
                     Icons.person,
-                    'Profile',
+                    l10n.profile,
                     onTap: () {
                       Navigator.push(
                         context,
@@ -225,7 +229,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   _menuItem(
                     Icons.notifications,
-                    'Notification Settings',
+                    l10n.notificationSettings,
                     onTap: () {
                       Navigator.push(
                         context,
@@ -239,7 +243,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Divider(),
                   _menuItem(
                     Icons.logout,
-                    'Logout',
+                    l10n.logout,
                     color: Colors.red,
                     onTap: () {
                       _logout(context);
@@ -270,7 +274,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           builder: (context, authProvider, child) {
                             final name = authProvider.userName ?? 'User';
                             return Text(
-                              'Welcome back, $name!',
+                              '${l10n.welcomeBack}, $name!',
                               style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
@@ -281,7 +285,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          "Check alerts and reports in your area.",
+                          l10n.checkAlerts,
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey.shade600,
@@ -318,7 +322,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 SizedBox(width: 10),
                                 Expanded(
                                   child: Text(
-                                    'Loading weather data...',
+                                    l10n.loadingWeatherData,
                                     style: TextStyle(color: Colors.black87),
                                   ),
                                 ),
@@ -348,7 +352,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Weather Alert',
+                                        l10n.weatherAlert,
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -380,7 +384,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 SizedBox(width: 10),
                                 Expanded(
                                   child: Text(
-                                    'Weather data unavailable',
+                                    l10n.weatherUnavailable,
                                     style: TextStyle(color: Colors.black87),
                                   ),
                                 ),
@@ -433,8 +437,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     children: [
                                       Text(
                                         shouldShowAlert
-                                            ? 'Weather Alert'
-                                            : 'Weather Update',
+                                            ? l10n.weatherAlert
+                                            : l10n.weatherUpdate,
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -499,7 +503,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 },
                                 child: statTile(
                                   activeCount.toString(),
-                                  'Active Reports',
+                                  l10n.activeReports,
                                   Colors.green.shade300,
                                 ),
                               );
@@ -541,7 +545,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 },
                                 child: statTile(
                                   pendingCount.toString(),
-                                  'Aid Requests',
+                                  l10n.aidRequests,
                                   Colors.blue.shade200,
                                 ),
                               );
@@ -565,7 +569,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 },
                                 child: statTile(
                                   newProgramsCount.toString(),
-                                  'New Programs',
+                                  l10n.newPrograms,
                                   Colors.purple.shade100,
                                 ),
                               );
@@ -601,7 +605,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         quickAction(
                           Icons.report_problem,
-                          'Submit Emergency',
+                          l10n.submitEmergency,
                               () => Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -614,7 +618,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         quickAction(
                           Icons.description_rounded,
-                          'View Reports',
+                          l10n.viewReports,
                               () {
                             final authProvider = Provider.of<AuthProvider>(
                               context,
@@ -636,7 +640,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         quickAction(
                           Icons.volunteer_activism,
-                          'Request Aid',
+                          l10n.requestAid,
                               () async {
                             final authProvider = Provider.of<AuthProvider>(
                               context,
@@ -665,7 +669,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         quickAction(
                           Icons.notification_important,
-                          'Aid Programs',
+                          l10n.viewAidPrograms,
                               () => Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -676,7 +680,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         quickAction(
                           Icons.map_rounded,
-                          'Map Warnings',
+                          l10n.mapWarnings,
                               () => Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -687,7 +691,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         quickAction(
                           Icons.chat_rounded,
-                          'AI Chatbot',
+                          l10n.aiChatbot,
                               () => Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -706,7 +710,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 6),
                     child: Text(
-                      'Recent Activity',
+                      l10n.refreshing,
                       style: TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ),

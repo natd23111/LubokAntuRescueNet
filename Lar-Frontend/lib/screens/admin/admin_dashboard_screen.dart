@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/reports_provider.dart';
 import '../../providers/aid_request_provider.dart';
@@ -11,6 +12,8 @@ import 'manage_aid_requests_screen.dart';
 import '../../widgets/app_footer.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
+  const AdminDashboardScreen({super.key});
+
   @override
   _AdminDashboardScreenState createState() => _AdminDashboardScreenState();
 }
@@ -65,6 +68,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final primaryGreen = Color(0xFF0E9D63);
+    final l10n = AppLocalizations.of(context)!;
 
     // Set status bar color to green
     SystemChrome.setSystemUIOverlayStyle(
@@ -792,7 +796,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         }
       }).length;
       print(
-        'Day ${i} (${dayDate.year}-${dayDate.month.toString().padLeft(2, '0')}-${dayDate.day.toString().padLeft(2, '0')}): $count reports',
+        'Day $i (${dayDate.year}-${dayDate.month.toString().padLeft(2, '0')}-${dayDate.day.toString().padLeft(2, '0')}): $count reports',
       );
       values.add(count);
     }

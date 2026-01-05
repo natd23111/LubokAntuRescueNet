@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/reports_provider.dart';
 import '../../scripts/seed_firebase.dart';
 
 class ManageReportsScreen extends StatefulWidget {
   final VoidCallback onBack;
 
-  const ManageReportsScreen({Key? key, required this.onBack}) : super(key: key);
+  const ManageReportsScreen({super.key, required this.onBack});
 
   @override
   State<ManageReportsScreen> createState() => _ManageReportsScreenState();
@@ -984,6 +985,7 @@ class _ManageReportsScreenState extends State<ManageReportsScreen> {
   // Main Reports List View
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Consumer<ReportsProvider>(
       builder: (context, provider, _) {
         // Find selected report if needed

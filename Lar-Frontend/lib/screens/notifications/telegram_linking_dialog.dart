@@ -4,7 +4,7 @@ import '../../services/telegram_service.dart';
 class TelegramLinkingDialog extends StatefulWidget {
   final TelegramService telegramService;
 
-  const TelegramLinkingDialog({required this.telegramService});
+  const TelegramLinkingDialog({super.key, required this.telegramService});
 
   @override
   _TelegramLinkingDialogState createState() => _TelegramLinkingDialogState();

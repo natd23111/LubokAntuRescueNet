@@ -9,11 +9,11 @@ class EditAidProgramForm extends StatefulWidget {
   final Function(AidProgram) onSubmit;
 
   const EditAidProgramForm({
-    Key? key,
+    super.key,
     required this.program,
     required this.onBack,
     required this.onSubmit,
-  }) : super(key: key);
+  });
 
   @override
   State<EditAidProgramForm> createState() => _EditAidProgramFormState();

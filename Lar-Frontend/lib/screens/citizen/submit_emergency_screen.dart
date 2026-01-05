@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:typed_data';
+import '../../l10n/app_localizations.dart';
 import '../../providers/reports_provider.dart';
 import '../../providers/auth_provider.dart';
 import 'location_picker_screen.dart';
@@ -13,8 +14,7 @@ import '../../services/firebase_service.dart';
 class SubmitEmergencyScreen extends StatefulWidget {
   final VoidCallback onBack;
 
-  const SubmitEmergencyScreen({Key? key, required this.onBack})
-      : super(key: key);
+  const SubmitEmergencyScreen({super.key, required this.onBack});
 
   @override
   State<SubmitEmergencyScreen> createState() => _SubmitEmergencyScreenState();
@@ -160,7 +160,7 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
 
       // Create report object with user's profile data (exclude null values)
       final reportData = {
-        'title': '${selectedEmergencyType} - ${locationController.text}',
+        'title': '$selectedEmergencyType - ${locationController.text}',
         'type': selectedEmergencyType,
         'location': locationController.text,
         'description': descriptionController.text,
@@ -375,13 +375,13 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
         return;
       }
 
-      final List<XFile>? pickedFiles = await _imagePicker.pickMultiImage(
+      final List<XFile> pickedFiles = await _imagePicker.pickMultiImage(
         maxWidth: 1920,
         maxHeight: 1080,
         imageQuality: 80,
       );
 
-      if (pickedFiles != null && pickedFiles.isNotEmpty) {
+      if (pickedFiles.isNotEmpty) {
         int added = 0;
         int skipped = 0;
 
@@ -466,6 +466,7 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
@@ -476,8 +477,8 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: widget.onBack,
         ),
-        title: const Text(
-          'Submit Emergency Report',
+        title: Text(
+          l10n.submitEmergency,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,

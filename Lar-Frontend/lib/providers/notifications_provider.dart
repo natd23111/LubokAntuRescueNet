@@ -24,15 +24,15 @@ class NotificationsProvider extends ChangeNotifier {
   String? _error;
   DateTime?
   _loginTime; // Track when user logged in to avoid showing old notifications
-  Map<String, String> _reportStatusCache = {}; // Track last known status
-  Set<String> _displayedNotifications =
+  final Map<String, String> _reportStatusCache = {}; // Track last known status
+  final Set<String> _displayedNotifications =
       {}; // Track which notifications were shown
-  Set<String> _notifiedPrograms =
+  final Set<String> _notifiedPrograms =
       {}; // Track programs we've already notified about
-  Map<String, String> _programStatusCache = {}; // Track program status changes
-  Map<String, bool> _weatherAlertCache =
+  final Map<String, String> _programStatusCache = {}; // Track program status changes
+  final Map<String, bool> _weatherAlertCache =
       {}; // Track weather alerts to avoid duplicates
-  Set<String> _notifiedOtherReports =
+  final Set<String> _notifiedOtherReports =
       {}; // Track reports from other citizens we've notified about
 
   // User alert preferences
@@ -309,7 +309,7 @@ class NotificationsProvider extends ChangeNotifier {
         try {
           final reportId = doc.id;
           final reportUserId = doc['user_id'];
-          final data = doc.data() as Map<String, dynamic>;
+          final data = doc.data();
 
           print(
             '🔍 Processing report $reportId from user $reportUserId (currentUser: $userId)',
@@ -556,7 +556,7 @@ class NotificationsProvider extends ChangeNotifier {
 
       // Create a more detailed body with description preview
       final descriptionPreview = description.length > 100
-          ? description.substring(0, 100) + '...'
+          ? '${description.substring(0, 100)}...'
           : description;
 
       final notification = AppNotification(

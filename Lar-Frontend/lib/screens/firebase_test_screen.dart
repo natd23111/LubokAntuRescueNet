@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../providers/auth_provider.dart' as auth_provider;
 
 class FirebaseTestScreen extends StatefulWidget {
+  const FirebaseTestScreen({super.key});
+
   @override
   State<FirebaseTestScreen> createState() => _FirebaseTestScreenState();
 }
@@ -25,6 +28,7 @@ class _FirebaseTestScreenState extends State<FirebaseTestScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         title: Text('Firebase Test'),

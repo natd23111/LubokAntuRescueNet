@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/locale_provider.dart';
 import '../../services/push_notification_service.dart';
 import '../../services/location_service.dart';
 import 'register_screen.dart';
 import '../../widgets/app_footer.dart';
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -31,6 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     final email = _emailController.text.trim();
     final password = _passwordController.text;
+    final l10n = AppLocalizations.of(context)!;
 
     const List<String> adminEmails = [
       'admin@rescuenet.com',
@@ -44,7 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!_isCitizen && !isAdminEmail) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('This email is not authorized as admin'),
+            content: Text(l10n.adminNotAuthorized),
             backgroundColor: Colors.red,
           ),
         );
@@ -60,7 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Sign in failed: ${authProvider.errorMessage ?? 'Unknown error'}',
+            '${l10n.signInFailed}: ${authProvider.errorMessage ?? l10n.unknownError}',
           ),
           backgroundColor: Colors.red,
         ),
@@ -89,6 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final primaryGreen = Color(0xFF0E9D63);
+    final l10n = AppLocalizations.of(context)!;
 
     // Set status bar color to match header
     SystemChrome.setSystemUIOverlayStyle(
@@ -117,6 +123,50 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // Language toggle button at top
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Tooltip(
+                            message: l10n.language,
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: () => Provider.of<LocaleProvider>(
+                                  context,
+                                  listen: false,
+                                ).toggleLanguage(),
+                                borderRadius: BorderRadius.circular(8),
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    Localizations.localeOf(context).languageCode ==
+                                            'en'
+                                        ? 'EN'
+                                        : 'MS',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
                     // Bigger logo
                     Container(
                       width: 100,
@@ -148,7 +198,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'Emergency and Community Aid Reporting System',
+                      l10n.appDescription,
                       style: TextStyle(color: Colors.white70, fontSize: 14),
                       textAlign: TextAlign.center,
                     ),
@@ -173,7 +223,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          'Sign In',
+                          l10n.signIn,
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -199,7 +249,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 onPressed: () =>
                                     setState(() => _isCitizen = true),
                                 child: Text(
-                                  'Citizen',
+                                  l10n.citizen,
                                   style: TextStyle(
                                     color: _isCitizen
                                         ? primaryGreen
@@ -224,7 +274,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 onPressed: () =>
                                     setState(() => _isCitizen = false),
                                 child: Text(
-                                  'Admin',
+                                  l10n.admin,
                                   style: TextStyle(
                                     color: !_isCitizen
                                         ? primaryGreen
@@ -243,15 +293,17 @@ class _LoginScreenState extends State<LoginScreen> {
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
                           decoration: InputDecoration(
-                            labelText: 'Email',
-                            hintText: 'Enter your email',
+                            labelText: l10n.email,
+                            hintText: l10n.enterEmail,
                             prefixIcon: Icon(Icons.email_outlined),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
+                            isDense: false,
+                            contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 12),
                           ),
                           validator: (v) => (v == null || v.trim().isEmpty)
-                              ? 'Please enter your Email'
+                              ? l10n.emailRequired
                               : null,
                         ),
                         const SizedBox(height: 12),
@@ -261,8 +313,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           controller: _passwordController,
                           obscureText: !_showPassword,
                           decoration: InputDecoration(
-                            labelText: 'Password',
-                            hintText: 'Enter your password',
+                            labelText: l10n.password,
+                            hintText: l10n.enterPassword,
                             prefixIcon: Icon(Icons.lock_outline),
                             suffixIcon: IconButton(
                               icon: Icon(
@@ -277,9 +329,11 @@ class _LoginScreenState extends State<LoginScreen> {
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
+                            isDense: false,
+                            contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 12),
                           ),
                           validator: (v) => (v == null || v.isEmpty)
-                              ? 'Please enter your password'
+                              ? l10n.passwordRequired
                               : null,
                         ),
                         const SizedBox(height: 18),
@@ -307,7 +361,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       strokeWidth: 2,
                                     ),
                                   )
-                                : const Text('Sign In'),
+                                : Text(l10n.signIn),
                           ),
                         ),
                         const SizedBox(height: 10),
@@ -325,8 +379,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text(
-                      "Don't have an account? ",
+                    Text(
+                      '${l10n.dontHaveAccount} ',
                       style: TextStyle(color: Colors.black54),
                     ),
                     TextButton(
@@ -338,7 +392,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         foregroundColor: primaryGreen,
                       ),
                       child: Text(
-                        'Register here',
+                        l10n.registerHere,
                         style: TextStyle(
                           decoration: TextDecoration.underline,
                           color: primaryGreen,

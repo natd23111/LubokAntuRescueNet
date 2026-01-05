@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'l10n/app_localizations.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
 import 'screens/citizen_dashboard.dart';
@@ -20,6 +22,7 @@ import 'services/push_notification_service.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'providers/locale_provider.dart';
 
 // navigationKey provided by services/navigation_service.dart
 
@@ -36,6 +39,7 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => LocaleProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => AidProgramProvider()),
         ChangeNotifierProvider(create: (_) => WeatherProvider()),
@@ -62,14 +66,28 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
+    final localeProvider = Provider.of<LocaleProvider>(context);
     return MaterialApp(
       title: 'Lubok Antu RescueNet',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(primarySwatch: Colors.blue),
+      locale: localeProvider.locale,
       navigatorKey: navigationKey,
       home: SplashScreen(),
+      supportedLocales: const [
+        Locale('en'),
+        Locale('ms'),
+      ],
+      localizationsDelegates: [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       routes: {
         '/splash': (_) => SplashScreen(),
         '/login': (_) => LoginScreen(),
@@ -109,6 +127,8 @@ class MyApp extends StatelessWidget {
 }
 
 class HomeRouter extends StatelessWidget {
+  const HomeRouter({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(

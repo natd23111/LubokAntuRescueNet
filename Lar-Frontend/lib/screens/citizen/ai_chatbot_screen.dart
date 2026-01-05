@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import '../../l10n/app_localizations.dart';
 import '../../config/hugging_face_config.dart';
 
 class AIChatbotScreen extends StatefulWidget {
+  const AIChatbotScreen({super.key});
+
   @override
   _AIChatbotScreenState createState() => _AIChatbotScreenState();
 }
@@ -24,7 +27,7 @@ class ChatMessage {
 class _AIChatbotScreenState extends State<AIChatbotScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  List<ChatMessage> _messages = [];
+  final List<ChatMessage> _messages = [];
   bool _isTyping = false;
   final primaryGreen = Color(0xFF0E9D63);
 
@@ -176,6 +179,7 @@ class _AIChatbotScreenState extends State<AIChatbotScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: primaryGreen,

@@ -8,10 +8,10 @@ class AddAidProgramForm extends StatefulWidget {
   final Function(AidProgram) onSubmit;
 
   const AddAidProgramForm({
-    Key? key,
+    super.key,
     required this.onBack,
     required this.onSubmit,
-  }) : super(key: key);
+  });
 
   @override
   State<AddAidProgramForm> createState() => _AddAidProgramFormState();
@@ -581,7 +581,7 @@ class _AddAidProgramFormState extends State<AddAidProgramForm> {
           ),
           const SizedBox(height: 8),
           DropdownButtonFormField<String>(
-            value: value,
+            initialValue: value,
             decoration: InputDecoration(
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),

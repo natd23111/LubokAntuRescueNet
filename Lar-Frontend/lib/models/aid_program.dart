@@ -36,9 +36,7 @@ class AidProgram {
           ? DateTime.parse(json['end_date'])
           : DateTime.now(),
       description: json['description'],
-      aidAmount: json['aid_amount'] != null
-          ? json['aid_amount'].toString()
-          : null,
+      aidAmount: json['aid_amount']?.toString(),
       eligibilityCriteria: json['criteria'],
       programType: json['program_type'],
     );

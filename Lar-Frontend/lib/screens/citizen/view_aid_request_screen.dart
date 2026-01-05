@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/aid_request_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/aid_request_model.dart';
 
 class ViewAidRequestScreen extends StatefulWidget {
+  const ViewAidRequestScreen({super.key});
+
   @override
   _ViewAidRequestScreenState createState() => _ViewAidRequestScreenState();
 }
@@ -136,6 +139,7 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Consumer<AidRequestProvider>(
       builder: (context, aidRequestProvider, _) {
         if (selectedRequestId != null) {
@@ -598,7 +602,7 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
                       ],
                     ),
                   );
-                }).toList(),
+                }),
                 const SizedBox(height: 16),
                 _buildDetailRow('Description', request.description),
               ],

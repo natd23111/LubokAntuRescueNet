@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../l10n/app_localizations.dart';
 import '../../models/aid_program.dart';
 import '../../providers/aid_program_provider.dart';
 import 'submit_aid_request_screen.dart';
 
 class ViewAidProgramScreen extends StatefulWidget {
+  const ViewAidProgramScreen({super.key});
+
   @override
   _ViewAidProgramScreenState createState() => _ViewAidProgramScreenState();
 }
@@ -72,6 +75,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Consumer<AidProgramProvider>(
       builder: (context, provider, _) {
         // Get filtered programs

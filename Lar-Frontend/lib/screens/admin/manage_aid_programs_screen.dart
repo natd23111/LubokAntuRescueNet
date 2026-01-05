@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../l10n/app_localizations.dart';
 import '../../models/aid_program.dart';
 import '../../providers/aid_program_provider.dart';
 import '../../scripts/seed_firebase.dart';
@@ -7,7 +8,7 @@ import 'add_aid_program_form.dart';
 import 'edit_aid_program_form.dart';
 
 class ManageAidProgramsScreen extends StatefulWidget {
-  const ManageAidProgramsScreen({Key? key}) : super(key: key);
+  const ManageAidProgramsScreen({super.key});
 
   @override
   State<ManageAidProgramsScreen> createState() =>
@@ -267,6 +268,7 @@ class _ManageAidProgramsScreenState extends State<ManageAidProgramsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Consumer<AidProgramProvider>(
       builder: (context, provider, child) {
         return Scaffold(

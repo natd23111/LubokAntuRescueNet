@@ -205,7 +205,7 @@ class PushNotificationService {
         // If payload is a simple notification id, attempt to resolve it from Firestore
         try {
           final uid = FirebaseAuth.instance.currentUser?.uid;
-          if (uid != null && payload != null && payload.isNotEmpty) {
+          if (uid != null && payload.isNotEmpty) {
             print(
               '🔎 Attempting to resolve notification id from Firestore: $payload',
             );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart' as auth_provider;
 
 class ProfileScreen extends StatefulWidget {
@@ -75,12 +76,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context,
       listen: false,
     );
+    final l10n = AppLocalizations.of(context)!;
 
     try {
       if (_auth.currentUser == null) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('User not authenticated')));
+        ).showSnackBar(SnackBar(content: Text(l10n.userNotAuthenticated)));
         return;
       }
 
@@ -96,8 +98,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       authProvider.userAddress = _addressController.text.trim();
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Profile updated successfully'),
+        SnackBar(
+          content: Text(l10n.profileUpdatedSuccessfully),
           backgroundColor: Colors.green,
         ),
       );
@@ -105,7 +107,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       print('Profile update error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error updating profile: $e'),
+          content: Text('${l10n.errorUpdatingProfile}: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -113,26 +115,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _changePassword() async {
+    final l10n = AppLocalizations.of(context)!;
+    
     if (_currentPasswordController.text.isEmpty ||
         _newPasswordController.text.isEmpty ||
         _confirmPasswordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('All password fields are required')),
+        SnackBar(content: Text(l10n.allPasswordFieldsRequired)),
       );
       return;
     }
 
     if (_newPasswordController.text != _confirmPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('New passwords do not match')),
+        SnackBar(content: Text(l10n.passwordMismatch)),
       );
       return;
     }
 
     if (_newPasswordController.text.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('New password must be at least 6 characters'),
+        SnackBar(
+          content: Text(l10n.passwordTooShort),
         ),
       );
       return;
@@ -143,7 +147,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (user == null) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('User not authenticated')));
+        ).showSnackBar(SnackBar(content: Text(l10n.userNotAuthenticated)));
         return;
       }
 
@@ -162,17 +166,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _confirmPasswordController.clear();
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Password changed successfully'),
+        SnackBar(
+          content: Text(l10n.passwordChangedSuccessfully),
           backgroundColor: Colors.green,
         ),
       );
     } on FirebaseAuthException catch (e) {
-      String errorMessage = 'Error changing password';
+      String errorMessage = l10n.errorChangingPassword;
       if (e.code == 'wrong-password') {
-        errorMessage = 'Current password is incorrect';
+        errorMessage = l10n.currentPasswordIncorrect;
       } else if (e.code == 'weak-password') {
-        errorMessage = 'New password is too weak';
+        errorMessage = l10n.newPasswordTooWeak;
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -181,7 +185,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error changing password: $e'),
+          content: Text('${l10n.errorChangingPassword}: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -190,13 +194,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final primaryGreen = Color(0xFF0E9D63);
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: primaryGreen,
-        title: Text('User Profile', style: TextStyle(color: Colors.white)),
+        title: Text(l10n.profile, style: TextStyle(color: Colors.white)),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
@@ -257,7 +262,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 // Full Name
                 Text(
-                  'Full Name',
+                  l10n.fullNameLabel,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     color: Colors.black87,
@@ -268,7 +273,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   controller: _fullNameController,
                   enabled: false,
                   decoration: InputDecoration(
-                    hintText: 'Full Name',
+                    hintText: l10n.fullNameLabel,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -278,7 +283,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 SizedBox(height: 6),
                 Text(
-                  'Name cannot be changed',
+                  l10n.cantBeChanged,
                   style: TextStyle(color: Colors.grey, fontSize: 12),
                 ),
 
@@ -286,7 +291,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 // IC Number
                 Text(
-                  'IC Number',
+                  l10n.icLabel,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     color: Colors.black87,
@@ -297,7 +302,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   controller: _icController,
                   enabled: false,
                   decoration: InputDecoration(
-                    hintText: 'IC Number',
+                    hintText: l10n.icLabel,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -307,7 +312,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 SizedBox(height: 6),
                 Text(
-                  'IC number cannot be changed',
+                  l10n.cantBeChanged,
                   style: TextStyle(color: Colors.grey, fontSize: 12),
                 ),
 
@@ -315,7 +320,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 // Email
                 Text(
-                  'Email *',
+                  '${l10n.emailLabel} *',
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     color: Colors.black87,
@@ -326,15 +331,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
-                    hintText: 'Enter email',
+                    hintText: l10n.enterEmail,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                   validator: (value) {
-                    if (value?.isEmpty ?? true) return 'Email is required';
-                    if (!value!.contains('@'))
+                    if (value?.isEmpty ?? true) return '${l10n.emailLabel} ${l10n.emailRequired}';
+                    if (!value!.contains('@')) {
                       return 'Please enter a valid email';
+                    }
                     return null;
                   },
                 ),
@@ -343,7 +349,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 // Phone Number
                 Text(
-                  'Phone Number *',
+                  '${l10n.phoneLabel} *',
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     color: Colors.black87,
@@ -360,8 +366,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   validator: (value) {
-                    if (value?.isEmpty ?? true)
+                    if (value?.isEmpty ?? true) {
                       return 'Phone number is required';
+                    }
                     return null;
                   },
                 ),
@@ -370,7 +377,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 // Address
                 Text(
-                  'Address',
+                  l10n.address,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     color: Colors.black87,
@@ -381,7 +388,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   controller: _addressController,
                   maxLines: 3,
                   decoration: InputDecoration(
-                    hintText: 'Enter your address',
+                    hintText: l10n.enterAddress,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -394,7 +401,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Divider(),
                 SizedBox(height: 16),
                 Text(
-                  'Change Password',
+                  l10n.changePassword,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 16,
@@ -406,7 +413,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 // Current Password
                 Text(
-                  'Current Password',
+                  l10n.currentPassword,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     color: Colors.black87,
@@ -428,7 +435,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 // New Password
                 Text(
-                  'New Password',
+                  l10n.newPassword,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     color: Colors.black87,
@@ -500,7 +507,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   child: Center(
                     child: Text(
-                      'Change Password',
+                      l10n.changePassword,
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
@@ -526,7 +533,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Account Information',
+                            l10n.accountInformation,
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
                               color: Colors.black87,
@@ -537,7 +544,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'Member since:',
+                                l10n.memberSince,
                                 style: TextStyle(color: Colors.black54),
                               ),
                               Text(
@@ -614,7 +621,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   child: Center(
                     child: Text(
-                      'Update Profile',
+                      l10n.updateProfile,
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
@@ -637,7 +644,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   child: Center(
                     child: Text(
-                      'Cancel',
+                      l10n.cancel,
                       style: TextStyle(
                         color: Colors.black87,
                         fontWeight: FontWeight.w600,

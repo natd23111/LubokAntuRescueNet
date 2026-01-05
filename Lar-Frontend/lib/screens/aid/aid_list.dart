@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AidListScreen extends StatelessWidget {
-  const AidListScreen({Key? key}) : super(key: key);
+  const AidListScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -333,7 +333,7 @@ class WeatherProvider extends ChangeNotifier {
         .split(' ')
         .map((word) => word.replaceFirst(word[0], word[0].toUpperCase()))
         .join(' ');
-    return '$capitalizedDescription. Current temperature: ${temp}°C';
+    return '$capitalizedDescription. Current temperature: $temp°C';
   }
 
   // Get formatted weather alert message for notifications
