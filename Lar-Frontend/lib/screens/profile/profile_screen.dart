@@ -424,7 +424,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   controller: _currentPasswordController,
                   obscureText: true,
                   decoration: InputDecoration(
-                    hintText: 'Enter current password',
+                    hintText: l10n.enterCurrentPassword,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -446,21 +446,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   controller: _newPasswordController,
                   obscureText: true,
                   decoration: InputDecoration(
-                    hintText: 'Enter new password',
+                    hintText: l10n.enterNewPassword,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                   validator: (value) {
                     if (value != null && value.isNotEmpty && value.length < 8) {
-                      return 'Password must be at least 8 characters';
+                      return l10n.passwordMustBeAtLeast8;
                     }
                     return null;
                   },
                 ),
                 SizedBox(height: 6),
                 Text(
-                  'Minimum 8 characters',
+                  l10n.minimumPasswordLength,
                   style: TextStyle(color: Colors.grey, fontSize: 12),
                 ),
 
@@ -468,7 +468,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 // Confirm New Password
                 Text(
-                  'Confirm New Password',
+                  l10n.confirmNewPassword,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     color: Colors.black87,
@@ -479,7 +479,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   controller: _confirmPasswordController,
                   obscureText: true,
                   decoration: InputDecoration(
-                    hintText: 'Re-enter new password',
+                    hintText: l10n.reEnterNewPassword,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -487,7 +487,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   validator: (value) {
                     if (_newPasswordController.text.isNotEmpty &&
                         value != _newPasswordController.text) {
-                      return 'Passwords do not match';
+                      return l10n.passwordMismatch;
                     }
                     return null;
                   },
@@ -561,7 +561,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'Account Status:',
+                                l10n.accountStatus,
                                 style: TextStyle(color: Colors.black54),
                               ),
                               Container(
@@ -589,7 +589,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'User ID:',
+                                l10n.userId,
                                 style: TextStyle(color: Colors.black54),
                               ),
                               Text(

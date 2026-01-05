@@ -309,7 +309,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get emailLabel => 'Email';
 
   @override
-  String get phoneLabel => 'Phone Number';
+  String get phoneLabel => 'Phone';
 
   @override
   String get icLabel => 'IC Number';
@@ -409,4 +409,769 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorChangingPassword => 'Error changing password';
+
+  @override
+  String get enterCurrentPassword => 'Enter current password';
+
+  @override
+  String get enterNewPassword => 'Enter new password';
+
+  @override
+  String get confirmNewPassword => 'Confirm New Password';
+
+  @override
+  String get reEnterNewPassword => 'Re-enter new password';
+
+  @override
+  String get accountStatus => 'Account Status:';
+
+  @override
+  String get userId => 'User ID:';
+
+  @override
+  String get minimumPasswordLength => 'Minimum 8 characters';
+
+  @override
+  String get passwordMustBeAtLeast8 => 'Password must be at least 8 characters';
+
+  @override
+  String get fireAlerts => 'Fire Alerts';
+
+  @override
+  String get fireIncidents => 'Fire incidents in your area';
+
+  @override
+  String get landslideWarnings => 'Landslide Warnings';
+
+  @override
+  String get landslideRisk => 'Landslide risk notifications';
+
+  @override
+  String get weatherWarnings => 'Weather Warnings';
+
+  @override
+  String get severeWeatherUpdates => 'Severe weather updates';
+
+  @override
+  String get connectedToTelegram => 'Connected to @rescuenet_bot';
+
+  @override
+  String get receiveAlertsVia => 'Receive alerts via Telegram';
+
+  @override
+  String get connectYourTelegramAccount => 'Connect your Telegram account to receive instant alerts';
+
+  @override
+  String get connectTelegram => 'Connect Telegram';
+
+  @override
+  String get linkedToTelegram => 'Connected to Telegram';
+
+  @override
+  String get disconnectTelegram => 'Disconnect Telegram';
+
+  @override
+  String get disconnectConfirmTitle => 'Disconnect Telegram';
+
+  @override
+  String get disconnectConfirmMessage => 'Are you sure you want to disconnect your Telegram account? You will stop receiving Telegram alerts.';
+
+  @override
+  String get telegramDisconnected => 'Telegram account disconnected';
+
+  @override
+  String get clearAllNotifications => 'Clear All Notifications';
+
+  @override
+  String get recentNotifications => 'Recent Notifications';
+
+  @override
+  String get noNotificationsYet => 'No notifications yet';
+
+  @override
+  String get markAsRead => 'Mark as read';
+
+  @override
+  String get testNotifications => 'Test Notifications';
+
+  @override
+  String get floodAlert => 'Flood Alert';
+
+  @override
+  String get thunderstorm => 'Thunderstorm';
+
+  @override
+  String get heavyRainfallWarning => '🌧️ Heavy Rainfall Warning';
+
+  @override
+  String heavyRainfallExpected(Object location) {
+    return 'Heavy rainfall expected in $location';
+  }
+
+  @override
+  String get thunderstormAlert => '⛈️ Thunderstorm Alert';
+
+  @override
+  String severeThunderstormWarning(Object location) {
+    return 'Severe thunderstorm warning for $location';
+  }
+
+  @override
+  String get alertTypes => 'Alert Types';
+
+  @override
+  String get telegramAlerts => 'Telegram Alerts';
+
+  @override
+  String newNotifications(Object count) {
+    return '$count new';
+  }
+
+  @override
+  String get floodWarnings => 'Flood Warnings';
+
+  @override
+  String get floodWarningsDesc => 'Heavy rainfall and flooding alerts';
+
+  @override
+  String get clearAllNotificationsTitle => 'Clear All Notifications';
+
+  @override
+  String get clearAllNotificationsDesc => 'Are you sure you want to clear all notifications? This action cannot be undone.';
+
+  @override
+  String get clearAll => 'Clear All';
+
+  @override
+  String get selectEmergencyType => 'Select emergency type';
+
+  @override
+  String get emergencyTypeLabel => 'Emergency Type';
+
+  @override
+  String get locationLabel => 'Location';
+
+  @override
+  String get enterLocationOrAddress => 'Enter location or address';
+
+  @override
+  String get useCurrentLocationOnMap => 'Use Current Location on Map';
+
+  @override
+  String get dateLabel => 'Date';
+
+  @override
+  String get autoFilledWithCurrentDate => 'Auto-filled with current date';
+
+  @override
+  String get descriptionLabel => 'Description';
+
+  @override
+  String get provideDetailedDescription => 'Provide detailed description of the emergency';
+
+  @override
+  String get uploadImages => 'Upload Images';
+
+  @override
+  String get maximumImagesConstraint => 'Maximum 3 images, up to 5MB each';
+
+  @override
+  String get clickToUploadOrDragDrop => 'Click to upload or drag and drop';
+
+  @override
+  String get pngJpgUpTo5MB => 'PNG, JPG up to 5MB';
+
+  @override
+  String chooseImages(Object current, Object max) {
+    return 'Choose Images ($current/$max)';
+  }
+
+  @override
+  String get maxImagesReached => 'Max Images Reached';
+
+  @override
+  String get submitReport => 'Submit Report';
+
+  @override
+  String get clearOrReset => 'Clear / Reset';
+
+  @override
+  String get pleaseSelectEmergencyType => 'Please select an emergency type';
+
+  @override
+  String get pleaseEnterLocation => 'Please enter a location';
+
+  @override
+  String get pleaseProvideDescription => 'Please provide a description';
+
+  @override
+  String get couldNotDetermineLocation => 'Could not determine location. Please use map picker.';
+
+  @override
+  String get failedToCreateReport => 'Failed to create report. Please try again.';
+
+  @override
+  String errorSubmittingReport(Object error) {
+    return 'Error submitting report: $error';
+  }
+
+  @override
+  String uploadedReportButFailedImages(Object error) {
+    return 'Uploaded report but failed to upload images: $error';
+  }
+
+  @override
+  String errorGettingLocation(Object error) {
+    return 'Error getting location: $error';
+  }
+
+  @override
+  String get maximum3ImagesAllowed => 'Maximum 3 images allowed. Remove an image to add more.';
+
+  @override
+  String get noValidImagesSelected => 'No valid images selected. Max 5MB per image.';
+
+  @override
+  String addedImages(Object count) {
+    return 'Added $count image(s)';
+  }
+
+  @override
+  String addedImagesSkipped(Object count, Object skipped) {
+    return 'Added $count image(s) ($skipped skipped)';
+  }
+
+  @override
+  String get imageRemoved => 'Image removed';
+
+  @override
+  String get locationServicesDisabled => 'Location services disabled. Please enter location or use map picker.';
+
+  @override
+  String get locationPermissionDenied => 'Location permission was denied.';
+
+  @override
+  String get locationServicesAreDisabled => 'Location services are disabled. Please enable them.';
+
+  @override
+  String get locationPermissionWasDenied => 'Location permission was denied.';
+
+  @override
+  String get locationPermissionsPermanentlyDenied => 'Location permissions are permanently denied. Open app settings to enable.';
+
+  @override
+  String locationSelected(Object address) {
+    return 'Location selected: $address';
+  }
+
+  @override
+  String get reportSubmittedSuccessfully => 'Report Submitted Successfully!';
+
+  @override
+  String yourEmergencyReportHasBeenReceived(Object reference) {
+    return 'Your emergency report has been received. Reference: $reference';
+  }
+
+  @override
+  String get pleaseSignInBeforeSubmitting => 'Please sign in before submitting a report.';
+
+  @override
+  String get floodOption => 'Flood';
+
+  @override
+  String get fireOption => 'Fire';
+
+  @override
+  String get accidentOption => 'Accident';
+
+  @override
+  String get medicalEmergencyOption => 'Medical Emergency';
+
+  @override
+  String get landslideOption => 'Landslide';
+
+  @override
+  String get otherOption => 'Other';
+
+  @override
+  String get reportStatus => 'Report Status';
+
+  @override
+  String get allReports => 'All Reports';
+
+  @override
+  String get searchByTypeOrLocation => 'Search by type or location';
+
+  @override
+  String get noReportsFound => 'No reports found';
+
+  @override
+  String get filterByType => 'Filter by Type';
+
+  @override
+  String get reportDetails => 'Report Details';
+
+  @override
+  String get reportId => 'Report ID';
+
+  @override
+  String get typeLabel => 'Type';
+
+  @override
+  String get locationField => 'Location';
+
+  @override
+  String get dateReported => 'Date Reported';
+
+  @override
+  String get descriptionField => 'Description';
+
+  @override
+  String get imageLabel => 'Image';
+
+  @override
+  String get imagesLabel => 'Images';
+
+  @override
+  String get statusTimeline => 'Status Timeline';
+
+  @override
+  String get reportSubmitted => 'Report Submitted';
+
+  @override
+  String get underReview => 'Under Review';
+
+  @override
+  String get resolved => 'Resolved';
+
+  @override
+  String get pending => 'Pending';
+
+  @override
+  String get backToReports => 'Back to Reports';
+
+  @override
+  String get unresolved => 'Unresolved';
+
+  @override
+  String get inProgress => 'In Progress';
+
+  @override
+  String by(Object date, Object reporter) {
+    return 'By $reporter • $date';
+  }
+
+  @override
+  String get aidRequestSubmitted => 'Aid Request Submitted!';
+
+  @override
+  String yourRequestHasBeenReceived(Object reference) {
+    return 'Your request has been received. Reference: $reference';
+  }
+
+  @override
+  String get aidTypeCategory => 'Aid Type / Category';
+
+  @override
+  String get selectAidType => 'Select aid type';
+
+  @override
+  String get financialAid => 'Financial Aid';
+
+  @override
+  String get disasterRelief => 'Disaster Relief';
+
+  @override
+  String get medicalEmergencyFund => 'Medical Emergency Fund';
+
+  @override
+  String get educationAid => 'Education Aid';
+
+  @override
+  String get housingAssistance => 'Housing Assistance';
+
+  @override
+  String get householdDetails => 'Household Details';
+
+  @override
+  String get monthlyHouseholdIncome => 'Monthly Household Income (RM)';
+
+  @override
+  String get enterMonthlyIncome => 'Enter monthly income';
+
+  @override
+  String get numberOfFamilyMembers => 'Number of Family Members';
+
+  @override
+  String get enterNumber => 'Enter number';
+
+  @override
+  String get familyMembersDetails => 'Family Members Details';
+
+  @override
+  String memberTitle(Object index) {
+    return 'Member $index';
+  }
+
+  @override
+  String get nameHint => 'Name';
+
+  @override
+  String get student => 'Student';
+
+  @override
+  String get employedFullTime => 'Employed / Full-time';
+
+  @override
+  String get partTimeWorker => 'Part-time Worker';
+
+  @override
+  String get unemployed => 'Unemployed';
+
+  @override
+  String get retired => 'Retired';
+
+  @override
+  String get childUnder12 => 'Child (Under 12)';
+
+  @override
+  String get descriptionReason => 'Description / Reason';
+
+  @override
+  String get explainWhyYouNeedAid => 'Explain why you need this aid';
+
+  @override
+  String get submissionDate => 'Submission Date';
+
+  @override
+  String get autoFilledCurrentDate => 'Auto-filled with current date';
+
+  @override
+  String get submitRequestButton => 'Submit Request';
+
+  @override
+  String get clearResetButton => 'Clear / Reset';
+
+  @override
+  String get addFamilyMember => 'Add Family Member';
+
+  @override
+  String get selectAidTypeValidation => 'Please select an aid type';
+
+  @override
+  String get enterIncomeValidation => 'Please enter monthly household income';
+
+  @override
+  String get familyMembersValidation => 'Please add at least one family member';
+
+  @override
+  String get descriptionValidation => 'Please provide a description';
+
+  @override
+  String get maximumFamilyMembers => 'Maximum of 20 family members allowed';
+
+  @override
+  String get failedToSubmitRequest => 'Failed to submit request';
+
+  @override
+  String get myAidRequests => 'My Aid Requests';
+
+  @override
+  String get approved => 'Approved';
+
+  @override
+  String get rejected => 'Rejected';
+
+  @override
+  String get processing => 'Processing';
+
+  @override
+  String get searchAidRequests => 'Search aid requests';
+
+  @override
+  String get allRequests => 'All';
+
+  @override
+  String get financialAidFilter => 'Financial Aid';
+
+  @override
+  String get disasterReliefFilter => 'Disaster Relief';
+
+  @override
+  String get educationAidFilter => 'Education Aid';
+
+  @override
+  String get medicalFundFilter => 'Medical Fund';
+
+  @override
+  String get noAidRequestsFound => 'No aid requests found';
+
+  @override
+  String get requestDetails => 'Request Details';
+
+  @override
+  String get requestIdLabel => 'Request ID';
+
+  @override
+  String get aidTypeLabel => 'Aid Type';
+
+  @override
+  String get icNumberLabel => 'IC Number';
+
+  @override
+  String get addressLabel => 'Address';
+
+  @override
+  String get dateSubmittedLabel => 'Date Submitted';
+
+  @override
+  String get monthlyIncomeLabel => 'Monthly Income';
+
+  @override
+  String get familyMembersLabel => 'Family Members';
+
+  @override
+  String get familyComposition => 'Family Composition';
+
+  @override
+  String get backToList => 'Back to List';
+
+  @override
+  String get errorPrefix => 'Error: ';
+
+  @override
+  String pendingTabLabel(Object count) {
+    return 'Pending ($count)';
+  }
+
+  @override
+  String approvedTabLabel(Object count) {
+    return 'Approved ($count)';
+  }
+
+  @override
+  String rejectedTabLabel(Object count) {
+    return 'Rejected ($count)';
+  }
+
+  @override
+  String get housingAssistanceFilter => 'Housing Assistance';
+
+  @override
+  String get otherCategoryFilter => 'Other';
+
+  @override
+  String get medicalEmergencyFundFilter => 'Medical Emergency Fund';
+
+  @override
+  String get availableAidPrograms => 'Available Aid Programs';
+
+  @override
+  String get filterByCategory => 'Filter by Category';
+
+  @override
+  String get allPrograms => 'All Programs';
+
+  @override
+  String get financialAidCategory => 'Financial Aid';
+
+  @override
+  String get disasterReliefCategory => 'Disaster Relief';
+
+  @override
+  String get medicalCategory => 'Medical';
+
+  @override
+  String get educationCategory => 'Education';
+
+  @override
+  String get housingCategory => 'Housing';
+
+  @override
+  String get noProgramsAvailable => 'No programs available';
+
+  @override
+  String get noProgramsMatch => 'No aid programs match the selected category';
+
+  @override
+  String get failedToLoadPrograms => 'Failed to load programs';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get programDetails => 'Program Details';
+
+  @override
+  String get programIdLabel => 'Program ID';
+
+  @override
+  String get titleLabel => 'Title';
+
+  @override
+  String get categoryLabel => 'Category';
+
+  @override
+  String get startDateLabel => 'Start Date';
+
+  @override
+  String get endDateLabel => 'End Date';
+
+  @override
+  String get eligibilityCriteriaLabel => 'Eligibility Criteria';
+
+  @override
+  String get aidAmountLabel => 'Aid Amount';
+
+  @override
+  String get howToApply => 'How to Apply';
+
+  @override
+  String get applyStep1 => 'Go to \"Request Aid\" section';
+
+  @override
+  String get applyStep2 => 'Select the appropriate aid category';
+
+  @override
+  String get applyStep3 => 'Fill in your household details';
+
+  @override
+  String get applyStep4 => 'Submit the request form';
+
+  @override
+  String get applyStep5 => 'Wait for approval notification';
+
+  @override
+  String get importantNote => 'Important Note';
+
+  @override
+  String get applicationNoteText => 'Applications will be reviewed within 7-14 working days. You will be notified via email and in-app notification.';
+
+  @override
+  String get applyForThisProgram => 'Apply for This Program';
+
+  @override
+  String get noDescriptionAvailable => 'No description available';
+
+  @override
+  String get notApplicable => 'N/A';
+
+  @override
+  String get locationServices => 'Location services are disabled. Please enable them.';
+
+  @override
+  String get locationPermissionPermanent => 'Location permissions are permanently denied. Open app settings to enable.';
+
+  @override
+  String get locatingYou => 'Locating you...';
+
+  @override
+  String get centeredOnYourLocation => 'Centered on your location';
+
+  @override
+  String errorLocating(Object error) {
+    return 'Error locating: $error';
+  }
+
+  @override
+  String get severityLabel => 'Severity';
+
+  @override
+  String get distanceLabel => 'Distance';
+
+  @override
+  String get timeAgoLabel => 'Time ago';
+
+  @override
+  String get zoomIn => 'Zoom In';
+
+  @override
+  String get zoomOut => 'Zoom Out';
+
+  @override
+  String get closeButton => 'Close';
+
+  @override
+  String get backButton => 'Back';
+
+  @override
+  String get yourCurrentLocation => 'Your Current Location';
+
+  @override
+  String get tapToLocateOnMap => 'Tap to locate on map';
+
+  @override
+  String get activeWarningsNearby => 'Active Warnings Nearby';
+
+  @override
+  String get noWarningsInYourArea => 'No warnings in your area';
+
+  @override
+  String get warningLevels => 'Warning Levels';
+
+  @override
+  String get highImmediateDanger => 'High - Immediate danger';
+
+  @override
+  String get mediumExerciseCaution => 'Medium - Exercise caution';
+
+  @override
+  String get lowBeAware => 'Low - Be aware';
+
+  @override
+  String get refreshMap => 'Refresh Map';
+
+  @override
+  String get youMarker => 'You';
+
+  @override
+  String get noWarningsAvailable => 'No warnings available for your area';
+
+  @override
+  String get warningDetailsTitle => 'Warning Details';
+
+  @override
+  String get highSeverity => 'HIGH';
+
+  @override
+  String get mediumSeverity => 'MEDIUM';
+
+  @override
+  String get lowSeverity => 'LOW';
+
+  @override
+  String get aiAssistant => 'AI Assistant';
+
+  @override
+  String get aiGreeting => 'Hello! I am the RescueNet AI Assistant. I can help you with emergency procedures, disaster preparedness, aid information, and answer questions about the rescue network. How can I assist you today?';
+
+  @override
+  String get typeYourMessage => 'Type your message...';
+
+  @override
+  String get quickQuestions => 'Quick questions:';
+
+  @override
+  String get whatShouldIDoDuringFlood => 'What should I do during a flood?';
+
+  @override
+  String get howDoICheckReportStatus => 'How do I check my report status?';
+
+  @override
+  String get whatAidProgramsAvailable => 'What aid programs are available?';
+
+  @override
+  String get emergencyContactNumbers => 'Emergency contact numbers';
+
+  @override
+  String get troubleGeneratingResponse => 'I\'m having trouble generating a response. Please try again.';
+
+  @override
+  String get errorParsingResponse => 'Error parsing response:';
+
+  @override
+  String get errorConnectingAPI => 'Error connecting to Hugging Face API:';
+
+  @override
+  String get apiTokenNotSet => 'Error: Hugging Face API token not set. Please update lib/config/hugging_face_config.dart with your token from https://huggingface.co/settings/tokens';
 }

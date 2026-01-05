@@ -5,39 +5,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c73decfb-371e-4850-b835-a74b93fcf489" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/models/aid_program.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/models/aid_program.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/providers/notifications_provider.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/providers/notifications_provider.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/providers/weather_provider.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/providers/weather_provider.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/add_aid_program_form.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/add_aid_program_form.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/admin_dashboard_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/admin_dashboard_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/edit_aid_program_form.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/edit_aid_program_form.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/manage_aid_programs_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/manage_aid_programs_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/manage_aid_requests_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/manage_aid_requests_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/manage_reports_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/admin/manage_reports_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/aid/aid_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/aid/aid_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/auth/login_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/auth/login_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/auth/register_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/auth/register_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/ai_chatbot_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/ai_chatbot_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/location_picker_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/location_picker_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/l10n/app_en.arb" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/l10n/app_en.arb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/l10n/app_localizations.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/l10n/app_localizations.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/l10n/app_localizations_en.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/l10n/app_localizations_en.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/l10n/app_localizations_ms.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/l10n/app_localizations_ms.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/l10n/app_ms.arb" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/l10n/app_ms.arb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/map_warnings_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/map_warnings_screen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/submit_aid_request_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/submit_aid_request_screen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/submit_emergency_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/submit_emergency_screen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/view_aid_program_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/view_aid_program_screen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/view_aid_request_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/view_aid_request_screen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/view_reports_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/view_reports_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/weather_details_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen/weather_details_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen_dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/citizen_dashboard.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/firebase_test_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/firebase_test_screen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/notifications/notification_settings_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/notifications/notification_settings_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/notifications/telegram_linking_dialog.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/notifications/telegram_linking_dialog.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/profile/profile_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/profile/profile_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/screens/splash/splash_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/screens/splash/splash_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/lib/services/push_notification_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/lib/services/push_notification_service.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/pubspec.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lar-Frontend/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/Lar-Frontend/pubspec.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

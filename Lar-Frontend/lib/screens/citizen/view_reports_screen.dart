@@ -85,20 +85,20 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
     }
   }
 
-  String _getStatusLabel(String status) {
+  String _getStatusLabel(String status, AppLocalizations l10n) {
     switch (status.toLowerCase()) {
       case 'unresolved':
-        return 'Unresolved';
+        return l10n.unresolved;
       case 'in-progress':
-        return 'In Progress';
+        return l10n.inProgress;
       case 'resolved':
-        return 'Resolved';
+        return l10n.resolved;
       default:
         return status;
     }
   }
 
-  Widget _buildStatusBadge(String status) {
+  Widget _buildStatusBadge(String status, AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
@@ -106,7 +106,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
-        _getStatusLabel(status),
+        _getStatusLabel(status, l10n),
         style: TextStyle(
           color: _getStatusColor(status),
           fontSize: 12,
@@ -193,9 +193,9 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
               icon: const Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () => Navigator.of(context).pop(),
             ),
-            title: const Text(
-              'Report Status',
-              style: TextStyle(
+            title: Text(
+              l10n.reportStatus,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
@@ -228,7 +228,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                           ),
                           child: Center(
                             child: Text(
-                              'My Reports',
+                              l10n.myReports,
                               style: TextStyle(
                                 color: activeTab == 'my-reports'
                                     ? const Color(0xFF059669)
@@ -259,7 +259,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                           ),
                           child: Center(
                             child: Text(
-                              'All Reports',
+                              l10n.allReports,
                               style: TextStyle(
                                 color: activeTab == 'all-reports'
                                     ? const Color(0xFF059669)
@@ -284,7 +284,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                   controller: searchController,
                   onChanged: (value) => setState(() => searchQuery = value),
                   decoration: InputDecoration(
-                    hintText: 'Search by type or location',
+                    hintText: l10n.searchByTypeOrLocation,
                     prefixIcon: const Icon(Icons.search, color: Colors.grey),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -318,7 +318,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                     border: Border(top: BorderSide(color: Colors.red[200]!)),
                   ),
                   child: Text(
-                    'Error: ${provider.error}',
+                    '${l10n.error}: ${provider.error}',
                     style: TextStyle(color: Colors.red[700], fontSize: 12),
                   ),
                 ),
@@ -340,7 +340,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                   ),
                   side: BorderSide(color: Colors.grey[300]!),
                 ),
-                child: Text('Back', style: TextStyle(color: Colors.grey[600])),
+                child: Text('${l10n.back}', style: TextStyle(color: Colors.grey[600])),
               ),
             ),
           ),
@@ -350,6 +350,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
   }
 
   Widget _buildMyReportsTab(ReportsProvider provider) {
+    final l10n = AppLocalizations.of(context)!;
     final myReports = provider.myReports
         .where(
           (r) =>
@@ -377,7 +378,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
             Icon(Icons.inbox, size: 64, color: Colors.grey[300]),
             const SizedBox(height: 16),
             Text(
-              'No reports found',
+              l10n.noReportsFound,
               style: TextStyle(color: Colors.grey[600], fontSize: 16),
             ),
           ],
@@ -391,12 +392,13 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
       separatorBuilder: (context, index) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final report = myReports[index];
-        return _buildReportCard(report);
+        return _buildReportCard(report, l10n);
       },
     );
   }
 
   Widget _buildAllReportsTab(ReportsProvider provider) {
+    final l10n = AppLocalizations.of(context)!;
     final allReports = provider.allReports
         .where(
           (r) =>
@@ -407,14 +409,16 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
         )
         .toList();
 
-    final types = [
-      'All',
-      'Flood',
-      'Fire',
-      'Accident',
-      'Medical Emergency',
-      'Landslide',
-    ];
+    final typeMap = {
+      'All': l10n.allReports,
+      'Flood': l10n.floodOption,
+      'Fire': l10n.fireOption,
+      'Accident': l10n.accidentOption,
+      'Medical Emergency': l10n.medicalEmergencyOption,
+      'Landslide': l10n.landslideOption,
+    };
+
+    final types = ['All', 'Flood', 'Fire', 'Accident', 'Medical Emergency', 'Landslide'];
 
     if (provider.isLoading) {
       return const Center(
@@ -435,7 +439,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Filter by Type',
+                  l10n.filterByType,
                   style: TextStyle(
                     color: Colors.grey[700],
                     fontWeight: FontWeight.w600,
@@ -468,7 +472,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
-                              type,
+                              typeMap[type] ?? type,
                               style: TextStyle(
                                 color: isSelected
                                     ? Colors.white
@@ -496,7 +500,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                   Icon(Icons.inbox, size: 64, color: Colors.grey[300]),
                   const SizedBox(height: 16),
                   Text(
-                    'No reports found',
+                    l10n.noReportsFound,
                     style: TextStyle(color: Colors.grey[600], fontSize: 16),
                   ),
                 ],
@@ -513,7 +517,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                     const SizedBox(height: 12),
                 itemBuilder: (context, index) {
                   final report = allReports[index];
-                  return _buildReportCardWithReporter(report);
+                  return _buildReportCardWithReporter(report, l10n);
                 },
               ),
             ),
@@ -523,7 +527,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
     );
   }
 
-  Widget _buildReportCard(Report report) {
+  Widget _buildReportCard(Report report, AppLocalizations l10n) {
     return GestureDetector(
       onTap: () => setState(() => selectedReportId = report.id),
       child: Container(
@@ -546,7 +550,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                _buildStatusBadge(report.status),
+                _buildStatusBadge(report.status, l10n),
               ],
             ),
             const SizedBox(height: 8),
@@ -579,7 +583,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
     );
   }
 
-  Widget _buildReportCardWithReporter(Report report) {
+  Widget _buildReportCardWithReporter(Report report, AppLocalizations l10n) {
     return GestureDetector(
       onTap: () => setState(() => selectedReportId = report.id),
       child: Container(
@@ -602,7 +606,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                _buildStatusBadge(report.status),
+                _buildStatusBadge(report.status, l10n),
               ],
             ),
             const SizedBox(height: 8),
@@ -623,7 +627,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'By ${report.reporterName} • ${_formatDate(report.dateReported)}',
+                  l10n.by('${report.reporterName}', '${_formatDate(report.dateReported)}'),
                   style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
                 Icon(Icons.chevron_right, color: Colors.grey[400], size: 20),
@@ -636,6 +640,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
   }
 
   Widget _buildDetailView(Report report) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -645,9 +650,9 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
           onTap: () => setState(() => selectedReportId = null),
           child: const Icon(Icons.arrow_back, color: Colors.white),
         ),
-        title: const Text(
-          'Report Details',
-          style: TextStyle(
+        title: Text(
+          l10n.reportDetails,
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -666,7 +671,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Report ID',
+                      l10n.reportId,
                       style: TextStyle(color: Colors.grey[600], fontSize: 12),
                     ),
                     const SizedBox(height: 4),
@@ -680,25 +685,25 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                     ),
                   ],
                 ),
-                _buildStatusBadge(report.status),
+                _buildStatusBadge(report.status, l10n),
               ],
             ),
             const SizedBox(height: 16),
 
-            _buildDetailField('Type', report.type),
+            _buildDetailField(l10n.typeLabel, report.type),
             const SizedBox(height: 16),
 
-            _buildDetailField('Location', report.location),
+            _buildDetailField(l10n.locationField, report.location),
             const SizedBox(height: 16),
 
-            _buildDetailField('Date Reported', report.formattedDate),
+            _buildDetailField(l10n.dateReported, report.formattedDate),
             const SizedBox(height: 16),
 
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Description',
+                  l10n.descriptionField,
                   style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
                 const SizedBox(height: 8),
@@ -716,7 +721,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    report.imageUrls!.length == 1 ? 'Image' : 'Images',
+                    report.imageUrls!.length == 1 ? l10n.imageLabel : l10n.imagesLabel,
                     style: TextStyle(color: Colors.grey[600], fontSize: 12),
                   ),
                   const SizedBox(height: 8),
@@ -773,7 +778,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Image',
+                    l10n.imageLabel,
                     style: TextStyle(color: Colors.grey[600], fontSize: 12),
                   ),
                   const SizedBox(height: 8),
@@ -799,9 +804,9 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Status Timeline',
-                    style: TextStyle(
+                  Text(
+                    l10n.statusTimeline,
+                    style: const TextStyle(
                       color: Colors.black87,
                       fontWeight: FontWeight.w600,
                     ),
@@ -809,26 +814,26 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
                   const SizedBox(height: 16),
                   // Report Submitted - Always Active
                   _buildTimelineItem(
-                    'Report Submitted',
+                    l10n.reportSubmitted,
                     _formatDetailDate(report.dateReported),
                     isActive: true,
                   ),
                   // Under Review - Active when status is in-progress or resolved
                   _buildTimelineItem(
-                    'Under Review',
+                    l10n.underReview,
                     report.dateUnderReview != null
                         ? _formatDetailDate(report.dateUnderReview!)
-                        : 'Pending',
+                        : l10n.pending,
                     isActive:
                         report.status == 'in-progress' ||
                         report.status == 'resolved',
                   ),
                   // Response Team Dispatched - Active when status is resolved
                   _buildTimelineItem(
-                    'Resolved',
+                    l10n.resolved,
                     report.dateDispatched != null
                         ? _formatDetailDate(report.dateDispatched!)
-                        : 'Pending',
+                        : l10n.pending,
                     isActive: report.status == 'resolved',
                   ),
                 ],
@@ -854,7 +859,7 @@ class _ViewReportsScreenState extends State<ViewReportsScreen> {
               ),
               side: BorderSide(color: Colors.grey[300]!),
             ),
-            child: const Text('Back to Reports'),
+            child: Text('${l10n.backToReports}'),
           ),
         ),
       ),

@@ -225,12 +225,13 @@ class _MapWarningsScreenState extends State<MapWarningsScreen> {
   }
 
   Future<void> _locateCurrentPosition() async {
+    final l10n = AppLocalizations.of(context)!;
     try {
-      _showError('Locating you...');
+      _showError(l10n.locatingYou);
 
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        _showError('Location services are disabled. Please enable them.');
+        _showError(l10n.locationServices);
         return;
       }
 
@@ -240,14 +241,12 @@ class _MapWarningsScreenState extends State<MapWarningsScreen> {
       }
 
       if (permission == LocationPermission.denied) {
-        _showError('Location permission was denied.');
+        _showError(l10n.locationPermissionDenied);
         return;
       }
 
       if (permission == LocationPermission.deniedForever) {
-        _showError(
-          'Location permissions are permanently denied. Open app settings to enable.',
-        );
+        _showError(l10n.locationPermissionPermanent);
         return;
       }
 
@@ -267,15 +266,16 @@ class _MapWarningsScreenState extends State<MapWarningsScreen> {
           13.0,
         );
         _mapController.rotate(0); // Reset rotation to face north
-        _showError('Centered on your location');
+        _showError(l10n.centeredOnYourLocation);
       }
     } catch (e) {
-      _showError('Error locating: $e');
+      _showError(l10n.errorLocating(e.toString()));
       print('Location error: $e');
     }
   }
 
   void _showWarningDetails(Warning warning, Color primaryGreen) {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -305,7 +305,7 @@ class _MapWarningsScreenState extends State<MapWarningsScreen> {
                             ),
                           ),
                           Text(
-                            warning.severity.toUpperCase(),
+                            _getSeverityLabel(warning.severity, l10n),
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
@@ -326,7 +326,7 @@ class _MapWarningsScreenState extends State<MapWarningsScreen> {
               Divider(),
               SizedBox(height: 12),
               Text(
-                'Location',
+                l10n.locationLabel,
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
@@ -343,7 +343,7 @@ class _MapWarningsScreenState extends State<MapWarningsScreen> {
               ),
               SizedBox(height: 16),
               Text(
-                'Description',
+                l10n.descriptionLabel,
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
@@ -393,7 +393,7 @@ class _MapWarningsScreenState extends State<MapWarningsScreen> {
                     ),
                   ),
                   child: Text(
-                    'Close',
+                    l10n.closeButton,
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -406,6 +406,19 @@ class _MapWarningsScreenState extends State<MapWarningsScreen> {
         );
       },
     );
+  }
+
+  String _getSeverityLabel(String severity, AppLocalizations l10n) {
+    switch (severity.toUpperCase()) {
+      case 'HIGH':
+        return l10n.highSeverity;
+      case 'MEDIUM':
+        return l10n.mediumSeverity;
+      case 'LOW':
+        return l10n.lowSeverity;
+      default:
+        return severity.toUpperCase();
+    }
   }
 
   @override
@@ -421,7 +434,7 @@ class _MapWarningsScreenState extends State<MapWarningsScreen> {
             backgroundColor: primaryGreen,
             elevation: 0,
             title: Text(
-              'Map Warnings',
+              l10n.mapWarnings,
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 18,
@@ -492,7 +505,7 @@ class _MapWarningsScreenState extends State<MapWarningsScreen> {
                                           size: 40,
                                         ),
                                         Text(
-                                          'You',
+                                          l10n.youMarker,
                                           style: TextStyle(
                                             fontSize: 10,
                                             fontWeight: FontWeight.bold,
@@ -584,14 +597,14 @@ class _MapWarningsScreenState extends State<MapWarningsScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Your Current Location',
+                                    l10n.yourCurrentLocation,
                                     style: TextStyle(
                                       color: Colors.black87,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                   Text(
-                                    'Tap to locate on map',
+                                    l10n.tapToLocateOnMap,
                                     style: TextStyle(
                                       color: Colors.black54,
                                       fontSize: 12,
@@ -620,7 +633,7 @@ class _MapWarningsScreenState extends State<MapWarningsScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'Active Warnings Nearby',
+                                l10n.activeWarningsNearby,
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -672,7 +685,7 @@ class _MapWarningsScreenState extends State<MapWarningsScreen> {
                                   ),
                                   SizedBox(height: 16),
                                   Text(
-                                    'No warnings in your area',
+                                    l10n.noWarningsInYourArea,
                                     style: TextStyle(color: Colors.black54),
                                   ),
                                 ],
@@ -823,7 +836,7 @@ class _MapWarningsScreenState extends State<MapWarningsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Warning Levels',
+                            l10n.warningLevels,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Colors.black87,
@@ -832,15 +845,15 @@ class _MapWarningsScreenState extends State<MapWarningsScreen> {
                           SizedBox(height: 12),
                           _buildLegendItem(
                             Colors.red,
-                            'High - Immediate danger',
+                            l10n.highImmediateDanger,
                           ),
                           SizedBox(height: 10),
                           _buildLegendItem(
                             Colors.orange,
-                            'Medium - Exercise caution',
+                            l10n.mediumExerciseCaution,
                           ),
                           SizedBox(height: 10),
-                          _buildLegendItem(Colors.amber, 'Low - Be aware'),
+                          _buildLegendItem(Colors.amber, l10n.lowBeAware),
                         ],
                       ),
                     ),
@@ -861,7 +874,7 @@ class _MapWarningsScreenState extends State<MapWarningsScreen> {
                                   warningsProvider.refreshWarnings(),
                               icon: Icon(Icons.refresh, color: Colors.white),
                               label: Text(
-                                'Refresh Map',
+                                l10n.refreshMap,
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
@@ -886,7 +899,7 @@ class _MapWarningsScreenState extends State<MapWarningsScreen> {
                                 ),
                               ),
                               child: Text(
-                                'Back',
+                                l10n.backButton,
                                 style: TextStyle(
                                   color: Colors.grey[600],
                                   fontWeight: FontWeight.w600,

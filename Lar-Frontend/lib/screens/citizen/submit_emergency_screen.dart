@@ -75,10 +75,11 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
 
     // Fallback to current user GPS location
     try {
+      final l10n = AppLocalizations.of(context)!;
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         _showError(
-          'Location services disabled. Please enter location or use map picker.',
+          l10n.locationServicesDisabled,
         );
         return;
       }
@@ -91,7 +92,7 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
       if (permission == LocationPermission.denied ||
           permission == LocationPermission.deniedForever) {
         _showError(
-          'Location permission denied. Please use map picker to set location.',
+          l10n.locationPermissionDenied,
         );
         return;
       }
@@ -114,17 +115,18 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
   }
 
   Future<void> _handleSubmit() async {
+    final l10n = AppLocalizations.of(context)!;
     // Validation
     if (selectedEmergencyType == null || selectedEmergencyType!.isEmpty) {
-      _showError('Please select an emergency type');
+      _showError(l10n.pleaseSelectEmergencyType);
       return;
     }
     if (locationController.text.isEmpty) {
-      _showError('Please enter a location');
+      _showError(l10n.pleaseEnterLocation);
       return;
     }
     if (descriptionController.text.isEmpty) {
-      _showError('Please provide a description');
+      _showError(l10n.pleaseProvideDescription);
       return;
     }
 
@@ -136,7 +138,7 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
 
       // Validate that we have coordinates now
       if (selectedLatitude == null || selectedLongitude == null) {
-        _showError('Could not determine location. Please use map picker.');
+        _showError(l10n.couldNotDetermineLocation);
         setState(() => isSubmitting = false);
         return;
       }
@@ -149,7 +151,7 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
 
       final currentUser = authProvider.currentUser;
       if (currentUser == null) {
-        _showError('Please sign in before submitting a report.');
+        _showError(l10n.pleaseSignInBeforeSubmitting);
         return;
       }
 
@@ -259,12 +261,12 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
         });
       } else {
         print('ERROR: Report creation failed or returned null');
-        _showError('Failed to create report. Please try again.');
+        _showError(l10n.failedToCreateReport);
       }
     } catch (e) {
       print('ERROR submitting report: $e');
       if (mounted) {
-        _showError('Error submitting report: $e');
+        _showError('${l10n.errorSubmittingReport} $e');
         setState(() => isSubmitting = false);
       }
     } finally {
@@ -305,15 +307,17 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
         selectedLatitude = result['latitude'];
         selectedLongitude = result['longitude'];
       });
-      _showSuccess('Location selected: ${result['address']}');
+      final l10n = AppLocalizations.of(context)!;
+      _showSuccess('${l10n.locationSelected}: ${result['address']}');
     }
   }
 
   Future<void> _getCurrentLocation() async {
     try {
+      final l10n = AppLocalizations.of(context)!;
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        _showError('Location services are disabled. Please enable them.');
+        _showError(l10n.locationServicesAreDisabled);
         return;
       }
 
@@ -323,13 +327,13 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
       }
 
       if (permission == LocationPermission.denied) {
-        _showError('Location permission was denied.');
+        _showError(l10n.locationPermissionWasDenied);
         return;
       }
 
       if (permission == LocationPermission.deniedForever) {
         _showError(
-          'Location permissions are permanently denied. Open app settings to enable.',
+          l10n.locationPermissionsPermanentlyDenied,
         );
         return;
       }
@@ -354,24 +358,27 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
       );
 
       if (result != null && mounted) {
+        final l10n = AppLocalizations.of(context)!;
         setState(() {
           locationController.text = result['address'] ?? '';
           selectedLatitude = result['latitude'];
           selectedLongitude = result['longitude'];
         });
-        _showSuccess('Location selected: ${result['address']}');
+        _showSuccess('${l10n.locationSelected}: ${result['address']}');
       }
     } catch (e) {
-      _showError('Error getting location: $e');
+      final l10n = AppLocalizations.of(context)!;
+      _showError('${l10n.errorGettingLocation}: $e');
       print('Location error: $e');
     }
   }
 
   Future<void> _pickImage() async {
     try {
+      final l10n = AppLocalizations.of(context)!;
       // Check if already at max (3 images)
       if (selectedImages.length >= 3) {
-        _showError('Maximum 3 images allowed. Remove an image to add more.');
+        _showError(l10n.maximum3ImagesAllowed);
         return;
       }
 
@@ -411,15 +418,18 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
         }
 
         if (added == 0) {
-          _showError('No valid images selected. Max 5MB per image.');
+          _showError(l10n.noValidImagesSelected);
           return;
         }
 
-        String message = 'Added $added image(s)';
-        if (skipped > 0) message += ' ($skipped skipped)';
+        String message = added > 0 ? l10n.addedImages('$added') : '';
+        if (added > 0 && skipped > 0) {
+          message = '${l10n.addedImages('$added')} ($skipped ${l10n.addedImagesSkipped})';
+        }
         _showSuccess(message);
       }
     } catch (e) {
+      final l10n = AppLocalizations.of(context)!;
       _showError('Error picking images: $e');
       print('Image picker error: $e');
     }
@@ -430,7 +440,8 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
       selectedImages.removeAt(index);
       selectedImageBytes.removeAt(index);
     });
-    _showSuccess('Image removed');
+    final l10n = AppLocalizations.of(context)!;
+    _showSuccess(l10n.imageRemoved);
   }
 
   void _clearForm() {
@@ -518,14 +529,14 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Report Submitted Successfully!',
+                                  l10n.reportSubmittedSuccessfully,
                                   style: TextStyle(
                                     color: Colors.green[800],
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
                                 Text(
-                                  'Your emergency report has been received. Reference: $reportReference',
+                                  l10n.yourEmergencyReportHasBeenReceived(reportReference ?? 'N/A'),
                                   style: TextStyle(
                                     color: Colors.green[700],
                                     fontSize: 12,
@@ -545,7 +556,7 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                       Row(
                         children: [
                           Text(
-                            'Emergency Type',
+                            l10n.emergencyTypeLabel,
                             style: TextStyle(
                               color: Colors.grey[700],
                               fontWeight: FontWeight.w600,
@@ -565,21 +576,15 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                           value: selectedEmergencyType,
                           isExpanded: true,
                           underline: const SizedBox(),
-                          hint: const Text('Select emergency type'),
-                          items:
-                          [
-                            'Flood',
-                            'Fire',
-                            'Accident',
-                            'Medical Emergency',
-                            'Landslide',
-                            'Other',
-                          ].map((type) {
-                            return DropdownMenuItem(
-                              value: type,
-                              child: Text(type),
-                            );
-                          }).toList(),
+                          hint: Text(l10n.selectEmergencyType),
+                          items: [
+                            DropdownMenuItem(value: 'Flood', child: Text(l10n.floodOption)),
+                            DropdownMenuItem(value: 'Fire', child: Text(l10n.fireOption)),
+                            DropdownMenuItem(value: 'Accident', child: Text(l10n.accidentOption)),
+                            DropdownMenuItem(value: 'Medical Emergency', child: Text(l10n.medicalEmergencyOption)),
+                            DropdownMenuItem(value: 'Landslide', child: Text(l10n.landslideOption)),
+                            DropdownMenuItem(value: 'Other', child: Text(l10n.otherOption)),
+                          ],
                           onChanged: (value) {
                             setState(() {
                               selectedEmergencyType = value;
@@ -598,7 +603,7 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                       Row(
                         children: [
                           Text(
-                            'Location',
+                            l10n.locationLabel,
                             style: TextStyle(
                               color: Colors.grey[700],
                               fontWeight: FontWeight.w600,
@@ -611,7 +616,7 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                       TextField(
                         controller: locationController,
                         decoration: InputDecoration(
-                          hintText: 'Enter location or address',
+                          hintText: l10n.enterLocationOrAddress,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                             borderSide: BorderSide(color: Colors.grey[300]!),
@@ -634,7 +639,7 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                             Icons.location_on,
                             color: Colors.red,
                           ),
-                          label: const Text('Use Current Location on Map'),
+                          label: Text(l10n.useCurrentLocationOnMap),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF059669),
                             foregroundColor: Colors.white,
@@ -656,7 +661,7 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                       Row(
                         children: [
                           Text(
-                            'Date',
+                            l10n.dateLabel,
                             style: TextStyle(
                               color: Colors.grey[700],
                               fontWeight: FontWeight.w600,
@@ -684,7 +689,7 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Auto-filled with current date',
+                        l10n.autoFilledWithCurrentDate,
                         style: TextStyle(color: Colors.grey[600], fontSize: 12),
                       ),
                     ],
@@ -698,7 +703,7 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                       Row(
                         children: [
                           Text(
-                            'Description',
+                            l10n.descriptionLabel,
                             style: TextStyle(
                               color: Colors.grey[700],
                               fontWeight: FontWeight.w600,
@@ -712,8 +717,7 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                         controller: descriptionController,
                         maxLines: 4,
                         decoration: InputDecoration(
-                          hintText:
-                          'Provide detailed description of the emergency',
+                          hintText: l10n.provideDetailedDescription,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                             borderSide: BorderSide(color: Colors.grey[300]!),
@@ -736,14 +740,14 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Upload Images',
+                        l10n.uploadImages,
                         style: TextStyle(
                           color: Colors.grey[700],
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                       Text(
-                        'Maximum 3 images, up to 5MB each',
+                        l10n.maximumImagesConstraint,
                         style: TextStyle(color: Colors.grey[500], fontSize: 12),
                       ),
                       const SizedBox(height: 12),
@@ -820,11 +824,11 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Click to upload or drag and drop',
+                              l10n.clickToUploadOrDragDrop,
                               style: TextStyle(color: Colors.grey[600]),
                             ),
                             Text(
-                              'PNG, JPG up to 5MB',
+                              l10n.pngJpgUpTo5MB,
                               style: TextStyle(
                                 color: Colors.grey[500],
                                 fontSize: 12,
@@ -841,8 +845,8 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                               ),
                               child: Text(
                                 selectedImages.length >= 3
-                                    ? 'Max Images Reached'
-                                    : 'Choose Images (${selectedImages.length}/3)',
+                                    ? l10n.maxImagesReached
+                                    : l10n.chooseImages('${selectedImages.length}', '3'),
                               ),
                             ),
                           ],
@@ -887,8 +891,8 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                         ),
                       ),
                     )
-                        : const Text(
-                      'Submit Report',
+                        : Text(
+                      l10n.submitReport,
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
@@ -909,7 +913,7 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                       side: BorderSide(color: Colors.grey[300]!),
                     ),
                     child: Text(
-                      'Clear / Reset',
+                      l10n.clearOrReset,
                       style: TextStyle(color: Colors.grey[700]),
                     ),
                   ),
@@ -927,7 +931,7 @@ class _SubmitEmergencyScreenState extends State<SubmitEmergencyScreen> {
                       side: BorderSide(color: Colors.grey[300]!),
                     ),
                     child: Text(
-                      'Back',
+                      l10n.back,
                       style: TextStyle(
                         color: Colors.grey[600],
                         fontWeight: FontWeight.w600,

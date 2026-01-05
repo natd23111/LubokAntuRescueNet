@@ -84,22 +84,22 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
     }
   }
 
-  String _getStatusLabel(String status) {
+  String _getStatusLabel(String status, AppLocalizations l10n) {
     switch (status.toLowerCase()) {
       case 'pending':
-        return 'Pending';
+        return l10n.pending;
       case 'approved':
-        return 'Approved';
+        return l10n.approved;
       case 'rejected':
-        return 'Rejected';
+        return l10n.rejected;
       case 'processing':
-        return 'Processing';
+        return l10n.processing;
       default:
         return status;
     }
   }
 
-  Widget _buildStatusBadge(String status) {
+  Widget _buildStatusBadge(String status, AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
@@ -107,7 +107,7 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
-        _getStatusLabel(status),
+        _getStatusLabel(status, l10n),
         style: TextStyle(
           color: _getStatusColor(status),
           fontSize: 12,
@@ -159,9 +159,9 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
               icon: const Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () => Navigator.of(context).pop(),
             ),
-            title: const Text(
-              'My Aid Requests',
-              style: TextStyle(
+            title: Text(
+              l10n.myAidRequests,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
@@ -194,7 +194,9 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
                           ),
                           child: Center(
                             child: Text(
-                              'Pending (${aidRequestProvider.aidRequests.where((r) => r.status.toLowerCase() == 'pending').length})',
+                              l10n.pendingTabLabel(
+                                '${aidRequestProvider.aidRequests.where((r) => r.status.toLowerCase() == 'pending').length}',
+                              ),
                               style: TextStyle(
                                 color: activeTab == 'pending'
                                     ? const Color(0xFF059669)
@@ -225,7 +227,9 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
                           ),
                           child: Center(
                             child: Text(
-                              'Approved (${aidRequestProvider.aidRequests.where((r) => r.status.toLowerCase() == 'approved').length})',
+                              l10n.approvedTabLabel(
+                                '${aidRequestProvider.aidRequests.where((r) => r.status.toLowerCase() == 'approved').length}',
+                              ),
                               style: TextStyle(
                                 color: activeTab == 'approved'
                                     ? const Color(0xFF059669)
@@ -256,7 +260,9 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
                           ),
                           child: Center(
                             child: Text(
-                              'Rejected (${aidRequestProvider.aidRequests.where((r) => r.status.toLowerCase() == 'rejected').length})',
+                              l10n.rejectedTabLabel(
+                                '${aidRequestProvider.aidRequests.where((r) => r.status.toLowerCase() == 'rejected').length}',
+                              ),
                               style: TextStyle(
                                 color: activeTab == 'rejected'
                                     ? const Color(0xFF059669)
@@ -281,7 +287,7 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
                   controller: searchController,
                   onChanged: (value) => setState(() => searchQuery = value),
                   decoration: InputDecoration(
-                    hintText: 'Search aid requests',
+                    hintText: l10n.searchAidRequests,
                     prefixIcon: const Icon(Icons.search, color: Colors.grey),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -303,15 +309,21 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children:
-                        [
-                          'All',
-                          'Financial Aid',
-                          'Disaster Relief',
-                          'Education Aid',
-                          'Medical Fund',
-                        ].map((type) {
+                  child: Builder(
+                    builder: (context) {
+                      final typeMap = {
+                        'All': l10n.allRequests,
+                        'Financial Aid': l10n.financialAidFilter,
+                        'Disaster Relief': l10n.disasterReliefFilter,
+                        'Medical Emergency Fund': l10n.medicalEmergencyFundFilter,
+                        'Education Aid': l10n.educationAidFilter,
+                        'Housing Assistance': l10n.housingAssistanceFilter,
+                        'Other': l10n.otherCategoryFilter,
+                      };
+                      final types = ['All', 'Financial Aid', 'Disaster Relief', 'Medical Emergency Fund', 'Education Aid', 'Housing Assistance', 'Other'];
+
+                      return Row(
+                        children: types.map((type) {
                           final isSelected = selectedStatus == type;
                           return Padding(
                             padding: const EdgeInsets.only(right: 8),
@@ -335,7 +347,7 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Text(
-                                  type,
+                                  typeMap[type] ?? type,
                                   style: TextStyle(
                                     color: isSelected
                                         ? Colors.white
@@ -348,6 +360,8 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
                             ),
                           );
                         }).toList(),
+                      );
+                    },
                   ),
                 ),
               ),
@@ -374,7 +388,7 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'No aid requests found',
+                              l10n.noAidRequestsFound,
                               style: TextStyle(
                                 color: Colors.grey[600],
                                 fontSize: 16,
@@ -393,7 +407,7 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
                             const SizedBox(height: 12),
                         itemBuilder: (context, index) {
                           final request = filteredRequests[index];
-                          return _buildRequestCard(request);
+                          return _buildRequestCard(request, l10n);
                         },
                       ),
               ),
@@ -408,7 +422,7 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
                     border: Border(top: BorderSide(color: Colors.red[200]!)),
                   ),
                   child: Text(
-                    'Error: ${aidRequestProvider.error}',
+                    '${l10n.errorPrefix}${aidRequestProvider.error}',
                     style: TextStyle(color: Colors.red[700], fontSize: 12),
                   ),
                 ),
@@ -439,7 +453,7 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
     );
   }
 
-  Widget _buildRequestCard(AidRequestModel request) {
+  Widget _buildRequestCard(AidRequestModel request, AppLocalizations l10n) {
     return GestureDetector(
       onTap: () => setState(() => selectedRequestId = request.requestId),
       child: Container(
@@ -462,7 +476,7 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                _buildStatusBadge(request.status),
+                _buildStatusBadge(request.status, l10n),
               ],
             ),
             const SizedBox(height: 8),
@@ -498,6 +512,7 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
   }
 
   Widget _buildDetailView() {
+    final l10n = AppLocalizations.of(context)!;
     return Consumer<AidRequestProvider>(
       builder: (context, aidRequestProvider, _) {
         final request = aidRequestProvider.aidRequests.firstWhere(
@@ -508,7 +523,7 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
           backgroundColor: Colors.white,
           appBar: AppBar(
             backgroundColor: const Color(0xFF059669),
-            title: const Text('Request Details'),
+            title: Text(l10n.requestDetails),
             leading: IconButton(
               icon: const Icon(Icons.arrow_back),
               onPressed: () => setState(() => selectedRequestId = null),
@@ -526,7 +541,7 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Request ID',
+                          l10n.requestIdLabel,
                           style: TextStyle(
                             color: Colors.grey.shade600,
                             fontSize: 12,
@@ -541,33 +556,35 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
                         ),
                       ],
                     ),
-                    _buildStatusBadge(request.status),
+                    _buildStatusBadge(request.status, l10n),
                   ],
                 ),
                 const SizedBox(height: 16),
-                _buildDetailRow('Aid Type', request.aidType),
+                _buildDetailRow(l10n.aidTypeLabel, request.aidType, l10n),
                 if (request.applicantName != null)
-                  _buildDetailRow('Full Name', request.applicantName!),
+                  _buildDetailRow(l10n.fullNameLabel, request.applicantName!, l10n),
                 if (request.applicantIC != null)
-                  _buildDetailRow('IC Number', request.applicantIC!),
+                  _buildDetailRow(l10n.icNumberLabel, request.applicantIC!, l10n),
                 if (request.applicantEmail != null)
-                  _buildDetailRow('Email', request.applicantEmail!),
+                  _buildDetailRow(l10n.emailLabel, request.applicantEmail!, l10n),
                 if (request.applicantPhone != null)
-                  _buildDetailRow('Phone', request.applicantPhone!),
+                  _buildDetailRow(l10n.phoneLabel, request.applicantPhone!, l10n),
                 if (request.applicantAddress != null)
-                  _buildDetailRow('Address', request.applicantAddress!),
-                _buildDetailRow('Date Submitted', request.formattedDate),
+                  _buildDetailRow(l10n.addressLabel, request.applicantAddress!, l10n),
+                _buildDetailRow(l10n.dateSubmittedLabel, request.formattedDate, l10n),
                 _buildDetailRow(
-                  'Monthly Income',
+                  l10n.monthlyIncomeLabel,
                   'RM ${request.monthlyIncome.toStringAsFixed(2)}',
+                  l10n,
                 ),
                 _buildDetailRow(
-                  'Family Members',
+                  l10n.familyMembersLabel,
                   request.familyMembers.length.toString(),
+                  l10n,
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Family Composition',
+                  l10n.familyComposition,
                   style: TextStyle(
                     color: Colors.black87,
                     fontWeight: FontWeight.w600,
@@ -604,7 +621,7 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
                   );
                 }),
                 const SizedBox(height: 16),
-                _buildDetailRow('Description', request.description),
+                _buildDetailRow(l10n.descriptionLabel, request.description, l10n),
               ],
             ),
           ),
@@ -625,7 +642,7 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
                   side: BorderSide(color: Colors.grey[300]!),
                 ),
                 child: Text(
-                  'Back to List',
+                  l10n.backToList,
                   style: TextStyle(color: Colors.grey[600]),
                 ),
               ),
@@ -636,7 +653,7 @@ class _ViewAidRequestScreenState extends State<ViewAidRequestScreen> {
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
+  Widget _buildDetailRow(String label, String value, AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Column(

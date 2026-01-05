@@ -40,20 +40,30 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
     });
   }
 
-  final List<Map<String, String>> categories = [
-    {'id': 'all', 'label': 'All Programs'},
-    {'id': 'financial', 'label': 'Financial Aid'},
-    {'id': 'disaster', 'label': 'Disaster Relief'},
-    {'id': 'medical', 'label': 'Medical'},
-    {'id': 'education', 'label': 'Education'},
-    {'id': 'housing', 'label': 'Housing'},
-  ];
-
   List<AidProgram> getFilteredPrograms(List<AidProgram> allPrograms) {
     if (selectedCategory == 'all') {
       return allPrograms;
     }
     return allPrograms.where((p) => p.category == selectedCategory).toList();
+  }
+
+  String _getCategoryLabel(String categoryId, AppLocalizations l10n) {
+    switch (categoryId) {
+      case 'all':
+        return l10n.allPrograms;
+      case 'financial':
+        return l10n.financialAidCategory;
+      case 'disaster':
+        return l10n.disasterReliefCategory;
+      case 'medical':
+        return l10n.medicalCategory;
+      case 'education':
+        return l10n.educationCategory;
+      case 'housing':
+        return l10n.housingCategory;
+      default:
+        return categoryId;
+    }
   }
 
   Color _getCategoryColor(String category) {
@@ -151,7 +161,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
                   const Icon(Icons.error_outline, size: 48, color: Colors.red),
                   const SizedBox(height: 16),
                   Text(
-                    'Failed to load programs',
+                    l10n.failedToLoadPrograms,
                     style: TextStyle(color: Colors.grey[600], fontSize: 16),
                   ),
                   const SizedBox(height: 8),
@@ -166,7 +176,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF059669),
                     ),
-                    child: const Text('Retry'),
+                    child: Text(l10n.retry),
                   ),
                 ],
               ),
@@ -211,7 +221,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Filter by Category',
+                        l10n.filterByCategory,
                         style: TextStyle(
                           color: Colors.grey[700],
                           fontWeight: FontWeight.w600,
@@ -221,13 +231,20 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
-                          children: categories.map((cat) {
-                            final isSelected = selectedCategory == cat['id'];
+                          children: [
+                            'all',
+                            'financial',
+                            'disaster',
+                            'medical',
+                            'education',
+                            'housing',
+                          ].map((catId) {
+                            final isSelected = selectedCategory == catId;
                             return Padding(
                               padding: const EdgeInsets.only(right: 8),
                               child: GestureDetector(
                                 onTap: () => setState(
-                                  () => selectedCategory = cat['id']!,
+                                  () => selectedCategory = catId,
                                 ),
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
@@ -246,7 +263,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: Text(
-                                    cat['label']!,
+                                    _getCategoryLabel(catId, l10n),
                                     style: TextStyle(
                                       color: isSelected
                                           ? Colors.white
@@ -273,7 +290,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
                         Icon(Icons.inbox, size: 48, color: Colors.grey[400]),
                         const SizedBox(height: 16),
                         Text(
-                          'No programs available',
+                          l10n.noProgramsAvailable,
                           style: TextStyle(
                             color: Colors.grey[600],
                             fontSize: 16,
@@ -281,7 +298,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'No aid programs match the selected category',
+                          l10n.noProgramsMatch,
                           style: TextStyle(
                             color: Colors.grey[500],
                             fontSize: 12,
@@ -306,7 +323,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
                   child: Text(
-                    'Back',
+                    l10n.back,
                     style: TextStyle(color: Colors.grey[600]),
                   ),
                 ),
@@ -324,9 +341,9 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
               icon: const Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () => Navigator.of(context).pop(),
             ),
-            title: const Text(
-              'Available Aid Programs',
-              style: TextStyle(
+            title: Text(
+              l10n.availableAidPrograms,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
@@ -348,7 +365,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Filter by Category',
+                      l10n.filterByCategory,
                       style: TextStyle(
                         color: Colors.grey[700],
                         fontWeight: FontWeight.w600,
@@ -358,13 +375,20 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
-                        children: categories.map((cat) {
-                          final isSelected = selectedCategory == cat['id'];
+                        children: [
+                          'all',
+                          'financial',
+                          'disaster',
+                          'medical',
+                          'education',
+                          'housing',
+                        ].map((catId) {
+                          final isSelected = selectedCategory == catId;
                           return Padding(
                             padding: const EdgeInsets.only(right: 8),
                             child: GestureDetector(
                               onTap: () =>
-                                  setState(() => selectedCategory = cat['id']!),
+                                  setState(() => selectedCategory = catId),
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 12,
@@ -382,7 +406,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Text(
-                                  cat['label']!,
+                                  _getCategoryLabel(catId, l10n),
                                   style: TextStyle(
                                     color: isSelected
                                         ? Colors.white
@@ -447,7 +471,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              program.description ?? 'No description available',
+                              program.description ?? l10n.noDescriptionAvailable,
                               style: TextStyle(
                                 color: Colors.grey[600],
                                 fontSize: 13,
@@ -484,7 +508,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: Text(
-                                    program.category.toUpperCase(),
+                                    _getCategoryLabel(program.category, l10n),
                                     style: TextStyle(
                                       color: _getCategoryColor(
                                         program.category,
@@ -557,6 +581,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
   }
 
   Widget _buildDetailView(AidProgram program) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -566,9 +591,9 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => setState(() => selectedProgramId = null),
         ),
-        title: const Text(
-          'Program Details',
-          style: TextStyle(
+        title: Text(
+          l10n.programDetails,
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -585,7 +610,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Program ID',
+                  l10n.programIdLabel,
                   style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
                 const SizedBox(height: 4),
@@ -617,7 +642,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Category',
+                  l10n.categoryLabel,
                   style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
                 const SizedBox(height: 8),
@@ -631,8 +656,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    program.category[0].toUpperCase() +
-                        program.category.substring(1),
+                    _getCategoryLabel(program.category, l10n),
                     style: TextStyle(
                       color: _getCategoryColor(program.category),
                       fontWeight: FontWeight.w600,
@@ -648,12 +672,12 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Description',
+                  l10n.descriptionLabel,
                   style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  program.description ?? 'No description available',
+                  program.description ?? l10n.noDescriptionAvailable,
                   style: const TextStyle(color: Colors.black87, fontSize: 14),
                 ),
               ],
@@ -668,7 +692,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Start Date',
+                        l10n.startDateLabel,
                         style: TextStyle(color: Colors.grey[600], fontSize: 12),
                       ),
                       const SizedBox(height: 4),
@@ -688,7 +712,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'End Date',
+                        l10n.endDateLabel,
                         style: TextStyle(color: Colors.grey[600], fontSize: 12),
                       ),
                       const SizedBox(height: 4),
@@ -711,12 +735,12 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Eligibility Criteria',
+                  l10n.eligibilityCriteriaLabel,
                   style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  program.eligibilityCriteria ?? 'N/A',
+                  program.eligibilityCriteria ?? l10n.notApplicable,
                   style: const TextStyle(color: Colors.black87, fontSize: 14),
                 ),
               ],
@@ -728,12 +752,12 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Aid Amount',
+                  l10n.aidAmountLabel,
                   style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'RM ${program.aidAmount ?? 'N/A'}',
+                  'RM ${program.aidAmount ?? l10n.notApplicable}',
                   style: const TextStyle(
                     color: Color(0xFF059669),
                     fontSize: 16,
@@ -749,7 +773,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'How to Apply',
+                  l10n.howToApply,
                   style: TextStyle(
                     color: Colors.black87,
                     fontSize: 14,
@@ -761,27 +785,27 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '1. Go to "Request Aid" section',
+                      '1. ${l10n.applyStep1}',
                       style: TextStyle(color: Colors.grey[700], fontSize: 13),
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      '2. Select the appropriate aid category',
+                      '2. ${l10n.applyStep2}',
                       style: TextStyle(color: Colors.grey[700], fontSize: 13),
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      '3. Fill in your household details',
+                      '3. ${l10n.applyStep3}',
                       style: TextStyle(color: Colors.grey[700], fontSize: 13),
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      '4. Submit the request form',
+                      '4. ${l10n.applyStep4}',
                       style: TextStyle(color: Colors.grey[700], fontSize: 13),
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      '5. Wait for approval notification',
+                      '5. ${l10n.applyStep5}',
                       style: TextStyle(color: Colors.grey[700], fontSize: 13),
                     ),
                   ],
@@ -802,7 +826,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Important Note',
+                    l10n.importantNote,
                     style: TextStyle(
                       color: Colors.blue[800],
                       fontWeight: FontWeight.w600,
@@ -810,7 +834,7 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Applications will be reviewed within 7-14 working days. You will be notified via email and in-app notification.',
+                    l10n.applicationNoteText,
                     style: TextStyle(color: Colors.blue[700], fontSize: 13),
                   ),
                 ],
@@ -850,9 +874,9 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: const Text(
-                  'Apply for This Program',
-                  style: TextStyle(
+                child: Text(
+                  l10n.applyForThisProgram,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
                   ),
@@ -871,7 +895,10 @@ class _ViewAidProgramScreenState extends State<ViewAidProgramScreen> {
                   ),
                   side: BorderSide(color: Colors.grey[300]!),
                 ),
-                child: Text('Back', style: TextStyle(color: Colors.grey[700])),
+                child: Text(
+                  l10n.back,
+                  style: TextStyle(color: Colors.grey[700]),
+                ),
               ),
             ),
           ],

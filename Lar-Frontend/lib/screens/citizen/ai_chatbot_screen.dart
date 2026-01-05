@@ -31,25 +31,26 @@ class _AIChatbotScreenState extends State<AIChatbotScreen> {
   bool _isTyping = false;
   final primaryGreen = Color(0xFF0E9D63);
 
-  final List<String> quickQuestions = [
-    'What should I do during a flood?',
-    'How do I check my report status?',
-    'What aid programs are available?',
-    'Emergency contact numbers',
-  ];
-
   @override
   void initState() {
     super.initState();
-    // Add initial greeting message
-    _messages.add(
-      ChatMessage(
-        text:
-            'Hello! I am the RescueNet AI Assistant. I can help you with emergency procedures, disaster preparedness, aid information, and answer questions about the rescue network. How can I assist you today?',
-        isUser: false,
-        timestamp: DateTime.now(),
-      ),
-    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Add initial greeting message after dependencies are available
+    if (_messages.isEmpty) {
+      final l10n = AppLocalizations.of(context);
+      _messages.add(
+        ChatMessage(
+          text: l10n?.aiGreeting ??
+              'Hello! I am the RescueNet AI Assistant. I can help you with emergency procedures, disaster preparedness, aid information, and answer questions about the rescue network. How can I assist you today?',
+          isUser: false,
+          timestamp: DateTime.now(),
+        ),
+      );
+    }
   }
 
   @override
@@ -59,12 +60,12 @@ class _AIChatbotScreenState extends State<AIChatbotScreen> {
     super.dispose();
   }
 
-  Future<String> _sendToHuggingFace(String userMessage) async {
+  Future<String> _sendToHuggingFace(String userMessage, AppLocalizations l10n) async {
     try {
       final apiToken = HuggingFaceConfig.apiToken;
 
       if (apiToken == 'hf_your_token_here') {
-        return 'Error: Hugging Face API token not set. Please update lib/config/hugging_face_config.dart with your token from https://huggingface.co/settings/tokens';
+        return l10n.apiTokenNotSet;
       }
 
       final url = Uri.parse(
@@ -104,17 +105,17 @@ class _AIChatbotScreenState extends State<AIChatbotScreen> {
             final content = firstChoice['message']['content'];
             return content is String && content.isNotEmpty
                 ? content
-                : "I'm having trouble generating a response. Please try again.";
+                : l10n.troubleGeneratingResponse;
           }
-          return "Error parsing response: ${data.toString()}";
+          return "${l10n.errorParsingResponse} ${data.toString()}";
         } catch (e) {
-          return "Error parsing response: ${data.toString()}";
+          return "${l10n.errorParsingResponse} ${data.toString()}";
         }
       } else {
         return "Error: ${response.statusCode} - ${response.body}";
       }
     } catch (e) {
-      return "Error connecting to Hugging Face API: ${e.toString()}";
+      return "${l10n.errorConnectingAPI} ${e.toString()}";
     }
   }
 
@@ -137,10 +138,11 @@ class _AIChatbotScreenState extends State<AIChatbotScreen> {
   }
 
   void _getAIResponse(String userMessage) async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       // Always use the API for intelligent, context-aware responses
       // The system prompt is comprehensive with all app knowledge
-      final response = await _sendToHuggingFace(userMessage);
+      final response = await _sendToHuggingFace(userMessage, l10n);
 
       setState(() {
         _messages.add(
@@ -185,7 +187,7 @@ class _AIChatbotScreenState extends State<AIChatbotScreen> {
         backgroundColor: primaryGreen,
         elevation: 0,
         title: Text(
-          'AI Assistant',
+          l10n.aiAssistant,
           style: TextStyle(
             color: Colors.white,
             fontSize: 18,
@@ -224,7 +226,7 @@ class _AIChatbotScreenState extends State<AIChatbotScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    'Quick questions:',
+                    l10n.quickQuestions,
                     style: TextStyle(
                       color: Colors.grey.shade700,
                       fontSize: 13,
@@ -239,9 +241,12 @@ class _AIChatbotScreenState extends State<AIChatbotScreen> {
                     mainAxisSpacing: 8,
                     crossAxisSpacing: 8,
                     childAspectRatio: 1.3,
-                    children: quickQuestions
-                        .map((question) => _buildQuickQuestionChip(question))
-                        .toList(),
+                    children: [
+                      _buildQuickQuestionChip(l10n.whatShouldIDoDuringFlood),
+                      _buildQuickQuestionChip(l10n.howDoICheckReportStatus),
+                      _buildQuickQuestionChip(l10n.whatAidProgramsAvailable),
+                      _buildQuickQuestionChip(l10n.emergencyContactNumbers),
+                    ],
                   ),
                 ],
               ),
@@ -278,7 +283,7 @@ class _AIChatbotScreenState extends State<AIChatbotScreen> {
                       child: TextField(
                         controller: _messageController,
                         decoration: InputDecoration(
-                          hintText: 'Type your message...',
+                          hintText: l10n.typeYourMessage,
                           border: InputBorder.none,
                           isDense: true,
                           hintStyle: TextStyle(color: Colors.grey.shade600),

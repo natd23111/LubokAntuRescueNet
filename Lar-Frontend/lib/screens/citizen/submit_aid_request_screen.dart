@@ -85,31 +85,32 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
   }
 
   void handleSubmit() async {
+    final l10n = AppLocalizations.of(context)!;
     // Validate form
     if (selectedAidType.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select an aid type')),
+        SnackBar(content: Text(l10n.selectAidTypeValidation)),
       );
       return;
     }
 
     if (incomeController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter monthly household income')),
+        SnackBar(content: Text(l10n.enterIncomeValidation)),
       );
       return;
     }
 
     if (familyMembers.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please add at least one family member')),
+        SnackBar(content: Text(l10n.familyMembersValidation)),
       );
       return;
     }
 
     if (descriptionController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please provide a description')),
+        SnackBar(content: Text(l10n.descriptionValidation)),
       );
       return;
     }
@@ -140,7 +141,6 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
 
     if (success && mounted) {
       setState(() => showSuccess = true);
-      final requestId = aidRequestProvider.getLastRequestId();
 
       Future.delayed(Duration(seconds: 3), () {
         if (mounted) {
@@ -150,16 +150,17 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(aidRequestProvider.error ?? 'Failed to submit request'),
+          content: Text(aidRequestProvider.error ?? l10n.failedToSubmitRequest),
         ),
       );
     }
   }
 
   void addFamilyMember() {
+    final l10n = AppLocalizations.of(context)!;
     if (familyMembers.length >= 20) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Maximum of 20 family members allowed')),
+        SnackBar(content: Text(l10n.maximumFamilyMembers)),
       );
       return;
     }
@@ -183,11 +184,12 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
   }
 
   void updateFamilyMemberCount(String value) {
+    final l10n = AppLocalizations.of(context)!;
     int? count = int.tryParse(value);
     if (count == null || count < 1) return;
     if (count > 20) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Maximum of 20 family members allowed')),
+        SnackBar(content: Text(l10n.maximumFamilyMembers)),
       );
       familyCountController.text = '20';
       count = 20;
@@ -265,9 +267,9 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
               icon: const Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () => Navigator.of(context).pop(),
             ),
-            title: const Text(
-              'Submit Aid Request',
-              style: TextStyle(
+            title: Text(
+              l10n.submitAidRequest,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
@@ -303,16 +305,16 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Aid Request Submitted!',
-                                style: TextStyle(
+                              Text(
+                                l10n.aidRequestSubmitted,
+                                style: const TextStyle(
                                   color: Color(0xFF166534),
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Your request has been received. Reference: ${aidRequestProvider.getLastRequestId()}',
+                                l10n.yourRequestHasBeenReceived('${aidRequestProvider.getLastRequestId()}'),
                                 style: const TextStyle(
                                   color: Color(0xFF15803D),
                                   fontSize: 13,
@@ -332,12 +334,12 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Aid Type
-                      _buildFormLabel('Aid Type / Category'),
+                      _buildFormLabel(l10n.aidTypeCategory),
                       const SizedBox(height: 8),
                       DropdownButtonFormField<String>(
                         initialValue: selectedAidType.isEmpty ? null : selectedAidType,
                         decoration: InputDecoration(
-                          hintText: 'Select aid type',
+                          hintText: l10n.selectAidType,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                             borderSide: BorderSide(color: Colors.grey[300]!),
@@ -354,20 +356,14 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
                             vertical: 12,
                           ),
                         ),
-                        items:
-                            [
-                              'Financial Aid',
-                              'Disaster Relief',
-                              'Medical Emergency Fund',
-                              'Education Aid',
-                              'Housing Assistance',
-                              'Other',
-                            ].map((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
+                        items: [
+                          DropdownMenuItem(value: 'Financial Aid', child: Text(l10n.financialAid)),
+                          DropdownMenuItem(value: 'Disaster Relief', child: Text(l10n.disasterRelief)),
+                          DropdownMenuItem(value: 'Medical Emergency Fund', child: Text(l10n.medicalEmergencyFund)),
+                          DropdownMenuItem(value: 'Education Aid', child: Text(l10n.educationAid)),
+                          DropdownMenuItem(value: 'Housing Assistance', child: Text(l10n.housingAssistance)),
+                          DropdownMenuItem(value: 'Other', child: Text(l10n.otherOption)),
+                        ],
                         onChanged: (String? newValue) {
                           setState(() {
                             selectedAidType = newValue ?? '';
@@ -382,7 +378,7 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
                         child: Divider(color: Colors.grey[200], thickness: 1),
                       ),
                       Text(
-                        'Household Details',
+                        l10n.householdDetails,
                         style: TextStyle(
                           color: Colors.grey[900],
                           fontSize: 16,
@@ -392,13 +388,13 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
                       const SizedBox(height: 16),
 
                       // Monthly Household Income
-                      _buildFormLabel('Monthly Household Income (RM)'),
+                      _buildFormLabel(l10n.monthlyHouseholdIncome),
                       const SizedBox(height: 8),
                       TextField(
                         controller: incomeController,
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
-                          hintText: 'Enter monthly income',
+                          hintText: l10n.enterMonthlyIncome,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                             borderSide: BorderSide(color: Colors.grey[300]!),
@@ -419,14 +415,14 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
                       const SizedBox(height: 16),
 
                       // Number of Family Members
-                      _buildFormLabel('Number of Family Members'),
+                      _buildFormLabel(l10n.numberOfFamilyMembers),
                       const SizedBox(height: 8),
                       TextField(
                         controller: familyCountController,
                         keyboardType: TextInputType.number,
                         onChanged: updateFamilyMemberCount,
                         decoration: InputDecoration(
-                          hintText: 'Enter number',
+                          hintText: l10n.enterNumber,
                           prefixIcon: const Icon(Icons.family_restroom),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -448,7 +444,7 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
                       const SizedBox(height: 16),
 
                       // Family Members Details
-                      _buildFormLabel('Family Members Details'),
+                      _buildFormLabel(l10n.familyMembersDetails),
                       const SizedBox(height: 12),
                       Column(
                         children: [
@@ -468,13 +464,13 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
                       const SizedBox(height: 24),
 
                       // Description
-                      _buildFormLabel('Description / Reason'),
+                      _buildFormLabel(l10n.descriptionReason),
                       const SizedBox(height: 8),
                       TextField(
                         controller: descriptionController,
                         maxLines: 4,
                         decoration: InputDecoration(
-                          hintText: 'Explain why you need this aid',
+                          hintText: l10n.explainWhyYouNeedAid,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                             borderSide: BorderSide(color: Colors.grey[300]!),
@@ -495,12 +491,12 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
                       const SizedBox(height: 24),
 
                       // Submission Date
-                      _buildFormLabel('Submission Date'),
+                      _buildFormLabel(l10n.submissionDate),
                       const SizedBox(height: 8),
                       TextField(
                         readOnly: true,
                         decoration: InputDecoration(
-                          hintText: 'Auto-filled with current date',
+                          hintText: l10n.autoFilledCurrentDate,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                             borderSide: BorderSide(color: Colors.grey[300]!),
@@ -518,7 +514,7 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Auto-filled with current date',
+                        l10n.autoFilledCurrentDate,
                         style: TextStyle(color: Colors.grey[600], fontSize: 12),
                       ),
                       const SizedBox(height: 32),
@@ -547,9 +543,9 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: const Text(
-                      'Submit Request',
-                      style: TextStyle(
+                    child: Text(
+                      l10n.submitRequestButton,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
                       ),
@@ -569,7 +565,7 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
                       side: BorderSide(color: Colors.grey[300]!),
                     ),
                     child: Text(
-                      'Clear / Reset',
+                      l10n.clearResetButton,
                       style: TextStyle(color: Colors.grey[700]),
                     ),
                   ),
@@ -587,7 +583,7 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
                       side: BorderSide(color: Colors.grey[300]!),
                     ),
                     child: Text(
-                      'Back',
+                      l10n.back,
                       style: TextStyle(color: Colors.grey[600]),
                     ),
                   ),
@@ -626,6 +622,7 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
     required FamilyMember member,
     required bool canDelete,
   }) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
@@ -641,7 +638,7 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Member ${index + 1}',
+                l10n.memberTitle('${index + 1}'),
                 style: TextStyle(
                   color: Colors.grey[700],
                   fontWeight: FontWeight.w500,
@@ -664,7 +661,7 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
           TextField(
             onChanged: (value) => updateFamilyMember(member.id, name: value),
             decoration: InputDecoration(
-              hintText: 'Name',
+              hintText: l10n.nameHint,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide(color: Colors.grey[300]!),
@@ -704,23 +701,14 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
                 vertical: 10,
               ),
             ),
-            items:
-                [
-                  'Student',
-                  'Employed / Full-time',
-                  'Part-time Worker',
-                  'Unemployed',
-                  'Retired',
-                  'Child (Under 12)',
-                ].map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value
-                        .toLowerCase()
-                        .replaceAll(' / ', '/')
-                        .replaceAll(' ', '-'),
-                    child: Text(value),
-                  );
-                }).toList(),
+            items: [
+              DropdownMenuItem(value: 'student', child: Text(l10n.student)),
+              DropdownMenuItem(value: 'employed/full-time', child: Text(l10n.employedFullTime)),
+              DropdownMenuItem(value: 'part-time-worker', child: Text(l10n.partTimeWorker)),
+              DropdownMenuItem(value: 'unemployed', child: Text(l10n.unemployed)),
+              DropdownMenuItem(value: 'retired', child: Text(l10n.retired)),
+              DropdownMenuItem(value: 'child-under-12', child: Text(l10n.childUnder12)),
+            ],
             onChanged: (String? newValue) {
               if (newValue != null) {
                 updateFamilyMember(member.id, status: newValue);
@@ -733,6 +721,7 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
   }
 
   Widget _buildAddMemberButton() {
+    final l10n = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: addFamilyMember,
       child: Container(
@@ -752,7 +741,7 @@ class _SubmitAidRequestScreenState extends State<SubmitAidRequestScreen> {
             Icon(Icons.add, color: Colors.grey[600], size: 18),
             const SizedBox(width: 8),
             Text(
-              'Add Family Member',
+              l10n.addFamilyMember,
               style: TextStyle(
                 color: Colors.grey[600],
                 fontWeight: FontWeight.w500,

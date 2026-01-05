@@ -23,6 +23,7 @@ class _NotificationSettingsScreenState
   bool _fireAlerts = true;
   bool _landslideAlerts = true;
   bool _weatherWarnings = true;
+  late AppLocalizations _l10n;
 
   @override
   void initState() {
@@ -184,7 +185,7 @@ class _NotificationSettingsScreenState
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    _l10n = AppLocalizations.of(context)!;
     final primaryGreen = Color(0xFF0E9D63);
 
     return Scaffold(
@@ -192,7 +193,7 @@ class _NotificationSettingsScreenState
       appBar: AppBar(
         backgroundColor: primaryGreen,
         title: Text(
-          l10n.notificationSettings,
+          _l10n.notificationSettings,
           style: TextStyle(color: Colors.white),
         ),
         leading: IconButton(
@@ -214,7 +215,7 @@ class _NotificationSettingsScreenState
 
               // Alert Types Section
               Text(
-                'Alert Types',
+                _l10n.alertTypes,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -226,8 +227,8 @@ class _NotificationSettingsScreenState
 
               // Flood Alerts
               _buildAlertToggle(
-                'Flood Warnings',
-                'Heavy rainfall & flood alerts',
+                _l10n.floodWarnings,
+                _l10n.floodWarningsDesc,
                 _floodAlerts,
                 (value) {
                   setState(() => _floodAlerts = value);
@@ -239,8 +240,8 @@ class _NotificationSettingsScreenState
 
               // Fire Alerts
               _buildAlertToggle(
-                'Fire Alerts',
-                'Fire incidents in your area',
+                _l10n.fireAlerts,
+                _l10n.fireIncidents,
                 _fireAlerts,
                 (value) {
                   setState(() => _fireAlerts = value);
@@ -252,8 +253,8 @@ class _NotificationSettingsScreenState
 
               // Landslide Alerts
               _buildAlertToggle(
-                'Landslide Warnings',
-                'Landslide risk notifications',
+                _l10n.landslideWarnings,
+                _l10n.landslideRisk,
                 _landslideAlerts,
                 (value) {
                   setState(() => _landslideAlerts = value);
@@ -265,8 +266,8 @@ class _NotificationSettingsScreenState
 
               // Weather Warnings
               _buildAlertToggle(
-                'Weather Warnings',
-                'Severe weather updates',
+                _l10n.weatherWarnings,
+                _l10n.severeWeatherUpdates,
                 _weatherWarnings,
                 (value) {
                   setState(() => _weatherWarnings = value);
@@ -286,7 +287,7 @@ class _NotificationSettingsScreenState
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Recent Notifications',
+                    _l10n.recentNotifications,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -306,7 +307,7 @@ class _NotificationSettingsScreenState
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            '${provider.unreadCount} new',
+                            _l10n.newNotifications(provider.unreadCount),
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 11,
@@ -347,7 +348,7 @@ class _NotificationSettingsScreenState
                             ),
                             SizedBox(height: 12),
                             Text(
-                              'No notifications yet',
+                              _l10n.noNotificationsYet,
                               style: TextStyle(
                                 color: Colors.grey.shade600,
                                 fontSize: 14,
@@ -404,12 +405,12 @@ class _NotificationSettingsScreenState
                           showDialog(
                             context: context,
                             builder: (context) => AlertDialog(
-                              title: Text('Clear All Notifications?'),
-                              content: Text('This action cannot be undone.'),
+                              title: Text(_l10n.clearAllNotificationsTitle),
+                              content: Text(_l10n.clearAllNotificationsDesc),
                               actions: [
                                 TextButton(
                                   onPressed: () => Navigator.pop(context),
-                                  child: Text('Cancel'),
+                                  child: Text(_l10n.cancel),
                                 ),
                                 TextButton(
                                   onPressed: () {
@@ -420,7 +421,7 @@ class _NotificationSettingsScreenState
                                     Navigator.pop(context);
                                   },
                                   child: Text(
-                                    'Clear All',
+                                    _l10n.clearAll,
                                     style: TextStyle(color: Colors.red),
                                   ),
                                 ),
@@ -436,7 +437,7 @@ class _NotificationSettingsScreenState
                           ),
                         ),
                         child: Text(
-                          'Clear All Notifications',
+                          _l10n.clearAllNotifications,
                           style: TextStyle(
                             color: Colors.red.shade600,
                             fontWeight: FontWeight.w500,
@@ -465,7 +466,7 @@ class _NotificationSettingsScreenState
                     ),
                   ),
                   child: Text(
-                    'Back',
+                    _l10n.back,
                     style: TextStyle(fontWeight: FontWeight.w500),
                   ),
                 ),
@@ -512,7 +513,7 @@ class _NotificationSettingsScreenState
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Telegram Alerts',
+                              _l10n.telegramAlerts,
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
@@ -522,8 +523,8 @@ class _NotificationSettingsScreenState
                             SizedBox(height: 2),
                             Text(
                               isLinked
-                                  ? 'Connected to @rescuenet_bot'
-                                  : 'Receive alerts via Telegram',
+                                  ? _l10n.connectedToTelegram
+                                  : _l10n.receiveAlertsVia,
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey.shade600,
@@ -573,7 +574,7 @@ class _NotificationSettingsScreenState
               Icon(Icons.check_circle, color: Colors.green, size: 20),
               SizedBox(width: 8),
               Text(
-                'Connected to Telegram',
+                _l10n.linkedToTelegram,
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -606,7 +607,7 @@ class _NotificationSettingsScreenState
                 ),
               ),
               child: Text(
-                'Disconnect Telegram',
+                _l10n.disconnectTelegram,
                 style: TextStyle(fontSize: 12),
               ),
             ),
@@ -632,7 +633,7 @@ class _NotificationSettingsScreenState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Connect your Telegram account to receive instant alerts',
+            _l10n.connectYourTelegramAccount,
             style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
           ),
           SizedBox(height: 10),
@@ -648,7 +649,7 @@ class _NotificationSettingsScreenState
                   borderRadius: BorderRadius.circular(6),
                 ),
               ),
-              child: Text('Connect Telegram', style: TextStyle(fontSize: 12)),
+              child: Text(_l10n.connectTelegram, style: TextStyle(fontSize: 12)),
             ),
           ),
         ],
@@ -678,17 +679,17 @@ class _NotificationSettingsScreenState
 
   /// Show confirmation dialog before unlinking
   void _showUnlinkDialog(TelegramService telegramService) {
+    final l10n = AppLocalizations.of(context)!;
+    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Disconnect Telegram'),
-        content: Text(
-          'Are you sure you want to disconnect your Telegram account? You will stop receiving Telegram alerts.',
-        ),
+        title: Text(_l10n.disconnectConfirmTitle),
+        content: Text(_l10n.disconnectConfirmMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel'),
+            child: Text(_l10n.cancel),
           ),
           TextButton(
             onPressed: () async {
@@ -696,13 +697,13 @@ class _NotificationSettingsScreenState
               await telegramService.unlinkTelegram();
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Telegram account disconnected'),
+                  content: Text(_l10n.telegramDisconnected),
                   backgroundColor: Colors.orange,
                 ),
               );
               setState(() {});
             },
-            child: Text('Disconnect', style: TextStyle(color: Colors.red)),
+            child: Text(_l10n.disconnectTelegram, style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -888,7 +889,7 @@ class _NotificationSettingsScreenState
               GestureDetector(
                 onTap: onRead,
                 child: Text(
-                  'Mark as read',
+                  _l10n.markAsRead,
                   style: TextStyle(
                     fontSize: 10,
                     color: Color(0xFF0E9D63),
@@ -1032,7 +1033,7 @@ class _NotificationSettingsScreenState
               Icon(Icons.science, color: Color(0xFFF57C00), size: 18),
               SizedBox(width: 8),
               Text(
-                'Test Notifications',
+                _l10n.testNotifications,
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -1054,7 +1055,7 @@ class _NotificationSettingsScreenState
                 child: ElevatedButton.icon(
                   onPressed: () => _createTestFloodAlert(),
                   icon: Text('🌧️', style: TextStyle(fontSize: 14)),
-                  label: Text('Flood Alert', style: TextStyle(fontSize: 11)),
+                  label: Text(_l10n.floodAlert, style: TextStyle(fontSize: 11)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF0277BD),
                     foregroundColor: Colors.white,
@@ -1070,7 +1071,7 @@ class _NotificationSettingsScreenState
                 child: ElevatedButton.icon(
                   onPressed: () => _createTestThunderstormAlert(),
                   icon: Text('⛈️', style: TextStyle(fontSize: 14)),
-                  label: Text('Thunderstorm', style: TextStyle(fontSize: 11)),
+                  label: Text(_l10n.thunderstorm, style: TextStyle(fontSize: 11)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF6A1B9A),
                     foregroundColor: Colors.white,
@@ -1168,3 +1169,4 @@ class _NotificationSettingsScreenState
     );
   }
 }
+
