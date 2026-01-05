@@ -2,189 +2,322 @@
 
 Lubok Antu RescueNet (LAR) is a mobile-based emergency and community aid reporting system designed for residents of Lubok Antu and managed by Pusat Khidmat Lubok Antu.
 
-This repository contains two separate projects inside one monorepo:
-```bash
-LubokAntuRescueNet/
-├── frontend/   → Flutter mobile application
-└── backend/    → Laravel REST API
+This repository contains the **Flutter mobile frontend application** with Firebase backend integration. The Laravel backend has been separated into a standalone repository.
+
 ```
+LubokAntuRescueNet/
+├── Lar-Frontend/          → Flutter Mobile Application
+├── Lar-AdminWeb/          → Admin Web Dashboard
+├── firebase-functions/    → Firebase Cloud Functions
+└── documentation/         → Setup guides & architecture
+```
+
+---
 
 ## 🚀 Project Overview
-Mobile App (Flutter)
-Resident Features
 
-Submit Emergency Reports
+### 📱 Mobile App (Flutter)
 
-Submit Aid Requests
+**Resident Features**
+- ✅ Submit Emergency Reports with location & photos
+- ✅ Submit Aid Requests with household details  
+- ✅ View "My Reports" with status tracking
+- ✅ Track Report Status (Submitted → In Progress → Completed)
+- ✅ Browse Bantuan/Aid Programs
+- ✅ AI Chatbot (Gemini API) for assistance
+- ✅ Edit Profile & personal information
+- ✅ Real-time Push Notifications (FCM)
+- ✅ Weather Alerts & location-based warnings
 
-View “My Reports”
+**Admin Features**
+- ✅ View All Reports with filtering
+- ✅ Update Report Status
+- ✅ Add Admin Remarks & notes
+- ✅ Manage Bantuan Programs (CRUD)
+- ✅ Basic Analytics Overview
+- ✅ Manage User Accounts
+- ✅ Telegram Bot notifications
 
-Track Report Status
+### ☁️ Backend Architecture (Firebase)
+- ✅ Firebase Authentication (Email/Password)
+- ✅ Cloud Firestore (Real-time database)
+- ✅ Firebase Cloud Messaging (Push notifications)
+- ✅ Firebase Storage (Image uploads)
+- ✅ Firestore Security Rules (Role-based access control)
 
-View Bantuan/Aid Programs
+---
 
-AI Chatbot (Gemini API)
+## 🛠️ Tech Stack
 
-Edit Profile
+| Layer | Technologies |
+|-------|--------------|
+| **Frontend** | Flutter 3.9.2+, Dart, Provider state management |
+| **Mobile Platforms** | Android, iOS, Web |
+| **Backend** | Firebase (Firestore, Auth, Storage, Messaging) |
+| **APIs** | Google Maps, Gemini, Firebase |
+| **Services** | Location services, Push notifications, Image processing |
 
-Admin Features
+---
 
-View All Reports
+## 📋 Quick Start
 
-Update Status (Submitted → In Progress → Completed)
+### Prerequisites
+- Flutter 3.9.2 or higher
+- Dart SDK
+- Firebase project configured
+- Git
 
-Add Admin Remarks
+### 1️⃣ Clone & Setup
 
-Manage Bantuan Programs
-
-Basic Analytics Overview
-
-Manage User Accounts
-
-## 🖥️ Backend API (Laravel)
-
-REST API for all app functions
-
-Authentication using Laravel Sanctum
-
-CRUD for emergency reports and aid requests
-
-Google Maps coordinate support
-
-Telegram Bot notifications
-
-JSON-based API responses
-
-## 📁 Repository Structure
 ```bash
-LubokAntuRescueNet/
-│
-├── frontend/              # Flutter Mobile App
-│   ├── lib/
-│   ├── android/
-│   ├── ios/
-│   ├── pubspec.yaml
-│   └── ...
-│
-├── backend/               # Laravel REST API
-│   ├── app/
-│   ├── routes/
-│   ├── database/
-│   ├── config/
-│   ├── composer.json
-│   └── ...
-│
-└── README.md
-```
-
-## 🛠️ Setup Instructions
-
-## 🖥️ Laravel Backend Setup
-1. Navigate to backend folder:
-```bash
-cd backend
-```
-
-2. Install dependencies:
-```bash
-composer install
-```
-
-3. Copy .env:
-```bash
-cp .env.example .env
-```
-
-4. Generate app key:
-```bash
-php artisan key:generate
-```
-
-5. Configure database:
-```bash
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=lar_rescuenet
-DB_USERNAME=root
-DB_PASSWORD=
-```
-
-6. Run migrations:
-```bash
-php artisan migrate
-```
-
-7. Start the server:
-```bash
-php artisan serve
-```
-
-## API runs at:
-http://127.0.0.1:8000
-
-🔌 API Integration (Flutter ↔ Laravel)
-Base URL for Android Emulator:
-
-http://10.0.2.2:8000/api <--- This is working for me!
-
-Base URL for Physical Device
-:
-http://YOUR_LOCAL_IP:8000/api <--- Not working for me!
-
-## 📱 Flutter Setup
-1. Navigate to the frontend folder:
-```bash
-cd frontend
-```
-
-2. Install packages:
-```bash
+git clone <repository-url>
+cd "Lubok Antu RescueNet"
+cd Lar-Frontend
 flutter pub get
 ```
 
-3. Run the app:
+### 2️⃣ Configure Firebase
+
+1. Create a Firebase project at [firebase.google.com](https://firebase.google.com)
+2. Download `google-services.json` (Android) and `GoogleService-Info.plist` (iOS)
+3. Place files in the correct directories:
+   - Android: `android/app/google-services.json`
+   - iOS: `ios/Runner/GoogleService-Info.plist`
+4. Update Firebase configuration in `lib/firebase_options.dart`
+
+### 3️⃣ Run the App
+
 ```bash
+# Android
+flutter run -d android
+
+# iOS
+flutter run -d ios
+
+# Web
+flutter run -d chrome
+```
+
+---
+
+## 📁 Project Structure
+
+```
+Lar-Frontend/
+├── lib/
+│   ├── main.dart                    # App entry point
+│   ├── app.dart                     # App configuration
+│   ├── screens/                     # UI screens
+│   │   ├── auth/                   # Login/Register
+│   │   ├── citizen/                # Citizen features
+│   │   ├── admin/                  # Admin features
+│   │   └── ...
+│   ├── providers/                   # State management (Provider pattern)
+│   ├── services/                    # Business logic
+│   │   ├── firebase_service.dart   # Firebase operations
+│   │   ├── api_service.dart        # REST API calls
+│   │   ├── location_service.dart   # GPS & location
+│   │   └── ...
+│   ├── models/                      # Data models
+│   ├── widgets/                     # Reusable UI components
+│   ├── scripts/                     # Utilities (seeding, migrations)
+│   ├── constants/                   # App constants
+│   ├── config/                      # Configuration files
+│   └── utils/                       # Helper functions
+├── assets/                          # Images, icons
+├── pubspec.yaml                     # Dependencies
+└── ...
+```
+
+---
+
+## 🔑 Key Features
+
+### Emergency Reporting
+- Submit emergency incidents with photos
+- Real-time location tracking
+- Map picker for precise location selection
+- Automatic geocoding of addresses
+- Status tracking and admin remarks
+
+### Aid Programs
+- Browse available aid/assistance programs
+- Advanced filtering (category, amount, date range)
+- Search functionality
+- Program eligibility criteria
+- Real-time status updates
+
+### Notifications
+- Real-time push notifications (FCM)
+- Local notification support
+- Notification history
+- Customizable notification preferences
+
+### User Management
+- Email/password authentication via Firebase
+- User profile management
+- Role-based access (Admin vs Resident)
+- Account status tracking
+
+### Location Services
+- GPS location acquisition
+- Address geocoding/reverse-geocoding
+- Interactive map picker
+- Location validation within service area
+
+---
+
+## 🔧 Development Workflow
+
+### Running Tests
+```bash
+# Run all tests
+flutter test
+
+# Run with coverage
+flutter test --coverage
+```
+
+### Code Quality
+```bash
+# Analyze code
+flutter analyze
+
+# Format code
+dart format lib/
+
+# Run linter
+flutter pub run effective_dart:rules
+```
+
+### Build Release APK/APP
+```bash
+# Android APK
+flutter build apk
+
+# Android App Bundle
+flutter build appbundle
+
+# iOS
+flutter build ios
+```
+
+---
+
+## 📚 Documentation
+
+Complete documentation available:
+
+| Document | Purpose |
+|----------|---------|
+| [Firebase Setup Guide](FIREBASE_MIGRATION_GUIDE.md) | Firebase configuration & deployment |
+| [Aid Program System](README_AID_PROGRAM_SYSTEM.md) | Aid programs CRUD operations |
+| [Filtering Guide](FILTERING_REFERENCE_GUIDE.md) | Search & filter implementation |
+| [Notifications Setup](NOTIFICATION_TESTING_GUIDE.md) | Push notifications configuration |
+| [Admin Dashboard](ADMIN_DASHBOARD_SETUP.md) | Web admin interface guide |
+| [Project Analysis](PROJECT_ANALYSIS_STRENGTHS_WEAKNESSES.md) | Complete strengths & weaknesses analysis |
+
+---
+
+## 🔐 Security Considerations
+
+### Current Security Measures
+- ✅ Firebase Authentication with email/password
+- ✅ Firestore Security Rules (role-based access)
+- ✅ Image validation (size, format)
+- ✅ Location bounds validation
+- ✅ Input validation on all forms
+
+### Recommended Improvements
+- 🟡 Add end-to-end encryption for sensitive data
+- 🟡 Implement token refresh mechanism
+- 🟡 Add biometric authentication
+- 🟡 Enhance password complexity requirements
+- 🟡 Add audit logging for admin actions
+
+---
+
+## 🚀 Deployment
+
+### Firebase Deployment
+```bash
+cd firebase-functions
+npm install
+firebase deploy --only functions,firestore:rules
+```
+
+### Flutter App Distribution
+- **Android**: Upload to Google Play Store
+- **iOS**: Upload to Apple App Store
+- **Web**: Deploy to Firebase Hosting or custom server
+
+See [FIREBASE_MIGRATION_GUIDE.md](FIREBASE_MIGRATION_GUIDE.md) for detailed deployment steps.
+
+---
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+**Firebase Connection Fails**
+```bash
+# Clear build cache
+flutter clean
+flutter pub get
 flutter run
 ```
 
-## 🔥 Key API Endpoints
-Authentication
-POST /api/auth/register
-POST /api/auth/login
+**Location Permission Issues**
+- Ensure location permissions are granted in app settings
+- Check location services are enabled on device
+- Review [WEB_LOCATION_FIX.md](WEB_LOCATION_FIX.md) for web-specific fixes
 
-Reports (Resident)
-POST /api/reports/emergency
-POST /api/reports/aid
-GET  /api/reports/my
+**Push Notification Issues**
+- Verify FCM configuration in Firebase Console
+- Check [WEB_FIREBASE_MESSAGING_FIX.md](WEB_FIREBASE_MESSAGING_FIX.md) for web platform issues
+- Ensure service worker is properly configured for web
 
-Admin
-GET  /api/admin/reports
-POST /api/admin/reports/update
+---
 
-## 📌 Tools Used
-Frontend
+## 📊 Project Status
 
-Flutter
+**Current Phase**: Development with Production Features  
+**Overall Rating**: 7/10 - Good foundation with improvement opportunities
 
-Dart
+### Production Readiness
+- 🟢 **Ready for Beta**: Core features functional
+- 🟡 **Needs Review**: Error handling, testing coverage
+- 🔴 **Before Production**: Security audit, comprehensive testing
 
-Provider / Riverpod
+See [PROJECT_ANALYSIS_STRENGTHS_WEAKNESSES.md](PROJECT_ANALYSIS_STRENGTHS_WEAKNESSES.md) for detailed analysis.
 
-Google Maps API
+---
 
-Gemini API
+## 👥 Contributing
 
-Backend
+1. Create a feature branch: `git checkout -b feature/your-feature`
+2. Commit changes: `git commit -m "Add feature description"`
+3. Push to branch: `git push origin feature/your-feature`
+4. Submit a pull request
 
-Laravel
+---
 
-PHP
+## 📝 License
 
-MySQL
+This project is managed by Pusat Khidmat Lubok Antu. For licensing inquiries, contact the project administrator.
 
-Laravel Breeze + Sanctum
+---
 
-Telegram Bot API
+## 📞 Support
 
-Google Maps API
+For issues or questions:
+- Check documentation files in repository
+- Review the [Project Analysis](PROJECT_ANALYSIS_STRENGTHS_WEAKNESSES.md)
+- Submit issues with detailed reproduction steps
+- Contact the development team
+
+---
+
+**Last Updated**: January 5, 2026  
+**Backend Status**: Separated to standalone repository  
+**Frontend Focus**: Flutter mobile + Firebase integration
