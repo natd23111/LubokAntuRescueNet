@@ -18,26 +18,6 @@ LubokAntuRescueNet/
 
 ### 📱 Mobile App (Flutter)
 
-**Resident Features**
-- ✅ Submit Emergency Reports with location & photos
-- ✅ Submit Aid Requests with household details  
-- ✅ View "My Reports" with status tracking
-- ✅ Track Report Status (Submitted → In Progress → Completed)
-- ✅ Browse Bantuan/Aid Programs
-- ✅ AI Chatbot (Gemini API) for assistance
-- ✅ Edit Profile & personal information
-- ✅ Real-time Push Notifications (FCM)
-- ✅ Weather Alerts & location-based warnings
-
-**Admin Features**
-- ✅ View All Reports with filtering
-- ✅ Update Report Status
-- ✅ Add Admin Remarks & notes
-- ✅ Manage Bantuan Programs (CRUD)
-- ✅ Basic Analytics Overview
-- ✅ Manage User Accounts
-- ✅ Telegram Bot notifications
-
 ### ☁️ Backend Architecture (Firebase)
 - ✅ Firebase Authentication (Email/Password)
 - ✅ Cloud Firestore (Real-time database)
