@@ -939,4 +939,27 @@ class NotificationsProvider extends ChangeNotifier {
       print('❌ Error creating weather alert: $e');
     }
   }
+
+  /// Navigate to emergency report details
+  void handleNavigateToEmergencyReport(String reportId) {
+    print('📍 Navigating to emergency report: $reportId');
+    // This will be handled by the global navigation service in main.dart
+  }
+
+  /// Navigate to aid request details
+  void handleNavigateToAidRequest(String requestId) {
+    print('📍 Navigating to aid request: $requestId');
+    // This will be handled by the global navigation service in main.dart
+  }
+
+  /// Navigate to emergency report or aid request based on notification type
+  void handleNotificationNavigation(String notificationId, {String? reportId, String? requestId, String? type}) {
+    print('🎯 Handling notification navigation for: $notificationId (type: $type)');
+    
+    if (requestId != null) {
+      handleNavigateToAidRequest(requestId);
+    } else if (reportId != null) {
+      handleNavigateToEmergencyReport(reportId);
+    }
+  }
 }

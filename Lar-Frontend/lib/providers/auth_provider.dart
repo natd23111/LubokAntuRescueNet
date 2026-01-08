@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../utils/storage_util.dart';
+import '../services/push_notification_service.dart';
 
 class AuthProvider with ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -98,6 +99,12 @@ class AuthProvider with ChangeNotifier {
       if (userCredential.user != null) {
         await _loadUserProfile();
         await StorageUtil.saveToken(userCredential.user!.uid);
+        
+        // Initialize push notifications after successful login
+        print('🔔 Initializing push notifications for logged-in user...');
+        await PushNotificationService.initializePushNotifications();
+        print('✅ Push notifications initialized');
+        
         isLoading = false;
         notifyListeners();
         return true;

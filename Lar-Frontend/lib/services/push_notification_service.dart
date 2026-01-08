@@ -14,6 +14,19 @@ class PushNotificationService {
   static final FlutterLocalNotificationsPlugin _localNotifications =
       FlutterLocalNotificationsPlugin();
 
+  /// Register background message handler at app startup
+  /// This allows notifications to be received even when app is completely closed
+  static Future<void> registerBackgroundHandler() async {
+    // Initialize local notifications (needed for background messages)
+    await _initializeLocalNotifications();
+
+    // Register the background message handler
+    FirebaseMessaging.onBackgroundMessage(
+      _firebaseMessagingBackgroundHandler,
+    );
+    print('✅ Background message handler registered for killed app state');
+  }
+
   static Future<void> initializePushNotifications() async {
     // Initialize local notifications
     await _initializeLocalNotifications();
@@ -43,10 +56,8 @@ class PushNotificationService {
         _handleNotification(message);
       });
 
-      // Handle background messages
-      FirebaseMessaging.onBackgroundMessage(
-        _firebaseMessagingBackgroundHandler,
-      );
+      // Background message handler is already registered at app startup
+      // in registerBackgroundHandler(), so we don't need to register it again
     } else if (settings.authorizationStatus ==
         AuthorizationStatus.provisional) {
       print('⚠️ Push notifications provisional');

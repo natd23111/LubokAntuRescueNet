@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'dart:convert';
 import 'l10n/app_localizations.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
@@ -31,10 +32,11 @@ void main() async {
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // Initialize Firebase Cloud Messaging and local notifications
-  print('🔔 Initializing push notifications...');
-  await PushNotificationService.initializePushNotifications();
-  print('✅ Push notifications initialized');
+  // Register background message handler at startup
+  // This allows notifications to be received even when app is closed
+  print('🔔 Registering background message handler...');
+  await PushNotificationService.registerBackgroundHandler();
+  print('✅ Background message handler registered');
 
   runApp(
     MultiProvider(
@@ -70,8 +72,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final localeProvider = Provider.of<LocaleProvider>(context);
-    return MaterialApp(
+    final localeProvider = Provider.of<LocaleProvider>(context);    final notificationsProvider = Provider.of<NotificationsProvider>(context, listen: false);
+    
+    // Set up the global notification tap handler
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _setupGlobalNotificationHandler(notificationsProvider, context);
+    });
+        return MaterialApp(
       title: 'Lubok Antu RescueNet',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(primarySwatch: Colors.blue),
@@ -124,7 +131,35 @@ class MyApp extends StatelessWidget {
       },
     );
   }
-}
+  static void _setupGlobalNotificationHandler(NotificationsProvider notificationsProvider, BuildContext context) {
+    // This sets up the callback that handles notification taps throughout the app lifecycle
+    notificationsProvider.onNotificationTapped = (String notificationId) {
+      print('🔔 Global notification tap handler: $notificationId');
+      // Parse notification ID to extract reportId/requestId and type
+      try {
+        final Map<String, dynamic>? payloadMap = jsonDecode(notificationId) as Map<String, dynamic>?;
+        if (payloadMap != null) {
+          final reportId = payloadMap['reportId'] ?? payloadMap['report_id'];
+          final requestId = payloadMap['requestId'] ?? payloadMap['request_id'];
+          final reportType = payloadMap['reportType'] ?? payloadMap['report_type'] ?? payloadMap['type'];
+          
+          if (requestId != null) {
+            navigationKey.currentState?.pushNamed(
+              '/view-aid-requests',
+              arguments: {'requestId': requestId},
+            );
+          } else if (reportId != null && reportType != null) {
+            navigationKey.currentState?.pushNamed(
+              '/view-reports',
+              arguments: {'reportType': reportType, 'reportId': reportId},
+            );
+          }
+        }
+      } catch (e) {
+        print('⚠️ Could not parse notification payload: $e');
+      }
+    };
+  }}
 
 class HomeRouter extends StatelessWidget {
   const HomeRouter({super.key});
